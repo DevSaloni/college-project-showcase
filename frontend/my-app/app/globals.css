@@ -1,0 +1,48 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap');
+@import "tailwindcss";
+@import "remixicon/fonts/remixicon.css";
+
+:root {
+	--pv-accent: #FF6B6B; /* coral accent */
+	--pv-accent-2: #FF9A8B; /* lighter coral */
+	--pv-bg-dark: #071426; /* deep navy */
+}
+
+html, body {
+	font-family: 'Poppins', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
+}
+
+/* small helper for dropdown items if needed */
+
+/* Remove default browser styling */
+select {
+  background-color: transparent;
+  color: white;
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+}
+
+/* Dropdown options background */
+select option {
+  background-color: #0f172a; /* dark theme match */
+  color: white;
+}
+
+/* Remove blue focus ring */
+select:focus {
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+/* Selected option color */
+select option:checked {
+  background-color: var(--pv-accent) !important;
+  color: black !important;
+}
+
+/* Remove blue highlight on Windows */
+select option:hover {
+  background-color: var(--pv-accent) !important;
+  color: black !important;
+}
