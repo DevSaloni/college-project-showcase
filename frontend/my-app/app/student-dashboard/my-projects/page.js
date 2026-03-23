@@ -76,40 +76,13 @@ export default function StudentAcademicProjectsPage() {
     .flatMap((sem) => sem.projects)
     .filter((p) => p.status === "Completed").length;
 
-  if (loading) {
-    return (
-      <div className="flex flex-col items-center justify-center min-h-[60vh] gap-6">
-        <div className="relative w-16 h-16">
-          <div className="absolute inset-0 rounded-full border-4 border-white/5 border-t-[var(--pv-accent)] animate-spin" />
-        </div>
-        <p className="text-white/40 text-sm animate-pulse">Loading academic records…</p>
-      </div>
-    );
-  }
 
-  if (error) {
-    return (
-      <div className="max-w-md mx-auto mt-20 p-6 rounded-2xl bg-red-500/10 border border-red-500/20 text-center">
-        <p className="text-red-400 font-bold">{error}</p>
-        <button
-          onClick={() => window.location.reload()}
-          className="mt-4 px-4 py-2 bg-red-500/20 hover:bg-red-500/30 text-red-400 rounded-xl text-xs font-bold transition-all"
-        >
-          Try Again
-        </button>
-      </div>
-    );
-  }
 
   return (
     <div className="max-w-7xl mx-auto space-y-12 pb-20 animate-in fade-in slide-in-from-bottom-4 duration-500">
 
       {/* ── PAGE HEADER ── */}
       <div className="space-y-1">
-        <div className="flex items-center gap-2 text-[var(--pv-accent)] text-xs font-bold uppercase tracking-widest mb-2">
-          <Sparkles size={13} />
-          <span>Academic Dashboard</span>
-        </div>
         <h1 className="text-3xl md:text-4xl font-black text-white tracking-tight">
           My Academic Projects
         </h1>
@@ -304,7 +277,7 @@ function ProjectCard({ project }) {
             View Details
           </Link>
         )}
-        
+
         {project.status === "Active" && (
           <Link
             href="/student-dashboard/project-progress"
@@ -318,11 +291,10 @@ function ProjectCard({ project }) {
         {(project.status === "Pending" || project.status === "Rejected") && (
           <Link
             href="/student-dashboard/proposal"
-            className={`flex-1 flex items-center justify-center p-3 rounded-xl text-[10px] font-bold uppercase tracking-widest transition-all group/btn ${
-              project.status === "Rejected"
-                ? "bg-red-500/10 text-red-400 hover:bg-red-500/20"
-                : "bg-white/5 text-white/40 hover:bg-white/10 hover:text-white"
-            }`}
+            className={`flex-1 flex items-center justify-center p-3 rounded-xl text-[10px] font-bold uppercase tracking-widest transition-all group/btn ${project.status === "Rejected"
+              ? "bg-red-500/10 text-red-400 hover:bg-red-500/20"
+              : "bg-white/5 text-white/40 hover:bg-white/10 hover:text-white"
+              }`}
           >
             <span>{project.status === "Rejected" ? "Edit Proposal" : "Proposal Workspace"}</span>
             <ChevronRight size={14} className="ml-1 group-hover/btn:translate-x-1 transition-transform" />

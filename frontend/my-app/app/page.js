@@ -8,11 +8,11 @@ import Footer from "@/components/Footer";
 export default function Home() {
   return (
     <div>
-      <Herosection/>
-      <FeaturesSection/>
-      <HowItWorks/>
-      <Newsletter/>
-      
+      <Herosection />
+      <FeaturesSection />
+      <HowItWorks />
+      <Newsletter />
+
     </div>
-  );s
+  );
 }

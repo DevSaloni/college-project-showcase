@@ -150,6 +150,7 @@ export const getCurrentProgress = async (req, res) => {
         title: project.title,
         mentorName: project.mentorId?.userId?.name || "Not assigned",
         mentorEmail: project.mentorId?.userId?.email || "—",
+        progressPercent: progress?.progressPercent || 0,
       },
       milestones: progress?.milestones || [],
       progressPercentage: progress?.progressPercent || 0,

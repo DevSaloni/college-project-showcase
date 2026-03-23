@@ -42,14 +42,14 @@ export default function ProjectDetailsPage() {
   const router = useRouter();
 
   const [project, setProject] = useState({
-     _id: "loading",
-     title: "Loading Project Data...",
-     description: "Synchronizing workspace payload...",
-     features: "Fetching Core Mechanics",
-     techStack: "Syncing Architectures",
-     status: "Active",
-     mentor: { name: "Resolving Mentor..." },
-     students: []
+    _id: "loading",
+    title: "Loading Project Data...",
+    description: "Synchronizing workspace payload...",
+    features: "Fetching Core Mechanics",
+    techStack: "Syncing Architectures",
+    status: "Active",
+    mentor: { name: "Resolving Mentor..." },
+    students: []
   });
   const [loading, setLoading] = useState(true);
 
@@ -153,14 +153,6 @@ export default function ProjectDetailsPage() {
   return (
     <div className="max-w-7xl mx-auto space-y-8 pb-20 animate-in fade-in slide-in-from-bottom-4 duration-500">
 
-      {/* ── BACK NAVIGATION ── */}
-      <button
-        onClick={() => router.back()}
-        className="flex items-center gap-2 text-white/40 hover:text-white transition-colors text-sm font-bold mb-2 group"
-      >
-        <ArrowLeft size={16} className="group-hover:-translate-x-1 transition-transform" /> Back to Projects
-      </button>
-
       {/* ── PAGE HEADER ── */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6">
         <div className="space-y-1">
@@ -170,6 +162,13 @@ export default function ProjectDetailsPage() {
           <p className="text-white/40 text-sm">
             {project.title}
           </p>
+          <Link
+            href="/student-dashboard/my-projects"
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-white/5 border border-white/10 text-white text-sm hover:bg-white/10 transition-colors"
+          >
+            <ArrowLeft size={16} />
+            Back to projects
+          </Link>
         </div>
 
         <div className="flex flex-wrap items-center gap-3">
@@ -243,8 +242,8 @@ export default function ProjectDetailsPage() {
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             {[
               { label: "Total Weeks", value: `${project.totalWeeks} Weeks`, icon: CalendarDays, color: "text-[var(--pv-accent)]" },
-              { label: "Start Date", value: project.startDate ? new Date(project.startDate).toLocaleDateString() : 'N/A', icon: CalendarDays, color: "text-blue-400" },
-              { label: "End Date", value: project.endDate ? new Date(project.endDate).toLocaleDateString() : 'N/A', icon: CalendarDays, color: "text-purple-400" },
+              { label: "Start Date", value: project.startDate ? new Date(project.startDate).toLocaleDateString("en-GB", { day: 'numeric', month: 'short', year: 'numeric' }) : 'N/A', icon: CalendarDays, color: "text-blue-400" },
+              { label: "End Date", value: project.endDate ? new Date(project.endDate).toLocaleDateString("en-GB", { day: 'numeric', month: 'short', year: 'numeric' }) : 'N/A', icon: CalendarDays, color: "text-purple-400" },
               { label: "Days Remaining", value: project.status === "Completed" ? "0 Days" : `${calculateRemainingDays()} Days`, icon: Clock, color: "text-amber-400" },
             ].map(({ label, value, icon: Icon, color }) => (
               <div key={label} className="bg-black/20 rounded-xl p-4 border border-white/5">

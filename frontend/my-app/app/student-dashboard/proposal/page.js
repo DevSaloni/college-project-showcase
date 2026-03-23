@@ -31,6 +31,7 @@ import {
 } from "lucide-react";
 import { useApi } from "@/context/ApiContext";
 import { io } from "socket.io-client";
+import { toast } from "react-hot-toast";
 
 export default function StudentProposalWorkspace() {
   const { BASE_URL } = useApi();
@@ -56,7 +57,14 @@ export default function StudentProposalWorkspace() {
     expectedOutcome: "",
   });
 
-  const [group, setGroup] = useState(null);
+  const [group, setGroup] = useState({
+    _id: "loading",
+    groupName: "Loading Workspace...",
+    department: "Synchronizing...",
+    mentorName: "Fetching Routing...",
+    year: "...",
+    semester: "..."
+  });
   const [existingProposal, setExistingProposal] = useState(null);
   const [project, setProject] = useState(null);
 
@@ -204,7 +212,7 @@ export default function StudentProposalWorkspace() {
     const file = e.target.files[0];
     if (!file) return;
     if (file.size > 5 * 1024 * 1024) {
-      alert("File size exceeds 5MB limit.");
+      toast.error("File size exceeds 5MB limit.");
       return;
     }
     setAttachment(file);
@@ -249,9 +257,9 @@ export default function StudentProposalWorkspace() {
         body: JSON.stringify(payload),
       });
       const data = await res.json();
-      if (!res.ok) return alert(data.message);
+      if (!res.ok) return toast.error(data.message);
       setExistingProposal(data);
-      alert("Proposal submitted successfully");
+      toast.success("Proposal submitted successfully");
     } catch (err) {
       console.error(err);
     } finally {
@@ -275,9 +283,9 @@ export default function StudentProposalWorkspace() {
         }
       );
       const data = await res.json();
-      if (!res.ok) return alert(data.message);
+      if (!res.ok) return toast.error(data.message);
       setExistingProposal(data);
-      alert("Proposal updated and re-submitted");
+      toast.success("Proposal updated and re-submitted");
     } catch (err) {
       console.error(err);
     } finally {
@@ -307,7 +315,7 @@ export default function StudentProposalWorkspace() {
         setChatText("");
         removeAttachment();
       } else {
-        alert(data.message || "Error sending message");
+        toast.error(data.message || "Error sending message");
       }
     } catch (err) {
       console.error(err);
@@ -381,18 +389,7 @@ export default function StudentProposalWorkspace() {
     return diffDays > 0 ? diffDays : 0;
   };
 
-  /* ===== LOADING STATE ===== */
-  if (!group) {
-    return (
-      <div className="flex flex-col items-center justify-center min-h-[60vh] gap-6">
-        <div className="relative w-16 h-16">
-          <div className="absolute inset-0 rounded-full border-4 border-white/5 border-t-[var(--pv-accent)] animate-spin" />
-          <div className="absolute inset-2 rounded-full border-4 border-white/5 border-b-[var(--pv-accent-2,#a78bfa)] animate-spin" style={{ animationDirection: "reverse" }} />
-        </div>
-        <p className="text-white/40 text-sm animate-pulse">Loading your workspace…</p>
-      </div>
-    );
-  }
+  // The blocking full page loader was purposefully removed logic here for instantaneous layout rendering
 
   const statusConfig = {
     Approved: {
@@ -497,8 +494,8 @@ export default function StudentProposalWorkspace() {
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             {[
               { label: "Total Weeks", value: `${project.totalWeeks} Weeks`, icon: CalendarDays, color: "text-emerald-400" },
-              { label: "Start Date", value: new Date(project.startDate).toLocaleDateString(), icon: CalendarDays, color: "text-blue-400" },
-              { label: "End Date", value: new Date(project.endDate).toLocaleDateString(), icon: CalendarDays, color: "text-purple-400" },
+              { label: "Start Date", value: new Date(project.startDate).toLocaleDateString("en-GB", { day: 'numeric', month: 'short', year: 'numeric' }), icon: CalendarDays, color: "text-blue-400" },
+              { label: "End Date", value: new Date(project.endDate).toLocaleDateString("en-GB", { day: 'numeric', month: 'short', year: 'numeric' }), icon: CalendarDays, color: "text-purple-400" },
               { label: "Days Remaining", value: `${calculateRemainingDays()} Days`, icon: Clock, color: "text-amber-400" },
             ].map(({ label, value, icon: Icon, color }) => (
               <div key={label} className="bg-black/20 rounded-xl p-4 border border-white/5">

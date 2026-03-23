@@ -27,6 +27,7 @@ import {
   Eye
 } from "lucide-react";
 import { useApi } from "@/context/ApiContext";
+import { toast } from "react-hot-toast";
 
 export default function StudentProfilePage() {
   const { BASE_URL } = useApi();
@@ -125,6 +126,25 @@ export default function StudentProfilePage() {
   };
 
   const handleSave = async () => {
+    // Structural Field Validation Payload Filter
+    if (!form.name?.trim() || !form.email?.trim() || !form.rollNo?.trim() || !form.department?.trim() || !form.year?.trim()) {
+      return toast.error("Please fill in all core fields: Name, Email, Roll No, Department, and Year.");
+    }
+
+    // Phone Validation (10 digits)
+    if (form.phone && !/^\d{10}$/.test(form.phone)) {
+      return toast.error("Phone number must be exactly 10 digits.");
+    }
+
+    // URL Validations
+    const isValidUrl = (str) => {
+      try { new URL(str); return true; } catch { return false; }
+    };
+    if (form.linkedin && !isValidUrl(form.linkedin)) return toast.error("Please enter a valid URL for LinkedIn.");
+    if (form.github && !isValidUrl(form.github)) return toast.error("Please enter a valid URL for GitHub.");
+    if (form.portfolio && !isValidUrl(form.portfolio)) return toast.error("Please enter a valid URL for Portfolio.");
+
+
     setSaving(true);
     setErrorMsg("");
     setSuccessMsg("");
@@ -143,16 +163,15 @@ export default function StudentProfilePage() {
       });
       const data = await res.json();
       if (res.ok) {
-        setSuccessMsg("Profile updated successfully!");
+        toast.success("Profile updated successfully!");
         const updatedStudent = data.student;
         setProfile(updatedStudent);
         setEditMode(false);
-        setTimeout(() => setSuccessMsg(""), 4000);
       } else {
-        setErrorMsg(data.message || "Update failed.");
+        toast.error(data.message || "Update failed.");
       }
     } catch (err) {
-      setErrorMsg("Network error updating profile.");
+      toast.error("Network error updating profile.");
     } finally {
       setSaving(false);
     }
@@ -225,16 +244,7 @@ export default function StudentProfilePage() {
       )}
 
       {/* TOASTS */}
-      {successMsg && (
-        <div className="fixed top-6 right-6 z-50 flex items-center gap-3 px-5 py-3.5 rounded-2xl bg-green-500/15 border border-green-500/30 text-green-400 font-semibold text-sm shadow-2xl backdrop-blur-xl animate-in slide-in-from-top-2 duration-300">
-          <BadgeCheck size={18} /> {successMsg}
-        </div>
-      )}
-      {errorMsg && (
-        <div className="fixed top-6 right-6 z-50 flex items-center gap-3 px-5 py-3.5 rounded-2xl bg-red-500/15 border border-red-500/30 text-red-400 font-semibold text-sm shadow-2xl backdrop-blur-xl">
-          <X size={18} /> {errorMsg}
-        </div>
-      )}
+      {/* Validation messages are handled directly with interactive toasts */}
 
       {/* HERO BANNER */}
       <div className="relative w-full rounded-3xl overflow-hidden mb-0" style={{ minHeight: 220 }}>

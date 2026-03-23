@@ -11,6 +11,7 @@ import {
 } from "lucide-react";
 
 import { useRouter } from "next/navigation";
+import { toast } from "react-hot-toast";
 
 
 // ✅ Admin Sidebar Menu
@@ -37,11 +38,52 @@ export default function AdminSidebar() {
 
   //logout logic 
   const handleLogout = () => {
-    if (confirm("Are you sure you want to logout?")) {
-      localStorage.removeItem("token");
-      localStorage.removeItem("admin");
-      router.push("/");
-    }
+    toast((t) => (
+      <div className="flex flex-col gap-3">
+        <div className="flex items-center gap-3">
+          <div className="p-2 bg-red-500/10 text-red-500 rounded-lg">
+            <LogOut size={16} />
+          </div>
+          <div>
+            <p className="text-sm font-bold text-white">Sign Out?</p>
+            <p className="text-xs text-white/50">Are you sure you want to logout?</p>
+          </div>
+        </div>
+        <div className="flex gap-2">
+          <button
+            onClick={() => {
+              toast.dismiss(t.id);
+              localStorage.removeItem("token");
+              localStorage.removeItem("admin");
+              localStorage.removeItem("userName");
+              localStorage.removeItem("userEmail");
+              localStorage.removeItem("userRole");
+              toast.success("Session ended successfully", { icon: "👋" });
+              router.push("/");
+            }}
+            className="flex-1 py-2 bg-red-500 hover:bg-red-600 text-white rounded-xl text-xs font-bold transition-all shadow-lg shadow-red-500/20"
+          >
+            Logout
+          </button>
+          <button
+            onClick={() => toast.dismiss(t.id)}
+            className="flex-1 py-2 bg-white/5 hover:bg-white/10 text-white/70 border border-white/10 rounded-xl text-xs font-bold transition-all"
+          >
+            Keep me in
+          </button>
+        </div>
+      </div>
+    ), {
+      duration: 5000,
+      style: {
+        background: "#080E1D",
+        color: "#fff",
+        border: "1px solid rgba(255,255,255,0.1)",
+        borderRadius: "20px",
+        padding: "16px",
+        minWidth: "280px"
+      }
+    });
   };
 
   return (

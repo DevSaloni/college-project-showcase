@@ -97,11 +97,7 @@ export default function StudentDashboardOverview() {
     fetchDashboardData();
   }, [BASE_URL]);
 
-  const progressPercentFallback = data.milestones?.length > 0 
-    ? Math.round((data.milestones.filter(m => m.status === "Approved").length / data.milestones.length) * 100) 
-    : 0;
-
-  const currentPercent = data.currentProgress?.progressPercent || progressPercentFallback;
+  const currentPercent = data.currentProgress?.progressPercent || 0;
 
   return (
     <div className="max-w-7xl mx-auto space-y-10 pb-20 animate-in fade-in slide-in-from-bottom-4 duration-500">
@@ -150,7 +146,7 @@ export default function StudentDashboardOverview() {
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
         
         {/* ── LEFT COLUMN ── */}
-        <div className="lg:col-span-8 space-y-8">
+        <div className="lg:col-span-8 xl:col-span-9 space-y-8">
 
           {/* CURRENT DEPLOYMENT (Match Project Progress style) */}
           <div className="bg-white/[0.02] border border-white/10 rounded-3xl overflow-hidden shadow-2xl relative">
@@ -178,29 +174,29 @@ export default function StudentDashboardOverview() {
             <div className="p-4 sm:p-8">
               {loading ? (
                 <div className="py-20 flex flex-col items-center justify-center gap-4 animate-pulse">
-                   <div className="h-16 w-16 bg-[var(--pv-accent)]/10 border border-[var(--pv-accent)]/20 rounded-2xl shadow-xl" />
-                   <div className="h-5 w-48 bg-white/10 rounded-full" />
-                   <div className="h-3 w-32 bg-white/5 rounded-full" />
+                  <div className="h-16 w-16 bg-[var(--pv-accent)]/10 border border-[var(--pv-accent)]/20 rounded-2xl shadow-xl" />
+                  <div className="h-5 w-48 bg-white/10 rounded-full" />
+                  <div className="h-3 w-32 bg-white/5 rounded-full" />
                 </div>
               ) : data.currentProgress ? (
                 <div className="bg-white/[0.03] border border-white/10 rounded-3xl p-6 md:p-8 relative overflow-hidden group hover:border-white/20 transition-all shadow-lg text-left">
                   <div className="absolute top-0 right-0 w-64 h-64 rounded-full blur-[80px] -z-10 bg-[var(--pv-accent)]/5 group-hover:bg-[var(--pv-accent)]/15 transition-colors duration-700" />
-                  
+
                   <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-8">
                     <div className="flex flex-col sm:flex-row items-start sm:items-center gap-5">
                       <div className="p-3.5 rounded-2xl bg-[var(--pv-accent)]/10 border border-[var(--pv-accent)]/20 text-[var(--pv-accent)] shadow-xl shrink-0">
                         <Zap size={28} />
                       </div>
-                      <div>
-                        <h3 className="text-2xl font-black text-white tracking-tight mb-2 leading-none">
+                      <div className="flex-1 min-w-0">
+                        <h3 className="text-2xl font-black text-white tracking-tight mb-2 leading-tight break-words line-clamp-2">
                           {data.currentProgress.title}
                         </h3>
-                        <p className="text-white/60 text-sm font-semibold flex items-center gap-2">
-                          <GraduationCap size={16} /> Mentor: {data.currentProgress.mentorName || "Unassigned"}
+                        <p className="text-white/60 text-sm font-semibold flex items-center gap-2 truncate">
+                          <GraduationCap size={16} className="shrink-0" /> Mentor: {data.currentProgress.mentorName || "Unassigned"}
                         </p>
                       </div>
                     </div>
-                    
+
                     <div className="flex flex-col items-start md:items-end gap-1 shrink-0 bg-black/20 p-4 rounded-2xl border border-white/5 shadow-inner min-w-[140px]">
                       <span className="text-[10px] font-bold uppercase tracking-wider text-white/40 mb-1">
                         Completion Progress
@@ -215,30 +211,30 @@ export default function StudentDashboardOverview() {
                   </div>
 
                   <div className="flex items-center gap-4 relative z-10 w-full mb-8">
-                      <div className="flex-1 h-3 bg-black/40 rounded-full overflow-hidden border border-white/5 shadow-inner">
-                          <div className="h-full bg-gradient-to-r from-[#FF9A8B] to-[var(--pv-accent)] transition-all duration-1000 relative" style={{ width: `${currentPercent}%` }}>
-                            <div className="absolute top-0 right-0 bottom-0 w-20 bg-white/20 blur-sm" />
-                          </div>
+                    <div className="flex-1 h-3 bg-black/40 rounded-full overflow-hidden border border-white/5 shadow-inner">
+                      <div className="h-full bg-gradient-to-r from-[#FF9A8B] to-[var(--pv-accent)] transition-all duration-1000 relative" style={{ width: `${currentPercent}%` }}>
+                        <div className="absolute top-0 right-0 bottom-0 w-20 bg-white/20 blur-sm" />
                       </div>
+                    </div>
                   </div>
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                     {[
-                        { label: "Approved Milestones", value: `${data.milestones.filter(m => m.status === 'Approved').length} / ${data.milestones.length || 0}`, icon: Target, color: "text-emerald-400", bg: "bg-emerald-500/10", border: "border-emerald-500/20" },
-                        { label: "Pending Reviews", value: data.milestones.filter(m => m.status === 'Pending').length, icon: Clock, color: "text-amber-400", bg: "bg-amber-500/10", border: "border-amber-500/20" },
-                        { label: "Next Deadline", value: `Week ${data.milestones.length + 1}`, icon: Calendar, color: "text-purple-400", bg: "bg-purple-500/10", border: "border-purple-500/20" },
-                        { label: "Latest Activity", value: "Progress Sync", icon: Sparkles, color: "text-blue-400", bg: "bg-blue-500/10", border: "border-blue-500/20" }
-                     ].map((stat, idx) => (
-                        <div key={idx} className="bg-black/20 rounded-2xl p-4 border border-white/5 shadow-md flex items-start gap-4 hover:bg-black/40 transition-colors">
-                          <div className={`p-2 rounded-xl ${stat.bg} ${stat.border} ${stat.color} shrink-0`}>
-                            <stat.icon size={16} />
-                          </div>
-                          <div>
-                            <p className="text-[9px] uppercase tracking-wider font-bold text-white/50 mb-1">{stat.label}</p>
-                            <p className={`font-bold text-sm ${stat.color}`}>{stat.value}</p>
-                          </div>
+                    {[
+                      { label: "Approved Milestones", value: `${data.milestones.filter(m => m.status === 'Approved').length} / ${data.milestones.length || 0}`, icon: Target, color: "text-emerald-400", bg: "bg-emerald-500/10", border: "border-emerald-500/20" },
+                      { label: "Pending Reviews", value: data.milestones.filter(m => m.status === 'Pending').length, icon: Clock, color: "text-amber-400", bg: "bg-amber-500/10", border: "border-amber-500/20" },
+                      { label: "Next Deadline", value: `Week ${data.milestones.length + 1}`, icon: Calendar, color: "text-purple-400", bg: "bg-purple-500/10", border: "border-purple-500/20" },
+                      { label: "Latest Activity", value: "Progress Sync", icon: Sparkles, color: "text-blue-400", bg: "bg-blue-500/10", border: "border-blue-500/20" }
+                    ].map((stat, idx) => (
+                      <div key={idx} className="bg-black/20 rounded-2xl p-4 border border-white/5 shadow-md flex items-start gap-4 hover:bg-black/40 transition-colors">
+                        <div className={`p-2 rounded-xl ${stat.bg} ${stat.border} ${stat.color} shrink-0`}>
+                          <stat.icon size={16} />
                         </div>
-                     ))}
+                        <div>
+                          <p className="text-[9px] uppercase tracking-wider font-bold text-white/50 mb-1">{stat.label}</p>
+                          <p className={`font-bold text-sm ${stat.color}`}>{stat.value}</p>
+                        </div>
+                      </div>
+                    ))}
                   </div>
                 </div>
               ) : (
@@ -272,11 +268,11 @@ export default function StudentDashboardOverview() {
         </div>
 
         {/* ── RIGHT COLUMN ── */}
-        <div className="lg:col-span-4 space-y-8 lg:sticky lg:top-8 self-start">
-          
+        <div className="lg:col-span-4 xl:col-span-3 space-y-8 lg:sticky lg:top-8 self-start">
+
           <div className="bg-white/[0.02] border border-white/10 rounded-3xl overflow-hidden shadow-2xl relative">
             <div className="absolute top-0 right-0 w-48 h-48 bg-emerald-500/5 rounded-full blur-[80px] -z-10" />
-            
+
             <div className="px-6 py-5 border-b border-white/10 bg-white/[0.02] flex items-center gap-3">
               <div className="p-2 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400">
                 <ShieldCheck size={18} />
@@ -290,36 +286,34 @@ export default function StudentDashboardOverview() {
             <div className="p-6">
               {loading ? (
                 <div className="space-y-4">
-                   {[1,2,3,4].map(k => (
-                       <div key={k} className="h-16 w-full bg-white/[0.03] border border-white/5 rounded-2xl animate-pulse" />
-                   ))}
+                  {[1, 2, 3, 4].map(k => (
+                    <div key={k} className="h-16 w-full bg-white/[0.03] border border-white/5 rounded-2xl animate-pulse" />
+                  ))}
                 </div>
               ) : data.milestones.length === 0 ? (
                 <div className="text-center py-10 opacity-50">
-                   <Activity size={32} className="mx-auto mb-3 text-white/40" />
-                   <p className="text-white/60 text-sm font-semibold">No recent milestones found.</p>
+                  <Activity size={32} className="mx-auto mb-3 text-white/40" />
+                  <p className="text-white/60 text-sm font-semibold">No recent milestones found.</p>
                 </div>
               ) : (
                 <div className="space-y-4">
                   {data.milestones.slice(-4).reverse().map((ms, i) => (
                     <Link href="/student-dashboard/project-progress" key={i} className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 rounded-2xl bg-white/[0.03] border border-white/5 hover:bg-white/[0.05] hover:scale-[1.02] transition-all group cursor-pointer shadow-md">
                       <div className="flex items-start sm:items-center gap-4">
-                        <div className={`p-2 rounded-xl border shrink-0 ${
-                          ms.status === 'Approved' ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-400' :
+                        <div className={`p-2 rounded-xl border shrink-0 ${ms.status === 'Approved' ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-400' :
                           ms.status === 'Pending' ? 'bg-amber-500/10 border-amber-500/20 text-amber-400' :
-                          'bg-red-500/10 border-red-500/20 text-red-400'
-                        }`}>
+                            'bg-red-500/10 border-red-500/20 text-red-400'
+                          }`}>
                           {ms.status === 'Approved' ? <CheckCircle2 size={16} /> :
-                           ms.status === 'Pending' ? <Clock size={16} /> : <AlertTriangle size={16} />}
+                            ms.status === 'Pending' ? <Clock size={16} /> : <AlertTriangle size={16} />}
                         </div>
                         <div>
                           <p className="text-white font-bold text-sm group-hover:text-[var(--pv-accent)] transition-colors">
                             Week {ms.week} Progress
                           </p>
-                          <p className={`text-[10px] font-bold uppercase tracking-wider mt-1 ${
-                            ms.status === 'Approved' ? 'text-emerald-400' :
+                          <p className={`text-[10px] font-bold uppercase tracking-wider mt-1 ${ms.status === 'Approved' ? 'text-emerald-400' :
                             ms.status === 'Pending' ? 'text-amber-400' : 'text-red-400'
-                          }`}>
+                            }`}>
                             {ms.status}
                           </p>
                         </div>
@@ -332,7 +326,7 @@ export default function StudentDashboardOverview() {
                 </div>
               )}
             </div>
-            
+
             {!loading && data.milestones.length > 4 && (
               <div className="p-4 border-t border-white/10 bg-white/[0.01]">
                 <Link href="/student-dashboard/project-progress" className="block text-center text-[10px] font-bold uppercase tracking-widest text-white/40 hover:text-white transition-colors">
@@ -341,7 +335,7 @@ export default function StudentDashboardOverview() {
               </div>
             )}
           </div>
-          
+
         </div>
 
       </div>
