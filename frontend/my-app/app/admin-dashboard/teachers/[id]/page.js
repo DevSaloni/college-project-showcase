@@ -125,19 +125,8 @@ export default function TeacherDetails() {
 
   /* ================= LOADING ================= */
 
-  if (loading) {
-    return (
-      <div className="flex flex-col items-center justify-center py-32 gap-6">
-        <div className="relative w-16 h-16">
-          <div className="absolute inset-0 rounded-full border-4 border-white/5 border-t-[var(--pv-accent)] animate-spin"></div>
-          <div className="absolute inset-2 rounded-full border-4 border-white/5 border-b-[var(--pv-accent-2)] animate-spin-slow"></div>
-        </div>
-        <p className="text-white/60 font-medium tracking-wide animate-pulse">Loading teacher profile...</p>
-      </div>
-    );
-  }
 
-  if (!data) return (
+  if (!loading && !data) return (
     <div className="flex flex-col items-center justify-center py-20 gap-4">
       <div className="w-16 h-16 rounded-full bg-red-500/10 flex items-center justify-center border border-red-500/20">
         <User className="text-red-400" size={24} />
@@ -151,7 +140,10 @@ export default function TeacherDetails() {
     </div>
   );
 
-  const { teacher, groupsAssigned, studentsCount, groups } = data;
+  const teacher = data?.teacher;
+  const groupsAssigned = data?.groupsAssigned || 0;
+  const studentsCount = data?.studentsCount || 0;
+  const groups = data?.groups || [];
 
   return (
     <div className="space-y-8 relative pb-20">
@@ -165,9 +157,9 @@ export default function TeacherDetails() {
         <div className="relative p-6 md:p-10 flex flex-col md:flex-row justify-between items-start md:items-center gap-8 z-10">
           <div className="flex flex-col sm:flex-row items-center sm:items-start md:items-center gap-6 md:gap-8 w-full">
             <div className="relative h-28 w-28 md:h-32 md:w-32 rounded-full overflow-hidden bg-white/5 border-4 border-white/10 flex-shrink-0 flex items-center justify-center shadow-[0_0_30px_rgba(255,255,255,0.05)]">
-              {teacher.image ? (
+              {teacher?.image ? (
                 <img
-                  src={`${BASE_URL}${teacher.image}`}
+                  src={`${BASE_URL}${teacher?.image}`}
                   alt="mentor"
                   className="h-full w-full object-cover"
                 />
@@ -175,26 +167,26 @@ export default function TeacherDetails() {
                 <User size={50} className="text-white/30" />
               )}
               {/* Status Badge overlay */}
-              <div className={`absolute bottom-0 left-0 right-0 py-1 flex items-center justify-center backdrop-blur-md ${teacher.status === 'Active' ? 'bg-green-500/80' : 'bg-red-500/80'}`}>
-                <span className="text-[10px] font-bold text-white uppercase tracking-wider">{teacher.status || 'Unknown'}</span>
+              <div className={`absolute bottom-0 left-0 right-0 py-1 flex items-center justify-center backdrop-blur-md ${teacher?.status === 'Active' ? 'bg-green-500/80' : 'bg-red-500/80'}`}>
+                <span className="text-[10px] font-bold text-white uppercase tracking-wider">{teacher?.status || 'Unknown'}</span>
               </div>
             </div>
 
             <div className="text-center sm:text-left flex-1">
               <h1 className="text-3xl md:text-5xl font-extrabold text-white tracking-tight flex items-center justify-center sm:justify-start gap-3">
-                {teacher.userId?.name}
-                {teacher.status === 'Active' && (
+                {teacher?.userId?.name}
+                {teacher?.status === 'Active' && (
                   <ShieldCheck size={28} className="text-green-400 hidden sm:block drop-shadow-[0_0_10px_rgba(74,222,128,0.5)]" />
                 )}
               </h1>
               <div className="flex flex-wrap items-center justify-center sm:justify-start gap-3 mt-3">
                 <span className="px-3 py-1 rounded-full bg-white/5 border border-white/10 text-white/80 text-sm flex items-center gap-2">
                   <Briefcase size={14} className="text-[var(--pv-accent)]" />
-                  {teacher.designation || "Mentor"}
+                  {teacher?.designation || "Mentor"}
                 </span>
                 <span className="px-3 py-1 rounded-full bg-white/5 border border-white/10 text-white/80 text-sm flex items-center gap-2">
                   <GraduationCap size={14} className="text-[var(--pv-accent)]" />
-                  {teacher.department}
+                  {teacher?.department}
                 </span>
               </div>
             </div>
@@ -223,11 +215,11 @@ export default function TeacherDetails() {
             </h3>
 
             <div className="grid grid-cols-1 gap-4">
-              <Info icon={Mail} label="Email Address" value={teacher.userId?.email} />
-              {teacher.phone && (
-                <Info icon={Phone} label="Phone Number" value={teacher.phone} />
+              <Info icon={Mail} label="Email Address" value={teacher?.userId?.email} />
+              {teacher?.phone && (
+                <Info icon={Phone} label="Phone Number" value={teacher?.phone} />
               )}
-              <Info icon={Calendar} label="Member Since" value={new Date(teacher.createdAt || Date.now()).toLocaleDateString('en-US', { month: 'short', year: 'numeric' })} />
+              <Info icon={Calendar} label="Member Since" value={new Date(teacher?.createdAt || Date.now()).toLocaleDateString('en-US', { month: 'short', year: 'numeric' })} />
             </div>
 
             {/* ACTIONS */}
@@ -241,7 +233,7 @@ export default function TeacherDetails() {
               </button>
 
               <button
-                onClick={() => handleDeleteTeacher(teacher._id)}
+                onClick={() => handleDeleteTeacher(teacher?._id)}
                 disabled={deleteLoading}
                 className="flex items-center justify-center w-full gap-2 px-4 py-3.5 rounded-xl text-sm font-bold text-red-400 border border-red-500/30 hover:bg-red-500/10 hover:border-red-500/50 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
               >
@@ -263,7 +255,7 @@ export default function TeacherDetails() {
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             <StatCard icon={Users} label="Total Students" value={studentsCount} color="text-blue-400" />
             <StatCard icon={Layers} label="Total Groups" value={groupsAssigned} color="text-purple-400" />
-            <StatCard icon={ShieldCheck} label="Account Status" value={teacher.status} color={teacher.status === 'Active' ? 'text-green-400' : 'text-yellow-400'} />
+            <StatCard icon={ShieldCheck} label="Account Status" value={teacher?.status} color={teacher?.status === 'Active' ? 'text-green-400' : 'text-yellow-400'} />
             <StatCard icon={Briefcase} label="Projects" value={groupsAssigned} color="text-orange-400" />
           </div>
 
@@ -280,7 +272,7 @@ export default function TeacherDetails() {
 
               {groups && groups.length > 0 && (
                 <Link
-                  href={`/admin-dashboard/groups/mentor/${teacher._id}`}
+                  href={`/admin-dashboard/groups/mentor/${teacher?._id}`}
                   className="text-sm font-semibold text-white/80 hover:text-white flex items-center gap-1 group bg-white/5 border border-white/10 px-4 py-2.5 rounded-lg hover:bg-white/10 hover:border-white/30 transition-all"
                 >
                   View All Groups <ChevronRight size={16} className="transition-transform group-hover:translate-x-1" />

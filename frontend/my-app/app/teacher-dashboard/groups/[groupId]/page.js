@@ -27,10 +27,16 @@ import {
   Monitor,
   Sparkles,
   ShieldCheck,
-  AlertCircle
+  AlertCircle,
+  ListChecks,
+  Cpu,
+  Star,
+  GraduationCap,
+  BookOpen
 } from "lucide-react";
 
 import { useApi } from "@/context/ApiContext";
+import { toast } from "react-hot-toast";
 
 export default function GroupWorkspacePage() {
   const { BASE_URL } = useApi();
@@ -79,10 +85,10 @@ export default function GroupWorkspacePage() {
           setGroup(data.group);
           setProposal(data.proposal);
           if (data.proposal) {
-             setMentorFeedback(data.proposal.teacherFeedback || "");
+            setMentorFeedback(data.proposal.teacherFeedback || "");
           }
           if (data.project) {
-             setTotalWeeks(data.project.totalWeeks || "");
+            setTotalWeeks(data.project.totalWeeks || "");
           }
         }
 
@@ -105,12 +111,12 @@ export default function GroupWorkspacePage() {
     };
 
     fetchData();
-  }, [groupId]);
+  }, [groupId, BASE_URL]);
 
   const handleStatusUpdate = async () => {
-    if (!approveStatus) return alert("Please select Approve or Reject");
+    if (!approveStatus) return toast.error("Please select Approve or Reject");
     if (approveStatus === "Approved" && (!totalWeeks || totalWeeks <= 0)) {
-      return alert("Please enter a valid project duration (weeks)");
+      return toast.error("Please enter a valid project duration (weeks)");
     }
     setSubmitting(true);
     try {
@@ -128,13 +134,14 @@ export default function GroupWorkspacePage() {
       });
       const data = await res.json();
       if (res.ok) {
-        alert(approveStatus === "Approved" ? "Proposal Approved & Project Created!" : "Proposal Rejected.");
-        window.location.reload();
+        toast.success(approveStatus === "Approved" ? "Proposal Approved & Project Created!" : "Proposal Rejected.");
+        setTimeout(() => window.location.reload(), 1500);
       } else {
-        alert(data.message || "Update failed");
+        toast.error(data.message || "Update failed");
       }
     } catch (err) {
       console.error(err);
+      toast.error("Network error during update");
     } finally {
       setSubmitting(false);
     }
@@ -222,7 +229,7 @@ export default function GroupWorkspacePage() {
   const handleFileChange = (e) => {
     const file = e.target.files[0];
     if (!file) return;
-    if (file.size > 5 * 1024 * 1024) return alert("File size exceeds 5MB limit.");
+    if (file.size > 5 * 1024 * 1024) return toast.error("File size exceeds 5MB limit.");
     setAttachment(file);
     if (file.type.startsWith("image/")) {
       const url = URL.createObjectURL(file);
@@ -279,13 +286,20 @@ export default function GroupWorkspacePage() {
   };
 
   const deleteMessage = async (msgId) => {
-    if (!confirm("Are you sure?")) return;
     try {
-      await fetch(`${BASE_URL}/api/discussions/${msgId}/delete`, {
+      const res = await fetch(`${BASE_URL}/api/discussions/${msgId}/delete`, {
         method: "DELETE",
         headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
       });
-    } catch (err) { console.error(err); }
+      if (res.ok) {
+        toast.success("Message deleted successfully");
+      } else {
+        toast.error("Failed to delete message");
+      }
+    } catch (err) { 
+      console.error(err);
+      toast.error("Network error during deletion");
+    }
   };
 
   const formatMessageDate = (dateString) => {
@@ -296,26 +310,34 @@ export default function GroupWorkspacePage() {
     return isToday ? `Today at ${time}` : `${date.toLocaleDateString()} at ${time}`;
   };
 
-  if (loading) return (
-    <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4">
-      <div className="w-12 h-12 rounded-full border-4 border-white/5 border-t-[var(--pv-accent)] animate-spin" />
-      <p className="text-white/40 text-sm animate-pulse">Loading Workspace...</p>
-    </div>
-  );
+  if (loading) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4 animate-pulse">
+        <div className="w-12 h-12 rounded-full bg-white/5" />
+        <div className="h-4 w-48 bg-white/5 rounded" />
+      </div>
+    );
+  }
 
-  if (!group) return <div className="p-10 text-center text-white/40">❌ Group Not Found</div>;
+  if (!group) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4">
+        <AlertCircle size={48} className="text-red-400/50" />
+        <p className="text-white/40 font-black uppercase tracking-widest text-xs">Group Repository Not Found</p>
+        <button onClick={() => router.back()} className="px-6 py-2 bg-white/5 text-white rounded-xl border border-white/10 hover:bg-white/10 transition-all font-black uppercase tracking-widest text-[10px]">Go Back</button>
+      </div>
+    );
+  }
+
 
   return (
     <div className="max-w-7xl mx-auto space-y-8 pb-20 animate-in fade-in slide-in-from-bottom-4 duration-700">
       {/* ── HEADER ── */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6 border-b border-white/10 pb-8">
         <div className="space-y-1">
-          <div className="flex items-center gap-2 text-[var(--pv-accent)] text-xs font-bold uppercase tracking-widest mb-2">
-            <Users size={13} />
-            <span>Group Management</span>
-          </div>
-          <h1 className="text-3xl md:text-5xl font-black text-white tracking-tight">
-            {group.groupName} <span className="text-transparent bg-clip-text bg-gradient-to-r from-[var(--pv-accent)] to-[var(--pv-accent-2)]">Workspace</span>
+
+          <h1 className="text-3xl md:text-4xl font-extrabold text-white tracking-tight">
+            {group.groupName} Workspace
           </h1>
           <p className="text-white/40 text-sm max-w-lg">
             Monitor group progress, provide feedback, and communicate in real-time.
@@ -329,11 +351,23 @@ export default function GroupWorkspacePage() {
       </div>
 
       {/* ── TOP STATS ── */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <StatCard icon={LayoutIcon} label="Project Title" value={proposal?.title || "No Proposal"} color="text-[var(--pv-accent)]" bg="bg-[var(--pv-accent)]/10" border="border-[var(--pv-accent)]/20" />
-        <StatCard icon={Users} label="Members" value={group.students?.length || 0} color="text-blue-400" bg="bg-blue-500/10" border="border-blue-500/20" />
-        <StatCard icon={CheckCircle} label="Reviews Pending" value={milestones.filter(m => m.status === 'pending').length} color="text-amber-400" bg="bg-amber-500/10" border="border-amber-500/20" />
-        <StatCard icon={Target} label="Approved Milestones" value={milestones.filter(m => m.status === 'approved').length} color="text-emerald-400" bg="bg-emerald-500/10" border="border-emerald-500/20" />
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        {[
+          { icon: LayoutIcon, label: "Project", value: proposal?.title || "No Proposal", color: "text-[var(--pv-accent)]", bg: "bg-[var(--pv-accent)]/10", border: "border-[var(--pv-accent)]/20" },
+          { icon: BookOpen, label: "Dept", value: group.department, color: "text-blue-400", bg: "bg-blue-500/10", border: "border-blue-500/20" },
+          { icon: GraduationCap, label: "Mentor", value: group.mentor?.userId?.name || "Unassigned", color: "text-purple-400", bg: "bg-purple-500/10", border: "border-purple-500/20" },
+          { icon: Users, label: "Year", value: group.year, color: "text-pink-400", bg: "bg-pink-500/10", border: "border-pink-500/20" },
+        ].map(({ icon: Icon, label, value, color, bg, border }) => (
+          <div key={label} className={`flex items-center gap-3 p-4 rounded-2xl border ${bg} ${border} group hover:scale-[1.02] transition-transform duration-200`}>
+            <div className={`p-2 rounded-xl ${bg} border ${border} ${color} shrink-0`}>
+              <Icon size={16} />
+            </div>
+            <div className="min-w-0">
+              <p className="text-white/40 text-[10px] uppercase tracking-wider font-semibold">{label}</p>
+              <p className={`font-bold text-sm truncate ${color}`}>{value || "—"}</p>
+            </div>
+          </div>
+        ))}
       </div>
 
       {/* ── TABS ── */}
@@ -346,8 +380,8 @@ export default function GroupWorkspacePage() {
             key={tab.id}
             onClick={() => setActiveTab(tab.id)}
             className={`flex items-center gap-2.5 px-6 py-3 rounded-xl font-bold text-sm transition-all duration-200 ${activeTab === tab.id
-                ? "bg-[var(--pv-accent)] text-black shadow-lg shadow-[var(--pv-accent)]/20"
-                : "bg-white/[0.05] text-white/60 hover:bg-white/10 hover:text-white border border-white/10"
+              ? "bg-[var(--pv-accent)] text-black shadow-lg shadow-[var(--pv-accent)]/20"
+              : "bg-white/[0.05] text-white/60 hover:bg-white/10 hover:text-white border border-white/10"
               }`}
           >
             <tab.icon size={15} />
@@ -396,7 +430,7 @@ export default function GroupWorkspacePage() {
                     return (
                       <div key={msg._id || i} className={`flex ${isMe ? "justify-end" : "justify-start"} group items-end gap-2.5`}>
                         {!isMe && (
-                          <div className="w-9 h-9 rounded-2xl bg-white/10 border border-white/20 flex items-center justify-center text-xs font-black text-white shrink-0">
+                          <div className="w-9 h-9 rounded-2xl bg-white/10 border border-white/20 flex items-center justify-center text-xs font-black text-white shrink-0 uppercase shadow-inner">
                             {msg.sender?.name?.charAt(0) || "S"}
                           </div>
                         )}
@@ -424,7 +458,7 @@ export default function GroupWorkspacePage() {
                               </div>
                             </div>
                           ) : (
-                            <div className={`px-4 py-3 rounded-2xl text-sm leading-relaxed shadow-md ${msg.isDeleted ? "bg-black/20 text-white/30 italic border border-white/5 rounded-bl-none" : isMe ? "bg-[var(--pv-accent)] text-black font-medium rounded-br-none" : "bg-white/[0.07] text-white rounded-bl-none border border-white/10"}`}>
+                            <div className={`px-4 py-3 rounded-2xl text-sm leading-relaxed shadow-md ${msg.isDeleted ? "bg-black/20 text-white/30 border border-white/5 rounded-bl-none" : isMe ? "bg-[var(--pv-accent)] text-black font-medium rounded-br-none" : "bg-white/[0.07] text-white rounded-bl-none border border-white/10"}`}>
                               {msg.fileUrl && !msg.isDeleted && (
                                 <div className="mb-2">
                                   {msg.fileType?.startsWith("image/") ? (
@@ -432,7 +466,7 @@ export default function GroupWorkspacePage() {
                                       <img src={`${BASE_URL}${msg.fileUrl}`} alt="attachment" className="w-full object-cover" />
                                     </div>
                                   ) : (
-                                    <a href={`${BASE_URL}${msg.fileUrl}`} target="_blank" rel="noopener noreferrer" className={`flex items-center gap-2 p-2.5 rounded-xl border transition-colors ${isMe ? 'bg-black/10 border-black/10 text-black hover:bg-black/20' : 'bg-white/5 border-white/10 text-white/90 hover:bg-white/10'}`}>
+                                    <a href={`${BASE_URL}${msg.fileUrl}`} target="_blank" rel="noopener noreferrer" className={`flex items-center gap-2 p-2.5 rounded-xl border transition-colors ${isMe ? 'bg-black/10 border-black/10 text-white font-bold hover:bg-black/20' : 'bg-white/5 border-white/10 text-white/90 hover:bg-white/10'}`}>
                                       <File size={16} className={isMe ? "opacity-60" : "text-[var(--pv-accent)]"} />
                                       <span className="text-xs font-bold truncate max-w-[150px]">{msg.fileName || "View Attachment"}</span>
                                     </a>
@@ -455,7 +489,7 @@ export default function GroupWorkspacePage() {
                         </div>
 
                         {isMe && (
-                          <div className="w-9 h-9 rounded-2xl bg-[var(--pv-accent)] border border-black/10 flex items-center justify-center text-xs font-black text-black shrink-0 uppercase">
+                          <div className="w-9 h-9 rounded-2xl bg-[var(--pv-accent)] border border-black/10 flex items-center justify-center text-xs font-black text-black shrink-0 uppercase shadow-inner">
                             ME
                           </div>
                         )}
@@ -486,7 +520,7 @@ export default function GroupWorkspacePage() {
                   </div>
                 )}
 
-                <div className="flex items-end gap-4">
+                <div className="flex items-end gap-4 shadow-xl">
                   <label className="shrink-0 w-12 h-12 flex items-center justify-center rounded-2xl bg-white/5 border border-white/10 text-white/40 hover:text-[var(--pv-accent)] hover:border-[var(--pv-accent)]/30 hover:bg-[var(--pv-accent)]/5 transition-all cursor-pointer group active:scale-95 shadow-xl">
                     <input type="file" className="hidden" onChange={handleFileChange} ref={fileInputRef} />
                     <Paperclip size={20} className="transform rotate-45 group-hover:scale-110 transition-transform" />
@@ -503,7 +537,7 @@ export default function GroupWorkspacePage() {
                     onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); sendMessage(); } }}
                     placeholder="Type a message to the group..."
                     rows={1}
-                    className="flex-1 min-h-[48px] max-h-[160px] bg-black/40 border border-white/5 rounded-2xl px-5 py-3.5 text-sm text-white focus:outline-none focus:border-[var(--pv-accent)]/50 transition-all resize-none overflow-y-auto"
+                    className="flex-1 min-h-[48px] max-h-[160px] bg-black/40 border border-white/5 rounded-2xl px-5 py-3.5 text-sm text-white focus:outline-none focus:border-[var(--pv-accent)]/50 transition-all resize-none shadow-inner"
                   />
 
                   <button onClick={sendMessage} className="shrink-0 w-12 h-12 flex items-center justify-center rounded-2xl bg-[var(--pv-accent)] text-black hover:scale-105 active:scale-95 transition-all shadow-[0_0_20px_rgba(255,107,107,0.2)]">
@@ -514,201 +548,190 @@ export default function GroupWorkspacePage() {
             </div>
           )}
 
-          {activeTab === "milestones" && (
-            <div className="bg-white/[0.02] border border-white/10 rounded-3xl p-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
-               <div className="flex items-center gap-3 mb-8">
-                  <div className="p-2 rounded-xl bg-blue-500/10 border border-blue-500/20 text-blue-400">
-                    <Calendar size={18} />
-                  </div>
-                  <div>
-                    <h2 className="text-lg font-bold text-white">Group Milestone Tracker</h2>
-                    <p className="text-white/40 text-xs">Review submissions and provide critical evaluation</p>
-                  </div>
+          {activeTab === "proposal" && (
+            <div className="bg-white/[0.02] border border-white/10 rounded-3xl overflow-hidden shadow-2xl animate-in fade-in slide-in-from-bottom-4 duration-500">
+              {/* Form Header */}
+              <div className="px-8 py-5 border-b border-white/10 bg-white/[0.02] flex items-center gap-3">
+                <div className="p-2 rounded-xl bg-[var(--pv-accent)]/10 border border-[var(--pv-accent)]/20 shadow-inner">
+                  <Target size={18} className="text-[var(--pv-accent)]" />
                 </div>
+                <div>
+                  <p className="text-white font-black tracking-tight">Project Framework</p>
+                  <p className="text-white/40 text-xs">Architectural blueprint submitted by the cohort</p>
+                </div>
+                {proposal && (
+                  <div className={`ml-auto flex items-center gap-2 px-3 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-widest border shadow-inner ${proposal.status === 'Approved' ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' : proposal.status === 'Pending' ? 'bg-amber-500/10 text-amber-400 border-amber-500/20' : 'bg-red-500/10 text-red-400 border-red-500/20'}`}>
+                    <span className={`w-1.5 h-1.5 rounded-full ${proposal.status === 'Approved' ? 'bg-emerald-400' : proposal.status === 'Pending' ? 'bg-amber-400' : 'bg-red-400'} animate-pulse`} />
+                    {proposal.status}
+                  </div>
+                )}
+              </div>
 
-                <div className="space-y-6">
-                  {milestones.length === 0 ? (
-                    <div className="text-center py-20 text-white/20 italic bg-black/20 rounded-2xl border border-dashed border-white/5">No milestones submitted yet.</div>
-                  ) : (
-                    milestones.map((ms, idx) => (
-                      <div key={idx} className="bg-white/[0.02] border border-white/10 rounded-2xl p-6 hover:bg-white/[0.04] transition-all">
-                        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-4">
-                           <div>
-                              <span className="text-[10px] font-black uppercase tracking-widest text-white/30">Week {ms.week}</span>
-                              <h4 className="text-white font-bold text-lg">{ms.title}</h4>
-                           </div>
-                           <div className="flex items-center gap-2">
-                              <span className={`px-3 py-1.5 rounded-lg border text-[10px] font-black uppercase tracking-widest ${ms.status === 'approved' ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-400' : ms.status === 'pending' ? 'bg-amber-500/10 border-amber-500/20 text-amber-400' : 'bg-red-500/10 border-red-500/20 text-red-400'}`}>
-                                {ms.status}
-                              </span>
-                              <Link href={`/teacher-dashboard/reviews/${ms.progressId}/${ms.milestoneId}`} className="p-2 bg-white/5 hover:bg-white/10 rounded-lg text-white/40 hover:text-white transition-all">
-                                <ChevronRight size={18} />
-                              </Link>
-                           </div>
-                        </div>
-                        <div className="flex items-center gap-4 text-xs text-white/50">
-                          <span className="flex items-center gap-1.5"><Clock size={14} /> Submitted: {new Date(ms.submittedAt).toLocaleDateString()}</span>
-                          <span className="flex items-center gap-1.5"><Users size={14} /> By: {ms.studentName}</span>
+              {proposal ? (
+                <div className="p-8 space-y-6">
+                  {/* Title - Full Width */}
+                  <DisplayField
+                    icon={Star}
+                    label="Project Title"
+                    value={proposal.title}
+                    accent
+                  />
+
+                  {/* Two Column Grid */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <DisplayArea
+                      icon={AlertCircle}
+                      label="Problem Statement"
+                      value={proposal.problemStatement}
+                    />
+                    <DisplayArea
+                      icon={FileText}
+                      label="Detailed Description"
+                      value={proposal.description}
+                    />
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <DisplayArea
+                      icon={ListChecks}
+                      label="Key Deliverables"
+                      value={proposal.features}
+                    />
+                    <DisplayArea
+                      icon={Target}
+                      label="Expected Outcome"
+                      value={proposal.expectedOutcome}
+                    />
+                  </div>
+
+                  {/* Tech Stack - Full Width */}
+                  <DisplayField
+                    icon={Cpu}
+                    label="Technology Stack"
+                    value={proposal.techStack}
+                  />
+
+                  {/* Evaluation Portal */}
+                  {proposal.status === "Pending" && (
+                    <div className="pt-8 mt-8 border-t border-white/5 space-y-6">
+                      <div className="flex items-center gap-3">
+                        <ShieldCheck size={24} className="text-[var(--pv-accent)] shadow-xl" />
+                        <div>
+                          <h3 className="text-lg font-black text-white">Evaluation Engine</h3>
+                          <p className="text-white/40 text-xs">Set parameters and provide mentor insights</p>
                         </div>
                       </div>
-                    ))
+
+                      <div className="grid md:grid-cols-2 gap-6">
+                        <div className="space-y-2">
+                          <label className="text-[10px] font-black uppercase tracking-widest text-white/30 flex items-center gap-2"><Clock size={12} /> Target Duration (Weeks)</label>
+                          <input
+                            type="number"
+                            min="1"
+                            value={totalWeeks}
+                            onChange={(e) => setTotalWeeks(e.target.value)}
+                            placeholder="e.g. 12"
+                            className="w-full bg-black/40 border border-white/5 rounded-2xl px-5 py-4 text-sm text-[var(--pv-accent)] font-bold focus:border-[var(--pv-accent)]/50 focus:outline-none transition-all shadow-inner"
+                          />
+                        </div>
+                        <div className="flex items-end gap-3 pb-0.5">
+                          <button
+                            onClick={() => setApproveStatus("Approved")}
+                            className={`flex-1 py-4 rounded-2xl font-black text-[10px] uppercase tracking-widest transition-all ${approveStatus === 'Approved' ? 'bg-emerald-500 text-black shadow-lg shadow-emerald-500/20' : 'bg-white/5 text-white/40 hover:bg-white/10 hover:text-white border border-white/5'}`}
+                          >
+                            Approve
+                          </button>
+                          <button
+                            onClick={() => setApproveStatus("Rejected")}
+                            className={`flex-1 py-4 rounded-2xl font-black text-[10px] uppercase tracking-widest transition-all ${approveStatus === 'Rejected' ? 'bg-red-500 text-white shadow-lg shadow-red-500/20' : 'bg-white/5 text-white/40 hover:bg-white/10 hover:text-white border border-white/5'}`}
+                          >
+                            Reject
+                          </button>
+                        </div>
+                      </div>
+
+                      <div className="space-y-2">
+                        <label className="text-[10px] font-black uppercase tracking-widest text-white/30 flex items-center gap-2"><MessageSquare size={12} /> Critical Feedback</label>
+                        <textarea
+                          rows={4}
+                          value={mentorFeedback}
+                          onChange={(e) => setMentorFeedback(e.target.value)}
+                          placeholder="Constructive feedback to guide the development cycle..."
+                          className="w-full bg-black/40 border border-white/5 rounded-2xl px-5 py-4 text-sm text-white focus:border-[var(--pv-accent)]/50 focus:outline-none transition-all resize-none shadow-inner"
+                        />
+                      </div>
+
+                      <button
+                        onClick={handleStatusUpdate}
+                        disabled={submitting || !approveStatus}
+                        className="w-full py-5 rounded-2xl bg-[var(--pv-accent)] text-black font-black uppercase tracking-[0.1em] text-[11px] hover:scale-[1.01] active:scale-95 transition-all shadow-2xl shadow-[var(--pv-accent)]/20 disabled:opacity-40 disabled:scale-100"
+                      >
+                        {submitting ? "Processing Framework..." : "Confirm Evaluation & Sync"}
+                      </button>
+                    </div>
+                  )}
+
+                  {proposal.status === "Approved" && (
+                    <div className="pt-8 mt-8 border-t border-white/5 p-6 rounded-3xl bg-emerald-500/5 border border-emerald-500/20 flex items-center gap-6 shadow-xl">
+                      <div className="w-16 h-16 rounded-2xl bg-emerald-500/10 flex items-center justify-center text-emerald-400 shadow-inner">
+                        <CheckCircle size={32} />
+                      </div>
+                      <div>
+                        <h4 className="text-emerald-400 font-black uppercase tracking-[0.2em] text-[10px]">Framework Active</h4>
+                        <p className="text-white font-black text-xl tracking-tight">Timeline: {totalWeeks} Sprints (Weeks)</p>
+                        <div className="mt-2 flex items-start gap-2 max-w-lg">
+                          <MessageSquare size={14} className="text-white/20 mt-0.5" />
+                          <p className="text-white/60 text-xs leading-relaxed">"{proposal.teacherFeedback || "No additional feedback synchronized."}"</p>
+                        </div>
+                      </div>
+                    </div>
                   )}
                 </div>
-            </div>
-          )}
-
-          {activeTab === "proposal" && (
-            <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
-               {proposal ? (
-                 <>
-                   <div className="bg-white/[0.02] border border-white/10 rounded-3xl p-8 space-y-8 text-white/80 shadow-xl">
-                      <div className="flex items-center justify-between border-b border-white/5 pb-4">
-                         <div className="flex items-center gap-3">
-                            <div className="w-10 h-10 rounded-2xl bg-[var(--pv-accent)]/10 border border-[var(--pv-accent)]/20 flex items-center justify-center text-[var(--pv-accent)]">
-                               <FileText size={20} />
-                            </div>
-                            <h2 className="text-xl font-black text-white">Proposal Review</h2>
-                         </div>
-                         <div className={`px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest border ${proposal.status === 'Approved' ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' : proposal.status === 'Pending' ? 'bg-amber-500/10 text-amber-400 border-amber-500/20' : 'bg-red-500/10 text-red-400 border-red-500/20'}`}>
-                            {proposal.status}
-                         </div>
-                      </div>
-
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                         <div className="space-y-2">
-                           <label className="text-[10px] font-black uppercase tracking-widest text-white/30">Project Title</label>
-                           <p className="text-white font-bold">{proposal.title}</p>
-                         </div>
-                         <div className="space-y-2">
-                           <label className="text-[10px] font-black uppercase tracking-widest text-white/30">Key Features</label>
-                           <p className="text-sm">{proposal.features || "See description below"}</p>
-                         </div>
-                         <div className="md:col-span-2 space-y-4 pt-4 border-t border-white/5">
-                            <label className="text-[10px] font-black uppercase tracking-widest text-white/30 flex items-center gap-2"><Target size={12}/> Discovery Framework / Statement</label>
-                            <div className="p-6 rounded-2xl bg-black/40 border border-white/5 text-sm leading-relaxed text-white/70 whitespace-pre-wrap italic">
-                               {proposal.description}
-                            </div>
-                         </div>
-                      </div>
-                   </div>
-
-                   {/* APPROVAL LOGIC BOX */}
-                   {proposal.status === "Pending" && (
-                     <div className="bg-white/[0.03] border border-white/10 rounded-3xl p-8 shadow-2xl relative overflow-hidden group">
-                        <div className="absolute top-0 right-0 w-64 h-64 bg-[var(--pv-accent)]/5 rounded-full blur-3xl -z-10" />
-                        
-                        <div className="flex items-center gap-3 mb-8">
-                           <ShieldCheck size={24} className="text-[var(--pv-accent)]" />
-                           <div>
-                              <h3 className="text-xl font-black text-white">Evaluation Portal</h3>
-                              <p className="text-white/40 text-xs">Set duration and provide critical feedback for approval</p>
-                           </div>
-                        </div>
-
-                        <div className="space-y-6">
-                           <div className="grid md:grid-cols-2 gap-6">
-                              <div className="space-y-2">
-                                 <label className="text-[10px] font-black uppercase tracking-widest text-white/40 flex items-center gap-2"><Clock size={12}/> Project Duration (Weeks)</label>
-                                 <input 
-                                   type="number" 
-                                   min="1" 
-                                   value={totalWeeks}
-                                   onChange={(e) => setTotalWeeks(e.target.value)}
-                                   placeholder="e.g. 12" 
-                                   className="w-full bg-black/40 border border-white/10 rounded-2xl px-5 py-3.5 text-sm text-[var(--pv-accent)] font-bold focus:border-[var(--pv-accent)]/50 focus:outline-none transition-all"
-                                 />
-                              </div>
-                              <div className="flex items-end gap-3 pb-0.5">
-                                 <button 
-                                   onClick={() => setApproveStatus("Approved")}
-                                   className={`flex-1 py-3.5 rounded-2xl font-black text-[10px] uppercase tracking-widest transition-all ${approveStatus === 'Approved' ? 'bg-emerald-500 text-black shadow-lg shadow-emerald-500/20' : 'bg-white/5 text-white/40 hover:bg-white/10 hover:text-white border border-white/5'}`}
-                                 >
-                                   Approve
-                                 </button>
-                                 <button 
-                                   onClick={() => setApproveStatus("Rejected")}
-                                   className={`flex-1 py-3.5 rounded-2xl font-black text-[10px] uppercase tracking-widest transition-all ${approveStatus === 'Rejected' ? 'bg-red-500 text-white shadow-lg shadow-red-500/20' : 'bg-white/5 text-white/40 hover:bg-white/10 hover:text-white border border-white/5'}`}
-                                 >
-                                   Reject
-                                 </button>
-                              </div>
-                           </div>
-
-                           <div className="space-y-2">
-                             <label className="text-[10px] font-black uppercase tracking-widest text-white/40 flex items-center gap-2"><MessageSquare size={12}/> Mentor Feedback</label>
-                             <textarea 
-                               rows={4}
-                               value={mentorFeedback}
-                               onChange={(e) => setMentorFeedback(e.target.value)}
-                               placeholder="Provide constructive feedback for the group..."
-                               className="w-full bg-black/40 border border-white/10 rounded-2xl px-5 py-4 text-sm text-white focus:border-[var(--pv-accent)]/50 focus:outline-none transition-all resize-none"
-                             />
-                           </div>
-
-                           <button 
-                             onClick={handleStatusUpdate}
-                             disabled={submitting || !approveStatus}
-                             className="w-full py-4 rounded-2xl bg-[var(--pv-accent)] text-black font-black uppercase tracking-widest text-xs hover:scale-[1.01] active:scale-95 transition-all shadow-xl shadow-[var(--pv-accent)]/10 disabled:opacity-40 disabled:scale-100"
-                           >
-                             {submitting ? "Processing Framework..." : "Confirm Evaluation & Sync"}
-                           </button>
-                        </div>
-                     </div>
-                   )}
-
-                   {proposal.status === "Approved" && (
-                      <div className="p-6 rounded-3xl bg-emerald-500/5 border border-emerald-500/20 flex items-center gap-5">
-                         <div className="w-14 h-14 rounded-2xl bg-emerald-500/10 flex items-center justify-center text-emerald-400">
-                            <CheckCircle size={28} />
-                         </div>
-                         <div>
-                            <h4 className="text-emerald-400 font-bold uppercase tracking-widest text-[10px]">Framework Active</h4>
-                            <p className="text-white font-black text-lg">Project Duration: {totalWeeks} Weeks</p>
-                            <p className="text-white/40 text-xs mt-1 italic">Mentor Feedback: "{proposal.teacherFeedback}"</p>
-                         </div>
-                      </div>
-                   )}
-                 </>
-               ) : (
-                 <div className="text-center py-20 text-white/20 italic bg-black/20 rounded-3xl border border-dashed border-white/10 flex flex-col items-center gap-4">
-                    <AlertCircle size={40} />
-                    <p>No proposal data found for this discovery group.</p>
-                 </div>
-               )}
+              ) : (
+                <div className="text-center py-20 text-white/20 bg-black/20 rounded-3xl border border-dashed border-white/10 flex flex-col items-center gap-4">
+                  <AlertCircle size={40} />
+                  <p className="font-bold uppercase tracking-widest text-xs">No discovery proposal found</p>
+                </div>
+              )}
             </div>
           )}
         </div>
 
         {/* ── RIGHT COLUMN ── */}
         <div className="space-y-6">
-          <div className="bg-white/[0.02] border border-white/10 rounded-3xl p-8 relative overflow-hidden group">
+          <div className="bg-white/[0.02] border border-white/10 rounded-3xl p-8 relative overflow-hidden group shadow-2xl">
             <div className="absolute top-0 right-0 w-32 h-32 bg-[var(--pv-accent)]/5 rounded-full blur-2xl -z-10 group-hover:bg-[var(--pv-accent)]/10 transition-colors" />
-            <h3 className="text-white font-bold mb-6 flex items-center gap-2">
-              <Sparkles size={16} className="text-[var(--pv-accent)]" />
-              Group Information
+            <h3 className="text-white font-black tracking-tighter text-lg mb-6 flex items-center gap-2">
+              <Sparkles size={18} className="text-[var(--pv-accent)] shadow-xl" />
+              Cohort Metadata
             </h3>
-            <div className="space-y-4">
-               <InfoItem label="Department" value={group.department} />
-               <InfoItem label="Year / Semester" value={`${group.year} / Sem ${group.semester}`} />
-               <InfoItem label="Mentor" value={group.mentorName} />
+            <div className="space-y-5">
+              <InfoItem label="Operational Domain" value={group.department} />
+              <InfoItem label="Academic Phase" value={group.year} />
+              <InfoItem label="Appointed Mentor" value={group.mentor?.userId?.name || "Unassigned"} />
             </div>
           </div>
 
-          <div className="bg-gradient-to-br from-blue-500/10 to-indigo-500/5 border border-blue-500/20 rounded-3xl p-8 group">
-            <h3 className="text-white font-bold mb-4 flex items-center gap-2">
-              <Users size={18} className="text-blue-400" />
-              Team Members
+          <div className="bg-gradient-to-br from-blue-500/10 to-indigo-500/5 border border-blue-500/20 rounded-3xl p-8 group shadow-2xl">
+            <h3 className="text-white font-black tracking-tighter text-lg mb-6 flex items-center gap-2">
+              <Users size={20} className="text-blue-400 shadow-xl" />
+              Contributor Team
             </h3>
             <div className="space-y-3">
               {group.students?.map((s, i) => (
-                <div key={i} className="flex items-center gap-3 p-3 bg-white/5 border border-white/10 rounded-xl">
-                  <div className="w-8 h-8 rounded-lg bg-blue-500/20 text-blue-400 flex items-center justify-center font-bold text-xs uppercase">{s.name?.charAt(0)}</div>
+                <div key={i} className="flex items-center gap-3 p-4 bg-white/5 border border-white/5 rounded-2xl hover:bg-white/10 transition-all shadow-md group/student">
+                  <div className="w-10 h-10 rounded-xl bg-blue-500/20 text-blue-400 flex items-center justify-center font-black text-xs uppercase shadow-inner group-hover/student:scale-110 transition-transform">
+                    {s.userId?.name?.charAt(0) || "S"}
+                  </div>
                   <div className="min-w-0">
-                    <p className="text-sm font-bold text-white truncate">{s.name}</p>
-                    <p className="text-[10px] text-white/40 truncate">{s.email || "Student"}</p>
+                    <p className="text-sm font-black text-white truncate">{s.userId?.name || "Student Name"}</p>
+                    <p className="text-[10px] text-white/30 font-bold uppercase tracking-wider truncate">{s.userId?.email || "contributor@college.edu"}</p>
                   </div>
                 </div>
               ))}
+              {(!group.students || group.students.length === 0) && (
+                <p className="text-white/20 text-[10px] uppercase font-bold text-center tracking-widest py-8">Roster currently empty</p>
+              )}
             </div>
           </div>
         </div>
@@ -717,17 +740,31 @@ export default function GroupWorkspacePage() {
   );
 }
 
-function StatCard({ icon: Icon, label, value, color, bg, border }) {
+/* ── REUSABLE RENDERING COMPONENTS ── */
+
+function DisplayField({ icon: Icon, label, value, accent }) {
   return (
-    <div className={`bg-white/[0.03] border ${border} rounded-3xl p-6 group hover:bg-white/[0.05] transition-all cursor-default`}>
-      <div className="flex justify-between items-start mb-4">
-        <div className={`p-3 rounded-2xl ${bg} ${color} group-hover:scale-110 transition-transform`}>
-          <Icon size={20} />
-        </div>
+    <div className="space-y-2">
+      <label className="text-[10px] font-black uppercase tracking-[0.2em] text-white/30 flex items-center gap-2">
+        <Icon size={12} className={accent ? "text-[var(--pv-accent)]" : "text-white/40"} />
+        {label}
+      </label>
+      <div className={`p-5 rounded-2xl bg-black/40 border-b border-white/5 text-sm font-bold shadow-inner ${accent ? "text-[var(--pv-accent)]" : "text-white"}`}>
+        {value || "Not synchronized (Pending)"}
       </div>
-      <div className="space-y-1 text-left">
-        <p className="text-white/30 text-[10px] uppercase font-bold tracking-widest">{label}</p>
-        <p className="text-lg font-black text-white truncate">{value}</p>
+    </div>
+  );
+}
+
+function DisplayArea({ icon: Icon, label, value }) {
+  return (
+    <div className="space-y-2">
+      <label className="text-[10px] font-black uppercase tracking-[0.2em] text-white/30 flex items-center gap-2">
+        <Icon size={12} className="text-white/40" />
+        {label}
+      </label>
+      <div className="p-5 rounded-2xl bg-black/40 border border-white/5 text-[13px] leading-relaxed text-white/70 whitespace-pre-wrap shadow-inner h-full min-h-[140px]">
+        {value || "Detailed criteria not yet provided in discovery framework."}
       </div>
     </div>
   );
@@ -736,8 +773,8 @@ function StatCard({ icon: Icon, label, value, color, bg, border }) {
 function InfoItem({ label, value }) {
   return (
     <div className="space-y-1">
-      <p className="text-[10px] text-white/30 font-black uppercase tracking-widest">{label}</p>
-      <p className="text-sm text-white/80 font-bold">{value || "—"}</p>
+      <p className="text-[10px] text-white/30 font-black uppercase tracking-[0.2em]">{label}</p>
+      <p className="text-sm text-white font-black tracking-tight">{value || "—"}</p>
     </div>
   );
 }

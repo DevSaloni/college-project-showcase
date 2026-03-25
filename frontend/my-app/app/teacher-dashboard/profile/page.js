@@ -26,6 +26,7 @@ import {
   Award,
 } from "lucide-react";
 import { useApi } from "@/context/ApiContext";
+import { toast } from "react-hot-toast";
 
 export default function TeacherProfilePage() {
   const { BASE_URL } = useApi();
@@ -34,8 +35,6 @@ export default function TeacherProfilePage() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [editMode, setEditMode] = useState(false);
-  const [successMsg, setSuccessMsg] = useState("");
-  const [errorMsg, setErrorMsg] = useState("");
   const [activeTab, setActiveTab] = useState("about");
 
   const [profile, setProfile] = useState(null);
@@ -80,13 +79,13 @@ export default function TeacherProfilePage() {
             github: t.github || "",
             location: t.location || "",
           });
-          if (t.image) setImagePreview(`${BASE_URL}/${t.image}`);
+          if (t.image) setImagePreview(`${BASE_URL}${t.image}`);
         } else {
-          setErrorMsg("Failed to load profile.");
+          toast.error("Failed to load profile.");
         }
       } catch (err) {
         console.error(err);
-        setErrorMsg("Network error fetching profile.");
+        toast.error("Network error fetching profile.");
       } finally {
         setLoading(false);
       }
@@ -102,9 +101,21 @@ export default function TeacherProfilePage() {
   };
 
   const handleSave = async () => {
+    // Validation
+    if (form.phone && !/^\d{10}$/.test(form.phone)) {
+      return toast.error("Phone number must be exactly 10 digits.");
+    }
+    const isValidUrl = (str) => {
+      try { new URL(str); return true; } catch { return false; }
+    };
+    if (form.linkedin && !isValidUrl(form.linkedin)) {
+      return toast.error("Please enter a valid URL for LinkedIn.");
+    }
+    if (form.github && !isValidUrl(form.github)) {
+      return toast.error("Please enter a valid URL for GitHub.");
+    }
+
     setSaving(true);
-    setErrorMsg("");
-    setSuccessMsg("");
     try {
       const token = localStorage.getItem("token");
       const formData = new FormData();
@@ -118,15 +129,14 @@ export default function TeacherProfilePage() {
       });
       const data = await res.json();
       if (res.ok) {
-        setSuccessMsg("Profile updated successfully!");
+        toast.success("Profile updated successfully!");
         setProfile({ ...profile, ...data.teacher });
         setEditMode(false);
-        setTimeout(() => setSuccessMsg(""), 4000);
       } else {
-        setErrorMsg(data.message || "Update failed.");
+        toast.error(data.message || "Update failed.");
       }
     } catch (err) {
-      setErrorMsg("Network error updating profile.");
+      toast.error("Network error updating profile.");
     } finally {
       setSaving(false);
     }
@@ -134,7 +144,6 @@ export default function TeacherProfilePage() {
 
   const handleCancel = () => {
     setEditMode(false);
-    setErrorMsg("");
     if (profile) {
       setForm({
         phone: profile.phone || "",
@@ -148,7 +157,7 @@ export default function TeacherProfilePage() {
         location: profile.location || "",
       });
       setImageFile(null);
-      setImagePreview(profile.image ? `${BASE_URL}/${profile.image}` : "");
+      setImagePreview(profile.image ? `${BASE_URL}${profile.image}` : "");
     }
   };
 
@@ -168,34 +177,9 @@ export default function TeacherProfilePage() {
     { id: "contact", label: "Contact & Links" },
   ];
 
-  /* ─── LOADING ─── */
-  if (loading) {
-    return (
-      <div className="flex flex-col items-center justify-center h-[70vh] gap-6">
-        <div className="relative w-16 h-16">
-          <div className="absolute inset-0 rounded-full border-4 border-white/5 border-t-[var(--pv-accent)] animate-spin" />
-          <div className="absolute inset-2 rounded-full border-4 border-white/5 border-b-[var(--pv-accent-2)] animate-spin" style={{ animationDirection: "reverse" }} />
-        </div>
-        <p className="text-white/50 text-sm tracking-wide animate-pulse">Loading your profile…</p>
-      </div>
-    );
-  }
-
   /* ─── PAGE ─── */
   return (
     <div className="max-w-5xl mx-auto pb-24" style={{ fontFamily: "Poppins, sans-serif" }}>
-
-      {/* ── TOASTS ── */}
-      {successMsg && (
-        <div className="fixed top-6 right-6 z-50 flex items-center gap-3 px-5 py-3.5 rounded-2xl bg-green-500/15 border border-green-500/30 text-green-400 font-semibold text-sm shadow-2xl backdrop-blur-xl animate-in slide-in-from-top-2 duration-300">
-          <BadgeCheck size={18} /> {successMsg}
-        </div>
-      )}
-      {errorMsg && (
-        <div className="fixed top-6 right-6 z-50 flex items-center gap-3 px-5 py-3.5 rounded-2xl bg-red-500/15 border border-red-500/30 text-red-400 font-semibold text-sm shadow-2xl backdrop-blur-xl">
-          <X size={18} /> {errorMsg}
-        </div>
-      )}
 
       {/* ══════════════════════════════════════
           HERO BANNER
@@ -230,8 +214,8 @@ export default function TeacherProfilePage() {
             {/* Avatar */}
             <div className="relative shrink-0 translate-y-12">
               <div
-                className="w-28 h-28 rounded-2xl overflow-hidden shadow-2xl"
-                style={{ border: "3px solid rgba(255,107,107,0.4)", boxShadow: "0 0 40px rgba(255,107,107,0.25)" }}
+                className="w-28 h-28 rounded-2xl overflow-hidden shadow-2xl bg-[#1e293b] border-2 border-white/10"
+                style={{ boxShadow: "0 0 40px rgba(255,107,107,0.25)" }}
               >
                 {imagePreview ? (
                   <img src={imagePreview} alt={name} className="w-full h-full object-cover" />
@@ -268,39 +252,52 @@ export default function TeacherProfilePage() {
             </div>
 
             {/* Name + meta */}
-            <div className="flex-1 pb-5 space-y-1">
-              <div className="flex items-center gap-3 flex-wrap">
-                <h1 className="text-3xl md:text-4xl font-extrabold text-white tracking-tight leading-tight">
-                  {name}
-                </h1>
-                <span
-                  className={`px-3 py-0.5 text-[11px] font-bold rounded-full`}
-                  style={isActive
-                    ? { background: "rgba(74,222,128,0.12)", color: "#4ade80", border: "1px solid rgba(74,222,128,0.25)" }
-                    : { background: "rgba(248,113,113,0.12)", color: "#f87171", border: "1px solid rgba(248,113,113,0.25)" }
-                  }
-                >
-                  {profile?.status}
-                </span>
-              </div>
-              <p className="text-white/50 text-sm font-medium">
-                {profile?.designation}{profile?.designation && profile?.department && " · "}{profile?.department}
-              </p>
-              <div className="flex flex-wrap items-center gap-3 pt-1">
-                <span className="flex items-center gap-1.5 text-xs text-white/40">
-                  <Mail size={12} className="text-[var(--pv-accent)]" /> {email}
-                </span>
-                {form.location && (
-                  <span className="flex items-center gap-1.5 text-xs text-white/40">
-                    <MapPin size={12} className="text-[var(--pv-accent)]" /> {form.location}
-                  </span>
-                )}
-                {form.experience && (
-                  <span className="flex items-center gap-1.5 text-xs text-white/40">
-                    <Clock size={12} className="text-[var(--pv-accent)]" /> {form.experience} experience
-                  </span>
-                )}
-              </div>
+            <div className={`flex-1 pb-5 space-y-1 ${loading ? "animate-pulse" : ""}`}>
+              {loading ? (
+                <div className="space-y-4">
+                  <div className="h-10 w-64 bg-white/10 rounded-xl" />
+                  <div className="h-4 w-48 bg-white/5 rounded" />
+                  <div className="flex gap-3">
+                    <div className="h-4 w-24 bg-white/5 rounded" />
+                    <div className="h-4 w-20 bg-white/5 rounded" />
+                  </div>
+                </div>
+              ) : (
+                <>
+                  <div className="flex items-center gap-3 flex-wrap">
+                    <h1 className="text-3xl md:text-4xl font-extrabold text-white tracking-tight leading-tight">
+                      {name}
+                    </h1>
+                    <span
+                      className={`px-3 py-0.5 text-[11px] font-bold rounded-full`}
+                      style={isActive
+                        ? { background: "rgba(74,222,128,0.12)", color: "#4ade80", border: "1px solid rgba(74,222,128,0.25)" }
+                        : { background: "rgba(248,113,113,0.12)", color: "#f87171", border: "1px solid rgba(248,113,113,0.25)" }
+                      }
+                    >
+                      {profile?.status}
+                    </span>
+                  </div>
+                  <p className="text-white/50 text-sm font-medium">
+                    {profile?.designation}{profile?.designation && profile?.department && " · "}{profile?.department}
+                  </p>
+                  <div className="flex flex-wrap items-center gap-3 pt-1">
+                    <span className="flex items-center gap-1.5 text-xs text-white/40">
+                      <Mail size={12} className="text-[#FF6B6B]" /> {email}
+                    </span>
+                    {form.location && (
+                      <span className="flex items-center gap-1.5 text-xs text-white/40">
+                        <MapPin size={12} className="text-[#FF6B6B]" /> {form.location}
+                      </span>
+                    )}
+                    {form.experience && (
+                      <span className="flex items-center gap-1.5 text-xs text-white/40">
+                        <Clock size={12} className="text-[#FF6B6B]" /> {form.experience} experience
+                      </span>
+                    )}
+                  </div>
+                </>
+              )}
             </div>
 
             {/* Actions */}
@@ -344,9 +341,9 @@ export default function TeacherProfilePage() {
         className="w-full rounded-b-3xl px-10 py-5 flex items-center justify-between gap-4 flex-wrap"
         style={{
           background: "rgba(255,255,255,0.02)",
-          borderLeft: "1px solid rgba(255,255,255,0.07)",
-          borderRight: "1px solid rgba(255,255,255,0.07)",
-          borderBottom: "1px solid rgba(255,255,255,0.07)",
+          borderLeft: "1px solid rgba(255,255,255,0.1)",
+          borderRight: "1px solid rgba(255,255,255,0.1)",
+          borderBottom: "1px solid rgba(255,255,255,0.1)",
         }}
       >
         {/* Left offset for avatar overlap */}
@@ -369,16 +366,12 @@ export default function TeacherProfilePage() {
           TAB NAV
       ══════════════════════════════════════ */}
       <div className="mt-8 mb-6 flex gap-1 p-1 rounded-2xl w-fit"
-        style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.07)" }}>
+        style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.1)" }}>
         {tabs.map((t) => (
           <button
             key={t.id}
             onClick={() => setActiveTab(t.id)}
-            className="px-5 py-2 rounded-xl text-sm font-semibold transition-all duration-200"
-            style={activeTab === t.id
-              ? { background: "linear-gradient(135deg, #FF6B6B22, #FF9A8B11)", color: "#FF6B6B", border: "1px solid rgba(255,107,107,0.25)" }
-              : { color: "rgba(255,255,255,0.4)", border: "1px solid transparent" }
-            }
+            className={`px-5 py-2 rounded-xl text-sm font-semibold transition-all duration-200 ${activeTab === t.id ? 'bg-[#FF6B6B22] text-[#FF6B6B] border border-[#FF6B6B44]' : 'text-white/40 border border-transparent hover:text-white/60'}`}
           >
             {t.label}
           </button>
@@ -389,7 +382,7 @@ export default function TeacherProfilePage() {
           TAB: ABOUT
       ══════════════════════════════════════ */}
       {activeTab === "about" && (
-        <div className="space-y-8">
+        <div className="space-y-8 animate-in fade-in duration-500">
           {/* Bio */}
           <div>
             <SectionLabel>Biography</SectionLabel>
@@ -434,7 +427,7 @@ export default function TeacherProfilePage() {
                 {form.expertise.split(",").map((s, i) => (
                   <span
                     key={i}
-                    className="px-3.5 py-1.5 rounded-xl text-xs font-semibold"
+                    className="px-3.5 py-1.5 rounded-xl text-[11px] font-bold"
                     style={{ background: "rgba(255,107,107,0.1)", color: "#FF9A8B", border: "1px solid rgba(255,107,107,0.2)" }}
                   >
                     {s.trim()}
@@ -468,7 +461,7 @@ export default function TeacherProfilePage() {
                 {form.subjects.split(",").map((s, i) => (
                   <span
                     key={i}
-                    className="px-3.5 py-1.5 rounded-xl text-xs font-semibold"
+                    className="px-3.5 py-1.5 rounded-xl text-[11px] font-bold"
                     style={{ background: "rgba(139,92,246,0.1)", color: "#a78bfa", border: "1px solid rgba(139,92,246,0.2)" }}
                   >
                     {s.trim()}
@@ -486,7 +479,7 @@ export default function TeacherProfilePage() {
           TAB: ACADEMIC
       ══════════════════════════════════════ */}
       {activeTab === "academic" && (
-        <div className="space-y-0 divide-y divide-white/5">
+        <div className="space-y-0 divide-y divide-white/5 animate-in fade-in duration-500">
           <InfoRow
             icon={GraduationCap}
             label="Qualification"
@@ -530,7 +523,7 @@ export default function TeacherProfilePage() {
           TAB: CONTACT & LINKS
       ══════════════════════════════════════ */}
       {activeTab === "contact" && (
-        <div className="grid md:grid-cols-2 gap-8">
+        <div className="grid md:grid-cols-2 gap-8 animate-in fade-in duration-500">
 
           {/* Contact details */}
           <div className="space-y-0 divide-y divide-white/5">
@@ -567,59 +560,20 @@ export default function TeacherProfilePage() {
                     label="LinkedIn"
                     value={form.linkedin}
                     onChange={(v) => setForm({ ...form, linkedin: v })}
-                    placeholder="https://linkedin.com/in/yourprofile"
+                    placeholder="https://linkedin.com/..."
                   />
                   <LinkEditRow
                     icon={Github}
                     label="GitHub"
                     value={form.github}
                     onChange={(v) => setForm({ ...form, github: v })}
-                    placeholder="https://github.com/yourusername"
+                    placeholder="https://github.com/..."
                   />
                 </>
               ) : (
                 <>
-                  {form.linkedin ? (
-                    <a
-                      href={form.linkedin}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="flex items-center gap-3 px-4 py-3.5 rounded-2xl group transition-all hover:scale-[1.01]"
-                      style={{ background: "rgba(59,130,246,0.08)", border: "1px solid rgba(59,130,246,0.2)" }}
-                    >
-                      <div className="p-2 rounded-xl" style={{ background: "rgba(59,130,246,0.15)" }}>
-                        <Linkedin size={16} className="text-blue-400" />
-                      </div>
-                      <div className="flex-1">
-                        <p className="text-sm font-semibold text-white">LinkedIn</p>
-                        <p className="text-xs text-white/35 truncate">{form.linkedin}</p>
-                      </div>
-                      <ExternalLink size={14} className="text-white/30 group-hover:text-blue-400 transition-colors" />
-                    </a>
-                  ) : (
-                    <EmptyLinkCard icon={Linkedin} label="LinkedIn" color="rgba(59,130,246,0.08)" border="rgba(59,130,246,0.15)" />
-                  )}
-
-                  {form.github ? (
-                    <a
-                      href={form.github}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="flex items-center gap-3 px-4 py-3.5 rounded-2xl group transition-all hover:scale-[1.01]"
-                      style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.1)" }}
-                    >
-                      <div className="p-2 rounded-xl" style={{ background: "rgba(255,255,255,0.08)" }}>
-                        <Github size={16} className="text-white/70" />
-                      </div>
-                      <div className="flex-1">
-                        <p className="text-sm font-semibold text-white">GitHub</p>
-                        <p className="text-xs text-white/35 truncate">{form.github}</p>
-                      </div>
-                      <ExternalLink size={14} className="text-white/30 group-hover:text-white/70 transition-colors" />
-                    </a>
-                  ) : (
-                    <EmptyLinkCard icon={Github} label="GitHub" color="rgba(255,255,255,0.04)" border="rgba(255,255,255,0.1)" />
-                  )}
+                  <SocialLink icon={Linkedin} label="LinkedIn" value={form.linkedin} color="rgba(59,130,246,0.08)" iconColor="text-blue-400" />
+                  <SocialLink icon={Github} label="GitHub" value={form.github} color="rgba(255,255,255,0.04)" iconColor="text-white/70" />
                 </>
               )}
             </div>
@@ -636,15 +590,14 @@ export default function TeacherProfilePage() {
 
 function SectionLabel({ children }) {
   return (
-    <p className="text-[11px] font-bold uppercase tracking-widest mb-4"
-      style={{ color: "rgba(255,107,107,0.7)" }}>
+    <p className="text-[10px] font-bold uppercase tracking-[0.2em] mb-4 text-[#FF6B6B]/70">
       {children}
     </p>
   );
 }
 
 function EmptyHint({ children }) {
-  return <span className="text-xs text-white/25 italic">{children}</span>;
+  return <span className="text-xs text-white/20 italic">{children}</span>;
 }
 
 function StatItem({ icon: Icon, value, label, accent }) {
@@ -655,7 +608,7 @@ function StatItem({ icon: Icon, value, label, accent }) {
       </div>
       <div>
         <p className="text-xl font-black text-white leading-none">{value}</p>
-        <p className="text-xs text-white/35 font-medium mt-0.5">{label}</p>
+        <p className="text-[10px] text-white/30 font-bold uppercase tracking-wider mt-1">{label}</p>
       </div>
     </div>
   );
@@ -663,24 +616,23 @@ function StatItem({ icon: Icon, value, label, accent }) {
 
 function InfoRow({ icon: Icon, label, value, editMode, inputValue, onChange, placeholder }) {
   return (
-    <div className="flex items-start gap-4 py-4">
-      <div className="p-2 rounded-xl mt-0.5 shrink-0" style={{ background: "rgba(255,107,107,0.1)" }}>
-        <Icon size={15} style={{ color: "#FF9A8B" }} />
+    <div className="flex items-start gap-4 py-5">
+      <div className="p-2.5 rounded-xl shrink-0 bg-[#FF6B6B08] border border-[#FF6B6B15]">
+        <Icon size={15} className="text-[#FF6B6B]" />
       </div>
       <div className="flex-1">
-        <p className="text-[11px] font-bold uppercase tracking-widest text-white/30 mb-1">{label}</p>
+        <p className="text-[10px] font-bold uppercase tracking-widest text-white/25 mb-1">{label}</p>
         {editMode && onChange ? (
           <input
             type="text"
             value={inputValue}
             onChange={(e) => onChange(e.target.value)}
             placeholder={placeholder}
-            className="w-full px-4 py-2.5 rounded-xl text-white/80 placeholder-white/20 text-sm outline-none transition-all"
-            style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,107,107,0.3)" }}
+            className="w-full px-4 py-2 rounded-xl text-white/80 bg-white/[0.04] border border-white/10 text-sm outline-none transition-all"
           />
         ) : (
-          <p className="text-sm text-white/65">
-            {value || <span className="text-white/25 italic text-xs">Not added yet</span>}
+          <p className="text-sm text-white/70">
+            {value || <span className="text-white/20 italic text-xs">Not added yet</span>}
           </p>
         )}
       </div>
@@ -691,7 +643,7 @@ function InfoRow({ icon: Icon, label, value, editMode, inputValue, onChange, pla
 function LinkEditRow({ icon: Icon, label, value, onChange, placeholder }) {
   return (
     <div className="space-y-1.5">
-      <label className="flex items-center gap-2 text-[11px] font-bold uppercase tracking-widest text-white/30">
+      <label className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest text-white/20">
         <Icon size={11} /> {label}
       </label>
       <input
@@ -699,26 +651,30 @@ function LinkEditRow({ icon: Icon, label, value, onChange, placeholder }) {
         value={value}
         onChange={(e) => onChange(e.target.value)}
         placeholder={placeholder}
-        className="w-full px-4 py-3 rounded-xl text-white/80 placeholder-white/20 text-sm outline-none transition-all"
-        style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,107,107,0.3)" }}
+        className="w-full px-4 py-3 rounded-xl text-white/80 text-sm bg-white/[0.04] border border-white/10 outline-none"
       />
     </div>
   );
 }
 
-function EmptyLinkCard({ icon: Icon, label, color, border }) {
-  return (
-    <div
-      className="flex items-center gap-3 px-4 py-3.5 rounded-2xl opacity-40"
-      style={{ background: color, border: `1px solid ${border}` }}
-    >
-      <div className="p-2 rounded-xl" style={{ background: "rgba(255,255,255,0.08)" }}>
-        <Icon size={16} className="text-white/50" />
-      </div>
+function SocialLink({ icon: Icon, label, value, color, iconColor }) {
+  if (!value) return (
+    <div className="flex items-center gap-3 px-4 py-3.5 rounded-2xl opacity-30 border border-white/5 bg-white/[0.02]">
+      <Icon size={16} className="text-white" />
       <div>
         <p className="text-sm font-semibold text-white">{label}</p>
-        <p className="text-xs text-white/35 italic">Not added yet</p>
+        <p className="text-[10px] text-white/40">Not linked</p>
       </div>
     </div>
+  );
+  return (
+    <a href={value} target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 px-4 py-3.5 rounded-2xl transition-all hover:scale-[1.02] border border-white/10" style={{ background: color }}>
+      <div className={`p-2 rounded-xl bg-white/[0.05] ${iconColor}`}><Icon size={16} /></div>
+      <div className="flex-1">
+        <p className="text-sm font-semibold text-white">{label}</p>
+        <p className="text-[10px] text-white/35 truncate">{value}</p>
+      </div>
+      <ExternalLink size={14} className="text-white/20" />
+    </a>
   );
 }

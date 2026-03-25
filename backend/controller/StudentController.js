@@ -350,6 +350,7 @@ export const getMyAcademicProjects = async (req, res) => {
         title: proposal.title,
         semester: proposal.semester,
         mentorName: proposal.mentorId?.userId?.name || "Not Assigned",
+        mentorId: proposal.mentorId?._id,
         teacherFeedback: proposal.teacherFeedback,
       };
 
@@ -476,6 +477,7 @@ export const getProjectDetails = async (req, res) => {
       semester: proposal?.semester,
       mentorName:
         project.mentorId?.userId?.name || "Not Assigned",
+      mentorId: project.mentorId?._id,
 
       // Overview
       problemStatement: proposal?.problemStatement,

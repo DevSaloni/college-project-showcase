@@ -119,8 +119,8 @@ function StatusBadge({ status }) {
   return (
     <span
       className={`px-3 py-1 rounded-full text-xs font-medium ${isSubmitted
-          ? "bg-green-500/15 text-green-400"
-          : "bg-yellow-500/15 text-yellow-400"
+        ? "bg-green-500/15 text-green-400"
+        : "bg-yellow-500/15 text-yellow-400"
         }`}
     >
       {status || "Pending"}

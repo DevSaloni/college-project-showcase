@@ -234,7 +234,17 @@ function ProjectCard({ project }) {
           </div>
           <div className="min-w-0">
             <p className="text-white/30 text-[9px] uppercase font-bold tracking-widest">Mentor</p>
-            <p className="text-white/80 text-xs font-bold truncate">{project.mentorName || "Not Assigned"}</p>
+            <p className="text-white/80 text-xs font-bold truncate flex items-center gap-2">
+              {project.mentorName || "Not Assigned"}
+              {project.mentorId && (
+                <Link
+                  href={`/student-dashboard/mentor/${project.mentorId}`}
+                  className="text-[var(--pv-accent)] hover:underline text-[9px] font-black uppercase tracking-widest"
+                >
+                  View Profile
+                </Link>
+              )}
+            </p>
           </div>
         </div>
 

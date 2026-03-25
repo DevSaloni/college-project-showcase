@@ -193,6 +193,14 @@ export default function StudentDashboardOverview() {
                         </h3>
                         <p className="text-white/60 text-sm font-semibold flex items-center gap-2 truncate">
                           <GraduationCap size={16} className="shrink-0" /> Mentor: {data.currentProgress.mentorName || "Unassigned"}
+                          {data.currentProgress.mentorId && (
+                            <Link
+                              href={`/student-dashboard/mentor/${data.currentProgress.mentorId}`}
+                              className="text-[var(--pv-accent)] hover:underline text-xs ml-2 font-black uppercase tracking-widest"
+                            >
+                              View Profile
+                            </Link>
+                          )}
                         </p>
                       </div>
                     </div>
@@ -271,15 +279,15 @@ export default function StudentDashboardOverview() {
         <div className="lg:col-span-4 xl:col-span-3 space-y-8 lg:sticky lg:top-8 self-start">
 
           <div className="bg-white/[0.02] border border-white/10 rounded-3xl overflow-hidden shadow-2xl relative">
-            <div className="absolute top-0 right-0 w-48 h-48 bg-emerald-500/5 rounded-full blur-[80px] -z-10" />
+            <div className="absolute top-0 right-0 w-48 h-48 bg-[var(--pv-accent)]/5 rounded-full blur-[80px] -z-10" />
 
             <div className="px-6 py-5 border-b border-white/10 bg-white/[0.02] flex items-center gap-3">
-              <div className="p-2 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400">
-                <ShieldCheck size={18} />
+              <div className="p-2 rounded-xl bg-[var(--pv-accent)]/10 border border-[var(--pv-accent)]/20 text-[var(--pv-accent)]">
+                <Target size={18} />
               </div>
               <div>
-                <p className="text-white text-sm sm:text-base font-bold">Recent Milestones</p>
-                <p className="hidden sm:block text-white/40 text-xs text-left">Your latest synchronization logs</p>
+                <p className="text-white text-sm sm:text-base font-black">Recent Milestones</p>
+                <p className="hidden sm:block text-white/40 text-[10px] uppercase font-black tracking-tighter">Synchronization logs</p>
               </div>
             </div>
 
@@ -293,33 +301,30 @@ export default function StudentDashboardOverview() {
               ) : data.milestones.length === 0 ? (
                 <div className="text-center py-10 opacity-50">
                   <Activity size={32} className="mx-auto mb-3 text-white/40" />
-                  <p className="text-white/60 text-sm font-semibold">No recent milestones found.</p>
+                  <p className="text-white/60 text-xs font-black uppercase tracking-widest text-center">Queue is empty</p>
                 </div>
               ) : (
                 <div className="space-y-4">
-                  {data.milestones.slice(-4).reverse().map((ms, i) => (
-                    <Link href="/student-dashboard/project-progress" key={i} className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 rounded-2xl bg-white/[0.03] border border-white/5 hover:bg-white/[0.05] hover:scale-[1.02] transition-all group cursor-pointer shadow-md">
-                      <div className="flex items-start sm:items-center gap-4">
-                        <div className={`p-2 rounded-xl border shrink-0 ${ms.status === 'Approved' ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-400' :
-                          ms.status === 'Pending' ? 'bg-amber-500/10 border-amber-500/20 text-amber-400' :
-                            'bg-red-500/10 border-red-500/20 text-red-400'
-                          }`}>
-                          {ms.status === 'Approved' ? <CheckCircle2 size={16} /> :
-                            ms.status === 'Pending' ? <Clock size={16} /> : <AlertTriangle size={16} />}
-                        </div>
-                        <div>
-                          <p className="text-white font-bold text-sm group-hover:text-[var(--pv-accent)] transition-colors">
-                            Week {ms.week} Progress
+                  {data.milestones.slice(-5).reverse().map((ms, i) => (
+                    <Link href="/student-dashboard/project-progress" key={i} className="flex flex-col gap-2 p-4 rounded-2xl bg-white/[0.03] border border-white/5 hover:bg-white/[0.05] hover:border-[var(--pv-accent)]/30 transition-all group cursor-pointer shadow-md">
+                      <div className="flex items-center justify-between">
+                        <p className="text-white font-black text-sm group-hover:text-[var(--pv-accent)] transition-colors truncate">
+                          Week {ms.week} Progress
+                        </p>
+                        <ChevronRight size={14} className="text-white/30 group-hover:text-[var(--pv-accent)]" />
+                      </div>
+                      <div className="space-y-1">
+                        <div className="flex items-center justify-between">
+                          <p className="text-[10px] text-white/40 font-black uppercase tracking-wider flex items-center gap-1.5 truncate">
+                            <Clock size={10} /> {new Date(ms.submittedAt).toLocaleDateString()}
                           </p>
-                          <p className={`text-[10px] font-bold uppercase tracking-wider mt-1 ${ms.status === 'Approved' ? 'text-emerald-400' :
-                            ms.status === 'Pending' ? 'text-amber-400' : 'text-red-400'
+                          <span className={`px-2 py-0.5 rounded-md text-[8px] font-black uppercase tracking-widest border ${ms.status === 'Approved' ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' :
+                              ms.status === 'Pending' ? 'bg-amber-500/10 text-amber-400 border-amber-500/20' :
+                                'bg-red-500/10 text-red-400 border-red-500/20'
                             }`}>
                             {ms.status}
-                          </p>
+                          </span>
                         </div>
-                      </div>
-                      <div className="hidden sm:block px-3 py-1 rounded-lg bg-white/5 border border-white/5 self-start sm:self-center">
-                        <ChevronRight size={14} className="text-white/30 group-hover:text-[var(--pv-accent)] transition-colors" />
                       </div>
                     </Link>
                   ))}
@@ -327,10 +332,10 @@ export default function StudentDashboardOverview() {
               )}
             </div>
 
-            {!loading && data.milestones.length > 4 && (
+            {!loading && data.milestones.length > 5 && (
               <div className="p-4 border-t border-white/10 bg-white/[0.01]">
-                <Link href="/student-dashboard/project-progress" className="block text-center text-[10px] font-bold uppercase tracking-widest text-white/40 hover:text-white transition-colors">
-                  View All History
+                <Link href="/student-dashboard/project-progress" className="block text-center text-[10px] font-black uppercase tracking-widest text-white/40 hover:text-white transition-colors">
+                  Open Portal
                 </Link>
               </div>
             )}

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
+import Link from "next/link";
 import {
   CheckCircle2,
   Clock,
@@ -256,7 +257,7 @@ export default function ProjectProgressPage() {
 
   /* ================= ACTIVE ================= */
   const activeMilestone =
-    milestones.find((m) => m.status !== "approved") || {
+    milestones.find((m) => m.status === "rejected") || {
       week: milestones.length + 1,
       title: `Week ${milestones.length + 1} Progress`,
     };
@@ -362,7 +363,17 @@ export default function ProjectProgressPage() {
             </div>
             <div className="min-w-0">
               <p className="text-white/40 text-[10px] uppercase tracking-wider font-semibold">{label}</p>
-              <p className={`font-bold text-sm truncate ${color}`}>{value}</p>
+              <div className="flex items-center gap-2 truncate">
+                <p className={`font-bold text-sm truncate ${color}`}>{value}</p>
+                {label === "Mentor" && value && value !== "Unassigned" && project?.mentorId && (
+                  <Link
+                    href={`/student-dashboard/mentor/${project.mentorId}`}
+                    className="text-[var(--pv-accent)] hover:underline text-[9px] font-black uppercase tracking-widest shrink-0"
+                  >
+                    View Profile
+                  </Link>
+                )}
+              </div>
             </div>
           </div>
         ))}
@@ -378,8 +389,8 @@ export default function ProjectProgressPage() {
             key={id}
             onClick={() => setActiveTab(id)}
             className={`flex items-center gap-2.5 px-6 py-3 rounded-xl font-bold text-sm transition-all duration-200 ${activeTab === id
-                ? "bg-[var(--pv-accent)] text-black shadow-lg shadow-[var(--pv-accent)]/20"
-                : "bg-white/[0.05] text-white/60 hover:bg-white/10 hover:text-white border border-white/10"
+              ? "bg-[var(--pv-accent)] text-black shadow-lg shadow-[var(--pv-accent)]/20"
+              : "bg-white/[0.05] text-white/60 hover:bg-white/10 hover:text-white border border-white/10"
               }`}
           >
             <Icon size={15} />
@@ -572,7 +583,17 @@ export default function ProjectProgressPage() {
                 </div>
                 <div>
                   <p className="text-white font-bold text-sm">Discussion with Mentor</p>
-                  <p className="text-white/40 text-xs">{project?.mentorName || "Mentor"} · Project Progress</p>
+                  <p className="text-white/40 text-xs flex items-center gap-2">
+                    {project?.mentorName || "Mentor"} · Project Progress
+                    {project?.mentorId && (
+                      <Link
+                        href={`/student-dashboard/mentor/${project.mentorId}`}
+                        className="text-[var(--pv-accent)] hover:underline text-[10px] font-black uppercase tracking-widest"
+                      >
+                        View Profile
+                      </Link>
+                    )}
+                  </p>
                 </div>
                 <div className="ml-auto flex items-center gap-2">
                   <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
@@ -622,8 +643,8 @@ export default function ProjectProgressPage() {
                             </div>
                           ) : (
                             <div className={`px-4 py-3 rounded-2xl text-sm leading-relaxed shadow-sm transition-all duration-300 font-medium ${msg.isDeleted ? "bg-black/20 text-white/40 border border-white/5 shadow-none italic" :
-                                isMe ? "bg-[var(--pv-accent)] text-black rounded-br-none shadow-[var(--pv-accent)]/10" :
-                                  "bg-white/[0.08] text-white/90 border border-white/10 rounded-bl-none"
+                              isMe ? "bg-[var(--pv-accent)] text-black rounded-br-none shadow-[var(--pv-accent)]/10" :
+                                "bg-white/[0.08] text-white/90 border border-white/10 rounded-bl-none"
                               }`}>
                               {msg.fileUrl && !msg.isDeleted && (
                                 <div className="mb-3 rounded-xl overflow-hidden border border-black/10 shadow-sm max-w-[200px]">

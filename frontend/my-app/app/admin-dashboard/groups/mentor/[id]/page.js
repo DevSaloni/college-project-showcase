@@ -46,17 +46,6 @@ export default function MentorGroupsPage() {
     fetchGroups();
   }, [id, BASE_URL]);
 
-  if (loading) {
-    return (
-      <div className="flex flex-col items-center justify-center py-32 gap-6 relative z-10">
-        <div className="relative w-16 h-16">
-          <div className="absolute inset-0 rounded-full border-4 border-white/5 border-t-[var(--pv-accent)] animate-spin"></div>
-          <div className="absolute inset-2 rounded-full border-4 border-white/5 border-b-[var(--pv-accent-2)] animate-spin-slow"></div>
-        </div>
-        <p className="text-white/60 font-medium tracking-wide animate-pulse">Loading mentor's groups...</p>
-      </div>
-    );
-  }
 
   return (
     <div className="space-y-10 relative pb-20">

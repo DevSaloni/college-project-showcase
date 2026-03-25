@@ -63,102 +63,91 @@ export default function GroupsPage() {
       </div>
 
       {/* GROUPS GRID */}
-      {loading ? (
-        <div className="flex flex-col items-center justify-center py-20 gap-6 relative z-10 w-full">
-          <div className="relative w-16 h-16">
-            <div className="absolute inset-0 rounded-full border-4 border-white/5 border-t-[var(--pv-accent)] animate-spin"></div>
-            <div className="absolute inset-2 rounded-full border-4 border-white/5 border-b-[var(--pv-accent-2)] animate-spin-slow"></div>
-          </div>
-          <p className="text-white/60 font-medium tracking-wide animate-pulse">Loading groups...</p>
-        </div>
-      ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-[23px]">
-          {groups
-            .filter(
-              (group) =>
-                group.mentor &&
-                group.students &&
-                group.students.length > 0
-            )
-            .map((group) => (
-              <div
-                key={group._id}
-                className="relative p-5 rounded-2xl bg-white/[0.04] border border-white/10 
-              backdrop-blur-lg shadow-lg overflow-hidden
-              hover:bg-white/[0.06] hover:shadow-2xl transition-all duration-300 group"
-              >
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-[23px]">
+        {groups
+          .filter(
+            (group) =>
+              group?.mentor &&
+              group?.students &&
+              group?.students?.length > 0
+          )
+          .map((group) => (
+            <div
+              key={group._id}
+              className="relative p-5 rounded-2xl bg-white/[0.04] border border-white/10 
+            backdrop-blur-lg shadow-lg overflow-hidden
+            hover:bg-white/[0.06] hover:shadow-2xl transition-all duration-300 group"
+            >
 
-                {/* TOP GRADIENT LINE */}
-                <div
-                  className="absolute inset-x-0 top-0 h-[3px] opacity-70"
+              {/* TOP GRADIENT LINE */}
+              <div
+                className="absolute inset-x-0 top-0 h-[3px] opacity-70"
+                style={{
+                  background:
+                    "linear-gradient(90deg,var(--pv-accent),var(--pv-accent-2))",
+                }}
+              />
+
+              {/* HEADER */}
+              <div className="flex justify-between items-start">
+                <div>
+                      <p className="text-white font-semibold text-sm">
+                        {group?.groupName}
+                      </p>
+                      <p className="text-xs text-white/50">
+                        Mentor: {group?.mentor?.userId?.name || "N/A"}
+                      </p>
+                </div>
+
+                <span
+                  className={`px-3 py-1 text-xs rounded-full font-semibold ${group.status === "Active"
+                    ? "bg-green-500/20 text-green-400"
+                    : "bg-yellow-500/20 text-yellow-400"
+                    }`}
+                >
+                  {group.status}
+                </span>
+              </div>
+
+              {/* GROUP INFO */}
+              <div className="grid grid-cols-2 gap-2 text-sm text-white/70 mt-5">
+
+                <div className="flex items-center gap-2">
+                  <Users size={16} />
+                  {group?.students?.length || 0} Students
+                </div>
+
+                <div className="flex items-center gap-2">
+                  <FolderKanban size={16} />
+                  {group?.project?.title || "Project Not Assigned"}
+                </div>
+
+              </div>
+
+              {/* ACTION BUTTON */}
+              <div className="flex justify-end pt-5">
+                <Link
+                  href={`/admin-dashboard/groups/${group._id}`}
+                  className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold text-black shadow-md hover:scale-105 transition-all duration-300"
                   style={{
                     background:
                       "linear-gradient(90deg,var(--pv-accent),var(--pv-accent-2))",
                   }}
-                />
-
-                {/* HEADER */}
-                <div className="flex justify-between items-start">
-                  <div>
-                    <h2 className="text-xl font-bold text-white tracking-tight">
-                      {group.groupName}
-                    </h2>
-
-                    <p className="text-white/60 text-sm mt-1">
-                      Mentor: {group.mentor?.userId?.name || "Not Assigned"}
-                    </p>
-                  </div>
-
-                  <span
-                    className={`px-3 py-1 text-xs rounded-full font-semibold ${group.status === "Active"
-                      ? "bg-green-500/20 text-green-400"
-                      : "bg-yellow-500/20 text-yellow-400"
-                      }`}
-                  >
-                    {group.status}
-                  </span>
-                </div>
-
-                {/* GROUP INFO */}
-                <div className="grid grid-cols-2 gap-2 text-sm text-white/70 mt-5">
-
-                  <div className="flex items-center gap-2">
-                    <Users size={16} />
-                    {group.students.length} Students
-                  </div>
-
-                  <div className="flex items-center gap-2">
-                    <FolderKanban size={16} />
-                    {group.project?.title || "Project Not Assigned"}
-                  </div>
-
-                </div>
-
-                {/* ACTION BUTTON */}
-                <div className="flex justify-end pt-5">
-                  <Link
-                    href={`/admin-dashboard/groups/${group._id}`}
-                    className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold text-black shadow-md hover:scale-105 transition-all duration-300"
-                    style={{
-                      background:
-                        "linear-gradient(90deg,var(--pv-accent),var(--pv-accent-2))",
-                    }}
-                  >
-                    <Eye size={16} /> View
-                  </Link>
-
-                </div>
+                >
+                  <Eye size={16} /> View
+                </Link>
 
               </div>
-            ))}
 
-          {groups.length === 0 && (
-            <p className="text-white/50 text-sm">
-              No groups created yet.
-            </p>
-          )}
-        </div>
-      )}
+            </div>
+          ))}
+
+        {groups.length === 0 && (
+          <p className="text-white/50 text-sm">
+            No groups created yet.
+          </p>
+        )}
+      </div>
     </div>
   );
 }

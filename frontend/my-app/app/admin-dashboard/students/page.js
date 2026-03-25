@@ -10,7 +10,8 @@ import {
   Users,
   UserPlus,
   UserCheck,
-  Layers
+  Layers,
+  BookOpen
 } from "lucide-react";
 import toast from "react-hot-toast";
 import Link from "next/link";
@@ -142,14 +143,13 @@ export default function ManageStudents() {
     <div className="space-y-10">
 
       {/* HEADER + SEARCH */}
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
-
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6">
         <div>
           <h1 className="text-3xl md:text-4xl font-extrabold text-white tracking-tight">
-            Manage Students
+            Student Roster
           </h1>
-          <p className="text-white/60 mt-2 text-sm">
-            Create, assign, and manage student accounts efficiently
+          <p className="text-white/40 mt-2 text-sm font-bold">
+            Complete database of enrolled students — monitor academic status, group memberships, and projects.
           </p>
         </div>
 
@@ -172,14 +172,13 @@ export default function ManageStudents() {
 
           <Link href="/admin-dashboard/students/add">
             <button
-              className="flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold 
-                 text-black shadow-lg hover:scale-105 transition-all duration-300"
+              className="flex items-center gap-2 px-5 py-1 rounded-xl font-semibold text-black"
               style={{
                 background:
                   "linear-gradient(90deg,var(--pv-accent),var(--pv-accent-2))",
               }}
             >
-              <UserPlus size={16} /> Add Student
+              <Plus size={16} /> Add Student
             </button>
           </Link>
 
@@ -189,179 +188,129 @@ export default function ManageStudents() {
 
       {/* STATS */}
 
-      <div className="grid md:grid-cols-3 gap-6">
-        <StatCard
-          title="Total Students"
-          value={totalStudents}
-          icon={Users}
-        />
-
-        <StatCard
-          title="Active Students"
-          value={activeStudents}
-          icon={UserCheck}
-        />
-
-        <StatCard
-          title="Groups Created"
-          value={groupsCreated}
-          icon={Layers}
-        />
-      </div>
-
-      {/* TABLE */}
-      <div className="rounded-2xl bg-white/[0.04] border border-white/10 backdrop-blur-lg overflow-hidden shadow-xl">
-
-        {loading ? (
-          <div className="flex flex-col items-center justify-center py-20 gap-6 relative z-10 w-full">
-            <div className="relative w-16 h-16">
-              <div className="absolute inset-0 rounded-full border-4 border-white/5 border-t-[var(--pv-accent)] animate-spin"></div>
-              <div className="absolute inset-2 rounded-full border-4 border-white/5 border-b-[var(--pv-accent-2)] animate-spin-slow"></div>
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        {[
+          { icon: Users, label: "Total Students", value: totalStudents, color: "text-blue-400", bg: "bg-blue-500/10", border: "border-blue-500/20" },
+          { icon: UserCheck, label: "Active Status", value: activeStudents, color: "text-green-400", bg: "bg-green-500/10", border: "border-green-500/20" },
+          { icon: Layers, label: "Assigned Groups", value: groupsCreated, color: "text-purple-400", bg: "bg-purple-500/10", border: "border-purple-500/20" },
+        ].map(({ icon: Icon, label, value, color, bg, border }) => (
+          <div key={label} className={`flex items-center gap-4 p-5 rounded-2xl ${bg} border ${border} hover:scale-[1.02] transition-transform duration-200`}>
+            <div className={`p-3 rounded-xl bg-white/5 border ${border} ${color}`}>
+              <Icon size={20} />
             </div>
-            <p className="text-white/60 font-medium tracking-wide animate-pulse">Loading students...</p>
+            <div>
+              <p className="text-white/40 text-[10px] uppercase tracking-widest font-black">{label}</p>
+              <p className={`text-2xl font-black ${color}`}>{value}</p>
+            </div>
           </div>
-        ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm">
-              <thead className="bg-white/[0.06] text-white/60 uppercase text-xs tracking-wider">
-                <tr>
-                  <th className="px-6 py-4 text-left">Roll No</th>
-                  <th className="px-6 py-4 text-left">Name</th>
-                  <th className="px-6 py-4 text-left">Email</th>
-                  <th className="px-6 py-4 text-left">Department</th>
-                  <th className="px-6 py-4 text-left">Group</th>
-                  <th className="px-6 py-4 text-left">Status</th>
-                  <th className="px-6 py-4 text-center">Actions</th>
-                </tr>
-              </thead>
-
-              <tbody>
-                {filteredStudents.map((s) => (
-                  <tr
-                    key={s._id}
-                    className="border-t border-white/10 hover:bg-white/[0.05] transition-all duration-300"
-                  >
-                    <td className="px-6 py-4 font-medium text-white">
-                      {s.rollNo}
-                    </td>
-
-                    <td className="px-6 py-4 text-white">
-                      {s.userId?.name}
-                    </td>
-
-                    <td className="px-6 py-4 text-white/70">
-                      {s.userId?.email}
-                    </td>
-
-                    <td className="px-6 py-4 text-white/70">
-                      {s.department}
-                    </td>
-
-                    <td className="px-6 py-4 text-white/70">
-                      {s.group ? s.group.name : "Not Assigned"}
-                    </td>
-
-                    <td className="px-6 py-4">
-                      <span
-                        className={`px-3 py-1 rounded-full text-xs font-medium ${s.status === "Active"
-                            ? "bg-green-500/15 text-green-400"
-                            : "bg-red-500/15 text-red-400"
-                          }`}
-                      >
-                        {s.status}
-                      </span>
-                    </td>
-
-                    <td className="px-6 py-4">
-                      <div className="flex justify-center gap-4">
-                        <Link
-                          href={`/admin-dashboard/students/${s._id}`}
-                        >
-                          <Eye
-                            size={18}
-                            className="cursor-pointer text-white/60 hover:text-white transition"
-                          />
-                        </Link>
-
-                        <Link
-                          href={`/admin-dashboard/students/edit/${s._id}`}
-                        >
-                          <Edit
-                            size={18}
-                            className="cursor-pointer text-white/60 hover:text-white transition"
-                          />
-                        </Link>
-
-                        <Trash2
-                          size={18}
-                          className="cursor-pointer text-white/60 hover:text-red-400 transition"
-                          onClick={() => handleDelete(s._id)}
-                        />
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-
-                {filteredStudents.length === 0 && (
-                  <tr>
-                    <td
-                      colSpan="7"
-                      className="text-center py-12 text-white/50 text-sm"
-                    >
-                      No students found matching your search.
-                    </td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
-          </div>
-        )}
+        ))}
       </div>
-    </div>
-  );
-}
-/* ================= REUSABLE ================= */
 
-function StatCard({ title, value, icon: Icon }) {
-  return (
-    <div className="relative p-6 rounded-2xl bg-white/[0.04] border border-white/10 
-    backdrop-blur-lg shadow-lg overflow-hidden
-    hover:bg-white/[0.06] hover:shadow-2xl transition-all duration-300 group">
-
-      {/* Top Gradient Glow */}
-      <div
-        className="absolute inset-x-0 top-0 h-[3px] opacity-70"
-        style={{
-          background:
-            "linear-gradient(90deg,var(--pv-accent),var(--pv-accent-2))",
-        }}
-      />
-
-      <div className="flex items-center justify-between">
-
-        {/* Text Section */}
-        <div>
-          <p className="text-white/60 text-sm uppercase tracking-wide">
-            {title}
-          </p>
-
-          <h3 className="text-3xl font-extrabold text-white mt-3 tracking-tight">
-            {value}
-          </h3>
+      <div className="rounded-[2rem] bg-white/[0.02] border border-white/10 backdrop-blur-lg overflow-hidden shadow-2xl">
+        <div className="flex items-center justify-between px-8 py-5 border-b border-white/10 bg-white/[0.02]">
+          <div className="flex items-center gap-3">
+            <BookOpen size={18} className="text-[var(--pv-accent)]" />
+            <span className="text-white font-black text-sm uppercase tracking-widest">
+              Student Records ({filteredStudents.length})
+            </span>
+          </div>
         </div>
 
-        {/* Icon Section */}
-        <div className="w-12 h-12 rounded-xl bg-white/5 border border-white/10 
-        flex items-center justify-center
-        group-hover:scale-110 transition-all duration-300">
+        <div className="overflow-x-auto">
+          <table className="w-full text-sm">
+            <thead>
+              <tr className="text-white/40 text-[10px] uppercase tracking-widest font-black border-b border-white/10 bg-white/[0.02]">
+                <th className="px-8 py-4 text-left">Student</th>
+                <th className="px-8 py-4 text-left">Roll No</th>
+                <th className="px-8 py-4 text-left">Group</th>
+                <th className="px-8 py-4 text-center">Status</th>
+                <th className="px-8 py-4 text-center">Actions</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-white/[0.05]">
+              {filteredStudents.map((s) => (
+                <tr
+                  key={s._id}
+                  className="group border-t border-white/[0.06] hover:bg-white/[0.04] transition-all duration-300"
+                >
+                  <td className="px-8 py-5">
+                    <div className="flex items-center gap-4">
+                      <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[var(--pv-accent)]/30 to-[var(--pv-accent-2)]/30 border border-white/15 flex items-center justify-center text-sm font-black text-white shrink-0">
+                        {s.userId?.name?.charAt(0) || "S"}
+                      </div>
+                      <div>
+                        <p className="text-white font-black leading-tight tracking-tight">{s.userId?.name || "—"}</p>
+                        <p className="text-white/35 text-xs font-bold mt-0.5">{s.userId?.email || "—"}</p>
+                      </div>
+                    </div>
+                  </td>
 
-          {Icon && (
-            <Icon
-              size={22}
-              className="text-white/70 group-hover:text-white transition"
-            />
-          )}
+                  <td className="px-8 py-5">
+                    <span className="font-mono text-white/80 text-[10px] px-2.5 py-1 rounded-lg bg-white/5 border border-white/10 font-bold uppercase tracking-wider">
+                      {s.rollNo || "—"}
+                    </span>
+                  </td>
 
+                  <td className="px-8 py-5">
+                    {s.group ? (
+                      <div className="flex items-center gap-2 text-[var(--pv-accent)] text-xs font-black uppercase tracking-tight">
+                        <Layers size={14} className="shrink-0 opacity-70" />
+                        {s.group.groupName || s.group.name}
+                      </div>
+                    ) : (
+                      <span className="text-white/30 text-xs italic">Unassigned</span>
+                    )}
+                  </td>
+
+                  <td className="px-8 py-5 text-center">
+                    <span
+                      className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest border ${s.status === "Active"
+                        ? "bg-green-500/10 text-green-400 border-green-500/20"
+                        : "bg-red-500/10 text-red-400 border-red-500/20"
+                        }`}
+                    >
+                      <span className={`w-1 h-1 rounded-full ${s.status === "Active" ? "bg-green-400" : "bg-red-400"}`} />
+                      {s.status || "Active"}
+                    </span>
+                  </td>
+
+                  <td className="px-8 py-5">
+                    <div className="flex justify-center gap-2">
+                      <Link href={`/admin-dashboard/students/${s._id}`}>
+                        <button className="p-2.5 rounded-xl bg-white/5 border border-white/10 text-white/50 hover:text-[var(--pv-accent)] hover:border-[var(--pv-accent)]/30 transition-all">
+                          <Eye size={16} />
+                        </button>
+                      </Link>
+
+                      <Link href={`/admin-dashboard/students/edit/${s._id}`}>
+                        <button className="p-2.5 rounded-xl bg-white/5 border border-white/10 text-white/50 hover:text-blue-400 hover:border-blue-400/30 transition-all">
+                          <Edit size={16} />
+                        </button>
+                      </Link>
+
+                      <button
+                        onClick={() => handleDelete(s._id)}
+                        className="p-2.5 rounded-xl bg-white/5 border border-white/10 text-white/50 hover:text-red-400 hover:border-red-400/30 transition-all"
+                      >
+                        <Trash2 size={16} />
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+
+              {filteredStudents.length === 0 && (
+                <tr>
+                  <td
+                    colSpan="7"
+                    className="text-center py-12 text-white/50 text-sm"
+                  >
+                    No students found matching your search.
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
         </div>
       </div>
     </div>

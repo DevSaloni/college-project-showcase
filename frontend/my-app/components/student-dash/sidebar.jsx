@@ -54,7 +54,7 @@ export default function Sidebar() {
               localStorage.removeItem("userName");
               localStorage.removeItem("userEmail");
               localStorage.removeItem("userRole");
-              toast.success("Safe travels!", { icon: "👋" });
+              toast.success("Session ended successfully", { icon: "👋" });
               router.push("/");
             }}
             className="flex-1 py-2 bg-red-500 hover:bg-red-600 text-white rounded-xl text-xs font-bold transition-all shadow-lg shadow-red-500/20"
@@ -65,7 +65,7 @@ export default function Sidebar() {
             onClick={() => toast.dismiss(t.id)}
             className="flex-1 py-2 bg-white/5 hover:bg-white/10 text-white/70 border border-white/10 rounded-xl text-xs font-bold transition-all"
           >
-            Cancel
+            Keep me in
           </button>
         </div>
       </div>

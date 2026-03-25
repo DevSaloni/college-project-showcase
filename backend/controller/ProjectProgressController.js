@@ -148,6 +148,7 @@ export const getCurrentProgress = async (req, res) => {
         _id: project._id,
         groupId: group._id, // ✅ Crucial for chat
         title: project.title,
+        mentorId: project.mentorId?._id, // ✅ ADDED
         mentorName: project.mentorId?.userId?.name || "Not assigned",
         mentorEmail: project.mentorId?.userId?.email || "—",
         progressPercent: progress?.progressPercent || 0,

@@ -47,19 +47,8 @@ export default function AdminGroupView() {
     fetchGroup();
   }, [id, BASE_URL]);
 
-  if (loading) {
-    return (
-      <div className="flex flex-col items-center justify-center py-32 gap-6 relative z-10 w-full h-[70vh]">
-        <div className="relative w-16 h-16">
-          <div className="absolute inset-0 rounded-full border-4 border-white/5 border-t-[var(--pv-accent)] animate-spin"></div>
-          <div className="absolute inset-2 rounded-full border-4 border-white/5 border-b-[var(--pv-accent-2)] animate-spin-slow"></div>
-        </div>
-        <p className="text-white/60 font-medium tracking-wide animate-pulse">Loading group details...</p>
-      </div>
-    );
-  }
 
-  if (!group) {
+  if (!loading && !group) {
     return (
       <div className="flex flex-col items-center justify-center h-64 space-y-4">
         <div className="p-4 bg-red-500/10 rounded-full">
@@ -86,7 +75,7 @@ export default function AdminGroupView() {
           </h1>
           <p className="text-white/60 mt-2 text-sm flex items-center gap-2">
             <span className="w-2 h-2 rounded-full bg-[var(--pv-accent)]"></span>
-            Viewing details for <span className="font-semibold text-white">{group.groupName}</span>
+            Viewing details for <span className="font-semibold text-white">{group?.groupName}</span>
           </p>
         </div>
 
@@ -116,22 +105,22 @@ export default function AdminGroupView() {
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <InfoBadge icon={<Layers />} label="Group Name" value={group.groupName} />
-              <InfoBadge icon={<GraduationCap />} label="Department" value={group.department} />
-              <InfoBadge icon={<Calendar />} label="Year" value={group.year} />
+              <InfoBadge icon={<Layers />} label="Group Name" value={group?.groupName} />
+              <InfoBadge icon={<GraduationCap />} label="Department" value={group?.department} />
+              <InfoBadge icon={<Calendar />} label="Year" value={group?.year} />
               <InfoBadge
                 icon={<Activity />}
                 label="Status"
                 value={
                   <span
-                    className={`px-3 py-1 text-xs rounded-full font-medium ${group.status === "Active"
+                    className={`px-3 py-1 text-xs rounded-full font-medium ${group?.status === "Active"
                       ? "bg-green-500/20 text-green-400 border border-green-500/20"
-                      : group.status === "Completed"
+                      : group?.status === "Completed"
                         ? "bg-blue-500/20 text-blue-400 border border-blue-500/20"
                         : "bg-white/10 text-white/70 border border-white/10"
                       }`}
                   >
-                    {group.status}
+                    {group?.status}
                   </span>
                 }
               />
@@ -145,10 +134,10 @@ export default function AdminGroupView() {
         {/* ===== RIGHT SIDEBAR ===== */}
         <div className="space-y-6">
           {/* ===== MENTOR CARD ===== */}
-          <MentorCard mentor={group.mentor} />
+          <MentorCard mentor={group?.mentor} />
 
           {/* ===== STUDENTS CARD ===== */}
-          <StudentsCard students={group.students} />
+          <StudentsCard students={group?.students} />
         </div>
       </div>
     </div>
@@ -180,17 +169,17 @@ function ProjectCard({ group }) {
         <h2 className="text-xl font-bold text-white">Project Details</h2>
       </div>
 
-      {group.project ? (
+      {group?.project ? (
         <div className="space-y-6 max-h-[450px] overflow-y-auto pr-4 [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-white/10 [&::-webkit-scrollbar-thumb]:rounded-full hover:[&::-webkit-scrollbar-thumb]:bg-white/20 transition-all pb-4">
           <div>
-            <h3 className="text-2xl font-bold text-white mb-3">{group.project.title}</h3>
+            <h3 className="text-2xl font-bold text-white mb-3">{group?.project?.title}</h3>
             <div className="text-white/70 leading-relaxed text-sm p-4 bg-white/5 rounded-xl border border-white/10 break-words">
-              {group.project.proposalId?.description || "No description provided."}
+              {group?.project?.proposalId?.description || "No description provided."}
             </div>
             <div className="flex items-center gap-2 mt-4 text-white/50 text-sm">
               <Calendar size={14} />
               <span>
-                Duration: {new Date(group.project.startDate).toLocaleDateString()} - {new Date(group.project.endDate).toLocaleDateString()}
+                Duration: {group?.project?.startDate ? new Date(group.project.startDate).toLocaleDateString() : "-"} - {group?.project?.endDate ? new Date(group.project.endDate).toLocaleDateString() : "-"}
               </span>
             </div>
           </div>
@@ -198,25 +187,25 @@ function ProjectCard({ group }) {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 p-5 rounded-xl bg-white/5 border border-white/10">
             <div className="space-y-1">
               <p className="text-xs text-white/50 uppercase tracking-wider font-semibold">Tech Stack</p>
-              <p className="text-white font-medium break-all">{group.project.proposalId?.techStack || "Not specified"}</p>
+              <p className="text-white font-medium break-all">{group?.project?.proposalId?.techStack || "Not specified"}</p>
             </div>
             <div className="space-y-1">
               <p className="text-xs text-white/50 uppercase tracking-wider font-semibold">Status</p>
               <div className="flex items-center gap-2">
                 <span className="w-2 h-2 rounded-full bg-blue-500 shadow-[0_0_8px_rgba(59,130,246,0.6)]"></span>
-                <span className="text-white font-medium">{group.project.status}</span>
+                <span className="text-white font-medium">{group?.project?.status}</span>
               </div>
             </div>
           </div>
 
-          {(group.project.github || group.project.documentation) && (
+          {(group?.project?.github || group?.project?.documentation) && (
             <div className="flex flex-wrap gap-4 pt-2">
-              {group.project.github && (
+              {group?.project?.github && (
                 <Link href={group.project.github} target="_blank" className="flex items-center gap-2 px-4 py-2 rounded-xl bg-white/5 border border-white/10 text-white/80 hover:text-white hover:bg-white/10 hover:border-white/20 transition-all text-sm group">
                   <Github size={16} className="group-hover:text-white transition-colors" /> GitHub Repo
                 </Link>
               )}
-              {group.project.documentation && (
+              {group?.project?.documentation && (
                 <Link href={group.project.documentation} target="_blank" className="flex items-center gap-2 px-4 py-2 rounded-xl bg-white/5 border border-white/10 text-white/80 hover:text-white hover:bg-white/10 hover:border-white/20 transition-all text-sm group">
                   <LinkIcon size={16} className="group-hover:text-white transition-colors" /> Documentation
                 </Link>
@@ -224,7 +213,7 @@ function ProjectCard({ group }) {
             </div>
           )}
 
-          {group.milestones?.length > 0 && (
+          {group?.milestones?.length > 0 && (
             <div className="mt-6 space-y-4 pt-4 border-t border-white/10">
               <div className="flex items-center gap-2 mb-2">
                 <Activity size={18} className="text-blue-400" />

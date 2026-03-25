@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
+import Link from "next/link";
 import {
   FileText,
   MessageSquare,
@@ -14,7 +15,6 @@ import {
   Trash2,
   Users,
   GraduationCap,
-  BookOpen,
   CalendarDays,
   Clock,
   Sparkles,
@@ -444,11 +444,10 @@ export default function StudentProposalWorkspace() {
       </div>
 
       {/* ── GROUP INFO CARDS ── */}
-      <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         {[
           { icon: Layers, label: "Group", value: group.groupName, color: "text-[var(--pv-accent)]", bg: "bg-[var(--pv-accent)]/10", border: "border-[var(--pv-accent)]/20" },
-          { icon: BookOpen, label: "Department", value: group.department, color: "text-blue-400", bg: "bg-blue-500/10", border: "border-blue-500/20" },
-          { icon: GraduationCap, label: "Mentor", value: group.mentorName, color: "text-purple-400", bg: "bg-purple-500/10", border: "border-purple-500/20" },
+          { icon: GraduationCap, label: "Mentor", value: group.mentorName, color: "text-purple-400", bg: "bg-purple-500/10", border: "border-purple-500/20", mentorId: group.mentorId },
           { icon: Users, label: "Year", value: group.year, color: "text-pink-400", bg: "bg-pink-500/10", border: "border-pink-500/20" },
           { icon: CalendarDays, label: "Semester", value: `Sem ${group.semester}`, color: "text-cyan-400", bg: "bg-cyan-500/10", border: "border-cyan-500/20" },
         ].map(({ icon: Icon, label, value, color, bg, border }) => (
@@ -458,7 +457,17 @@ export default function StudentProposalWorkspace() {
             </div>
             <div className="min-w-0">
               <p className="text-white/40 text-[10px] uppercase tracking-wider font-semibold">{label}</p>
-              <p className={`font-bold text-sm truncate ${color}`}>{value || "—"}</p>
+              <div className="flex items-center gap-2 truncate">
+                <p className={`font-bold text-sm truncate ${color}`}>{value || "—"}</p>
+                {label === "Mentor" && value && value !== "Fetching Routing..." && group.mentorId && (
+                  <Link
+                    href={`/student-dashboard/mentor/${group.mentorId}`}
+                    className="text-[var(--pv-accent)] hover:underline text-[9px] font-black uppercase tracking-widest shrink-0"
+                  >
+                    View Profile
+                  </Link>
+                )}
+              </div>
             </div>
           </div>
         ))}
@@ -688,7 +697,17 @@ export default function StudentProposalWorkspace() {
             </div>
             <div>
               <p className="text-white font-bold text-sm">Discussion with Mentor</p>
-              <p className="text-white/40 text-xs">{group.mentorName} · {group.groupName}</p>
+              <p className="text-white/40 text-xs flex items-center gap-2">
+                {group.mentorName} · {group.groupName}
+                {group.mentorId && (
+                  <Link
+                    href={`/student-dashboard/mentor/${group.mentorId}`}
+                    className="text-[var(--pv-accent)] hover:underline text-[10px] font-black uppercase tracking-widest"
+                  >
+                    View Profile
+                  </Link>
+                )}
+              </p>
             </div>
             <div className="ml-auto flex items-center gap-2">
               <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />

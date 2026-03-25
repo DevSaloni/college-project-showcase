@@ -102,19 +102,8 @@ export default function ViewStudent() {
     });
   };
 
-  if (loading) {
-    return (
-      <div className="flex flex-col items-center justify-center py-32 gap-6">
-        <div className="relative w-16 h-16">
-          <div className="absolute inset-0 rounded-full border-4 border-white/5 border-t-[var(--pv-accent)] animate-spin"></div>
-          <div className="absolute inset-2 rounded-full border-4 border-white/5 border-b-[var(--pv-accent-2)] animate-spin-slow"></div>
-        </div>
-        <p className="text-white/60 font-medium tracking-wide animate-pulse">Loading student profile...</p>
-      </div>
-    );
-  }
 
-  if (!student) {
+  if (!loading && !student) {
     return (
       <div className="flex flex-col items-center justify-center py-20 gap-4">
         <div className="w-16 h-16 rounded-full bg-red-500/10 flex items-center justify-center border border-red-500/20">
@@ -142,7 +131,7 @@ export default function ViewStudent() {
         <div className="relative p-6 md:p-10 flex flex-col md:flex-row justify-between items-start md:items-center gap-8 z-10">
           <div className="flex flex-col sm:flex-row items-center sm:items-start md:items-center gap-6 md:gap-8 w-full">
             <div className="relative h-28 w-28 md:h-32 md:w-32 rounded-full overflow-hidden bg-white/5 border-4 border-white/10 flex-shrink-0 flex items-center justify-center shadow-[0_0_30px_rgba(255,255,255,0.05)]">
-              {student.image ? (
+              {student?.image ? (
                 <img
                   src={`${BASE_URL}${student.image}`}
                   alt="student"
@@ -152,26 +141,26 @@ export default function ViewStudent() {
                 <User size={50} className="text-white/30" />
               )}
               {/* Status Badge overlay */}
-              <div className={`absolute bottom-0 left-0 right-0 py-1 flex items-center justify-center backdrop-blur-md ${student.status === 'Active' || !student.status ? 'bg-green-500/80' : 'bg-red-500/80'}`}>
-                <span className="text-[10px] font-bold text-white uppercase tracking-wider">{student.status || 'Active'}</span>
+              <div className={`absolute bottom-0 left-0 right-0 py-1 flex items-center justify-center backdrop-blur-md ${student?.status === 'Active' || !student?.status ? 'bg-green-500/80' : 'bg-red-500/80'}`}>
+                <span className="text-[10px] font-bold text-white uppercase tracking-wider">{student?.status || 'Active'}</span>
               </div>
             </div>
 
             <div className="text-center sm:text-left flex-1">
               <h1 className="text-3xl md:text-5xl font-extrabold text-white tracking-tight flex items-center justify-center sm:justify-start gap-3">
-                {student.name}
-                {(student.status === 'Active' || !student.status) && (
+                {student?.name}
+                {(student?.status === 'Active' || !student?.status) && (
                   <ShieldCheck size={28} className="text-green-400 hidden sm:block drop-shadow-[0_0_10px_rgba(74,222,128,0.5)]" />
                 )}
               </h1>
               <div className="flex flex-wrap items-center justify-center sm:justify-start gap-3 mt-3">
                 <span className="px-3 py-1 rounded-full bg-white/5 border border-white/10 text-white/80 text-sm flex items-center gap-2">
                   <BookOpen size={14} className="text-[var(--pv-accent)]" />
-                  Roll No: {student.rollNo || "-"}
+                  Roll No: {student?.rollNo || "-"}
                 </span>
                 <span className="px-3 py-1 rounded-full bg-white/5 border border-white/10 text-white/80 text-sm flex items-center gap-2">
                   <GraduationCap size={14} className="text-[var(--pv-accent)]" />
-                  {student.department}
+                  {student?.department}
                 </span>
               </div>
             </div>
@@ -200,11 +189,11 @@ export default function ViewStudent() {
             </h3>
 
             <div className="grid grid-cols-1 gap-4">
-              <Info icon={Mail} label="Email Address" value={student.email} />
-              {student.phone && (
-                <Info icon={Phone} label="Phone Number" value={student.phone} />
+              <Info icon={Mail} label="Email Address" value={student?.email} />
+              {student?.phone && (
+                <Info icon={Phone} label="Phone Number" value={student?.phone} />
               )}
-              <Info icon={Calendar} label="Member Since" value={new Date(student.createdAt || Date.now()).toLocaleDateString('en-US', { month: 'short', year: 'numeric' })} />
+              <Info icon={Calendar} label="Member Since" value={new Date(student?.createdAt || Date.now()).toLocaleDateString('en-US', { month: 'short', year: 'numeric' })} />
             </div>
 
             {/* ACTIONS */}
@@ -218,7 +207,7 @@ export default function ViewStudent() {
               </button>
 
               <button
-                onClick={() => handleDelete(student._id)}
+                onClick={() => handleDelete(student?._id)}
                 disabled={deleteLoading}
                 className="flex items-center justify-center w-full gap-2 px-4 py-3.5 rounded-xl text-sm font-bold text-red-400 border border-red-500/30 hover:bg-red-500/10 hover:border-red-500/50 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
               >
@@ -240,7 +229,7 @@ export default function ViewStudent() {
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             <StatCard icon={Users} label="Group Name" value={academic?.groupName || "None"} color="text-blue-400" />
             <StatCard icon={Award} label="Mentor" value={academic?.mentorName || "None"} color="text-purple-400" />
-            <StatCard icon={ShieldCheck} label="Account Status" value={student.status || "Active"} color={student.status === 'Active' || !student.status ? 'text-green-400' : 'text-yellow-400'} />
+            <StatCard icon={ShieldCheck} label="Account Status" value={student?.status || "Active"} color={student?.status === 'Active' || !student?.status ? 'text-green-400' : 'text-yellow-400'} />
             <StatCard icon={Briefcase} label="Projects" value={project ? 1 : 0} color="text-orange-400" />
           </div>
 

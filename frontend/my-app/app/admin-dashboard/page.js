@@ -80,43 +80,32 @@ export default function AdminOverview() {
     fetchRecentGroups();
   }, [BASE_URL]);
 
-  if (loading) {
-    return (
-      <div className="flex flex-col items-center justify-center py-32 gap-6 relative z-10 w-full h-[70vh]">
-        <div className="relative w-16 h-16">
-          <div className="absolute inset-0 rounded-full border-4 border-white/5 border-t-[var(--pv-accent)] animate-spin"></div>
-          <div className="absolute inset-2 rounded-full border-4 border-white/5 border-b-[var(--pv-accent-2)] animate-spin-slow"></div>
-        </div>
-        <p className="text-white/60 font-medium tracking-wide animate-pulse">Loading dashboard...</p>
-      </div>
-    );
-  }
 
   return (
     <div className="max-w-7xl mx-auto space-y-8 pb-10">
 
       {/* HEADER */}
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-4">
-        <div>
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6">
+        <div className="space-y-1">
           <div className="flex items-center gap-2 text-[var(--pv-accent)] mb-2">
             <Activity size={18} />
-            <span className="text-sm font-semibold tracking-wider uppercase">
-              Live Dashboard
+            <span className="text-xs font-black tracking-widest uppercase mb-0.5">
+              Live Analytics
             </span>
           </div>
 
-          <h1 className="text-3xl md:text-4xl font-extrabold text-white tracking-tight">
+          <h1 className="text-3xl md:text-5xl font-black text-white tracking-tight">
             Welcome back, {adminName || "Admin"}!
           </h1>
 
-          <p className="text-white/60 mt-1 flex items-center gap-2">
+          <p className="text-white/40 text-sm flex items-center gap-2 pt-1 font-bold">
             <Clock size={14} /> {currentDate} {adminEmail && <span className="hidden sm:inline">• {adminEmail}</span>}
           </p>
         </div>
 
         <Link href="/admin-dashboard/groups/create-groups">
           <button
-            className="flex items-center gap-2 px-5 py-2.5 rounded-xl font-semibold text-black shadow-lg hover:scale-105 transition-all duration-300"
+            className="flex items-center gap-2 px-6 py-3 rounded-2xl font-black text-xs uppercase tracking-widest text-black shadow-lg hover:scale-105 transition-all duration-300"
             style={{
               background:
                 "linear-gradient(90deg,var(--pv-accent),var(--pv-accent-2))",
@@ -129,34 +118,20 @@ export default function AdminOverview() {
 
       {/* KPI STATS */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-        <StatCard
-          icon={<GraduationCap size={24} />}
-          title="Total Students"
-          value={data?.stats?.totalStudents || 0}
-          colorClass="text-blue-400"
-          bgClass="bg-blue-500/10"
-        />
-        <StatCard
-          icon={<Users size={24} />}
-          title="Total Teachers"
-          value={data?.stats?.totalTeachers || 0}
-          colorClass="text-purple-400"
-          bgClass="bg-purple-500/10"
-        />
-        <StatCard
-          icon={<Layers size={24} />}
-          title="Active Groups"
-          value={data?.stats?.activeGroups || 0}
-          colorClass="text-green-400"
-          bgClass="bg-green-500/10"
-        />
-        <StatCard
-          icon={<FileText size={24} />}
-          title="Total Projects"
-          value={data?.stats?.totalProjects || 0}
-          colorClass="text-orange-400"
-          bgClass="bg-orange-500/10"
-        />
+        {[
+          { icon: GraduationCap, label: "Total Students", value: data?.stats?.totalStudents || 0, color: "text-blue-400", bg: "bg-blue-500/10", border: "border-blue-500/20" },
+          { icon: Users, label: "Total Teachers", value: data?.stats?.totalTeachers || 0, color: "text-purple-400", bg: "bg-purple-500/10", border: "border-purple-500/20" },
+          { icon: Layers, label: "Active Groups", value: data?.stats?.activeGroups || 0, color: "text-green-400", bg: "bg-green-500/10", border: "border-green-500/20" },
+          { icon: FileText, label: "Total Projects", value: data?.stats?.totalProjects || 0, color: "text-orange-400", bg: "bg-orange-500/10", border: "border-orange-500/20" },
+        ].map(({ icon: Icon, label, value, color, bg, border }) => (
+          <div key={label} className={`flex flex-col p-6 rounded-3xl border ${bg} ${border} group hover:scale-[1.02] transition-transform duration-200`}>
+            <div className={`p-3 rounded-2xl ${bg} border ${border} ${color} w-fit mb-4`}>
+              <Icon size={20} />
+            </div>
+            <h3 className="text-3xl font-black text-white tracking-tight mb-1">{value}</h3>
+            <p className="text-white/40 text-[10px] uppercase tracking-wider font-extrabold">{label}</p>
+          </div>
+        ))}
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 pt-4">
@@ -164,27 +139,28 @@ export default function AdminOverview() {
         {/* LEFT */}
         <div className="lg:col-span-2 space-y-8">
 
-          {/* GROUP STATUS */}
-          <div className="p-8 rounded-2xl bg-white/[0.04] border border-white/10 backdrop-blur-lg shadow-xl">
-            <div className="flex items-center justify-between mb-8">
+          <div className="bg-white/[0.02] border border-white/10 rounded-3xl overflow-hidden shadow-2xl relative">
+            <div className="px-6 md:px-8 py-5 border-b border-white/10 bg-white/[0.02] flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <div className="p-2.5 bg-indigo-500/20 rounded-xl text-indigo-400">
-                  <Briefcase size={20} />
+                <div className="p-2 rounded-xl bg-indigo-500/10 border border-indigo-500/20">
+                  <Briefcase size={18} className="text-indigo-400" />
                 </div>
-                <h2 className="text-xl font-bold text-white">
-                  Project Groups Status
-                </h2>
+                <div>
+                  <p className="text-white text-sm sm:text-base font-black">Project Groups Status</p>
+                  <p className="hidden sm:block text-white/40 text-xs font-bold text-left">Real-time cohort synchronization and assignment</p>
+                </div>
               </div>
 
               <Link
                 href="/admin-dashboard/groups"
-                className="text-sm font-medium text-[var(--pv-accent)] flex items-center gap-1 hover:underline"
+                className="px-4 py-2 rounded-xl bg-[var(--pv-accent)]/10 text-[var(--pv-accent)] border border-[var(--pv-accent)]/20 text-xs font-black uppercase tracking-widest hover:bg-[var(--pv-accent)] hover:text-black transition-all flex items-center gap-2 shrink-0 shadow-lg"
               >
-                View all <ChevronRight size={16} />
+                <span>View all</span>
+                <ChevronRight size={14} />
               </Link>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+            <div className="p-8 grid grid-cols-1 sm:grid-cols-3 gap-6">
               <StatusBadge
                 title="Active Groups"
                 value={data?.groupStatus?.activeGroups || 0}
@@ -210,69 +186,68 @@ export default function AdminOverview() {
           </div>
 
           {/* QUICK ACTIONS */}
-          <div className="p-8 rounded-2xl bg-white/[0.04] border border-white/10 backdrop-blur-lg shadow-xl">
+          <div className="bg-white/[0.02] border border-white/10 rounded-3xl overflow-hidden shadow-2xl p-8">
             <div className="flex items-center gap-3 mb-6">
-              <div className="p-2.5 bg-white/10 rounded-xl text-white">
+              <div className="p-2.5 bg-white/10 border border-white/10 rounded-xl text-white">
                 <Layers size={20} />
               </div>
-              <h2 className="text-xl font-bold text-white">Quick Actions</h2>
+              <h2 className="text-xl font-black text-white tracking-tight">Quick Actions</h2>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-              <ActionCard
-                href="/admin-dashboard/students/add"
-                icon={<UserPlus size={24} />}
-                title="Add Student"
-                color="group-hover:text-blue-400"
-              />
-              <ActionCard
-                href="/admin-dashboard/teachers/add"
-                icon={<UserCheck size={24} />}
-                title="Add Teacher"
-                color="group-hover:text-purple-400"
-              />
-              <ActionCard
-                href="/admin-dashboard/groups/create-groups"
-                icon={<Users size={24} />}
-                title="Assemble Group"
-                color="group-hover:text-green-400"
-              />
+              {[
+                { href: "/admin-dashboard/students/add", icon: UserPlus, title: "Add Student", color: "text-blue-400", bg: "bg-blue-500/10", border: "border-blue-500/20" },
+                { href: "/admin-dashboard/teachers/add", icon: UserCheck, title: "Add Teacher", color: "text-purple-400", bg: "bg-purple-500/10", border: "border-purple-500/20" },
+                { href: "/admin-dashboard/groups/create-groups", icon: Users, title: "Assemble Group", color: "text-green-400", bg: "bg-green-500/10", border: "border-green-500/20" },
+              ].map(({ href, icon: Icon, title, color, bg, border }) => (
+                <Link key={title} href={href} className="flex flex-col items-center justify-center p-6 rounded-2xl bg-white/[0.03] border border-white/10 hover:bg-white/[0.06] hover:border-[var(--pv-accent)]/30 hover:scale-[1.05] transition-all duration-300 group">
+                  <div className={`p-3 rounded-xl ${bg} border ${border} ${color} mb-3 group-hover:scale-110 transition-transform`}>
+                    <Icon size={20} />
+                  </div>
+                  <h3 className="text-white font-black text-xs uppercase tracking-widest">{title}</h3>
+                </Link>
+              ))}
             </div>
           </div>
         </div>
 
         {/* RIGHT - RECENT GROUPS */}
-        <div className="p-6 rounded-2xl bg-white/[0.04] border border-white/10 backdrop-blur-lg shadow-xl">
-          <div className="flex items-center gap-3 mb-6">
-            <div className="p-2.5 bg-indigo-500/20 rounded-xl text-indigo-400">
-              <Layers size={20} />
+        <div className="bg-white/[0.02] border border-white/10 rounded-3xl overflow-hidden shadow-2xl">
+          <div className="px-6 py-5 border-b border-white/10 bg-white/[0.02] flex items-center gap-3">
+            <div className="p-2 rounded-xl bg-indigo-500/10 border border-indigo-500/20 text-indigo-400">
+              <Layers size={18} />
             </div>
-            <h2 className="text-xl font-bold text-white">Recent Groups</h2>
+            <h2 className="text-lg font-black text-white tracking-tight">Recent Groups</h2>
           </div>
 
-          <div className="space-y-3">
+          <div className="p-4 space-y-3">
             {recentGroups.length === 0 ? (
-              <p className="text-white/50 text-sm">No groups created yet</p>
+              <div className="py-10 text-center opacity-40">
+                <Layers size={32} className="mx-auto mb-2" />
+                <p className="font-black uppercase tracking-widest text-[10px]">No activity</p>
+              </div>
             ) : (
               recentGroups.map((group) => (
                 <Link
                   key={group._id}
                   href={`/admin-dashboard/groups/${group._id}`}
-                  className="block"
+                  className="block group"
                 >
-                  <div className="flex items-center justify-between p-4 rounded-xl bg-white/[0.03] border border-white/5 hover:bg-white/10 hover:border-white/10 transition-all cursor-pointer">
-
-                    <div>
-                      <p className="text-white font-semibold text-sm">
-                        {group.groupName}
-                      </p>
-                      <p className="text-xs text-white/50">
-                        Mentor: {group?.mentor?.userId?.name || "N/A"}
-                      </p>
+                  <div className="flex items-center justify-between p-4 rounded-2xl bg-white/[0.03] border border-white/10 hover:bg-white/10 hover:border-[var(--pv-accent)]/30 transition-all duration-300">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-xl bg-[var(--pv-accent)]/10 border border-[var(--pv-accent)]/20 flex items-center justify-center text-[var(--pv-accent)] group-hover:scale-110 transition-transform shadow-lg">
+                        <Users size={18} />
+                      </div>
+                      <div className="min-w-0">
+                        <p className="text-white font-black text-sm tracking-tight truncate">
+                          {group?.groupName}
+                        </p>
+                        <p className="text-[10px] text-white/40 font-bold uppercase tracking-wider truncate">
+                          Mentor: {group?.mentor?.userId?.name?.split(' ')[0] || "N/A"}
+                        </p>
+                      </div>
                     </div>
-
-                    <ChevronRight size={18} className="text-white/30" />
-
+                    <ChevronRight size={16} className="text-white/20 group-hover:text-[var(--pv-accent)] group-hover:translate-x-1 transition-all" />
                   </div>
                 </Link>
               ))
@@ -287,35 +262,11 @@ export default function AdminOverview() {
 
 /* ===== REUSABLE COMPONENTS ===== */
 
-function StatCard({ icon, title, value, colorClass, bgClass }) {
-  return (
-    <div className="bg-white/[0.04] backdrop-blur-lg rounded-2xl p-6 border border-white/10">
-      <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${bgClass} ${colorClass}`}>
-        {icon}
-      </div>
-
-      <h3 className="text-3xl font-extrabold text-white mt-4">{value}</h3>
-      <p className="text-sm text-white/60">{title}</p>
-    </div>
-  );
-}
-
 function StatusBadge({ title, value, color, bgColor, borderColor }) {
   return (
-    <div className={`flex flex-col p-6 rounded-xl border ${borderColor} ${bgColor}`}>
-      <h4 className={`text-4xl font-black mb-2 ${color}`}>{value}</h4>
-      <p className="text-sm text-white/70">{title}</p>
+    <div className={`flex flex-col p-6 rounded-3xl border ${borderColor} ${bgColor} group hover:scale-[1.02] transition-all duration-300`}>
+      <h4 className={`text-4xl font-black mb-1 ${color}`}>{value}</h4>
+      <p className="text-[10px] text-white/40 uppercase tracking-widest font-extrabold">{title}</p>
     </div>
-  );
-}
-
-function ActionCard({ href, icon, title, color }) {
-  return (
-    <Link href={href} className="block group">
-      <div className="p-6 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 transition-all text-center">
-        <div className={`mb-3 text-white/60 ${color}`}>{icon}</div>
-        <h3 className="text-white font-semibold text-sm">{title}</h3>
-      </div>
-    </Link>
   );
 }
