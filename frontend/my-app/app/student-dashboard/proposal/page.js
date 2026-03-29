@@ -89,7 +89,7 @@ export default function StudentProposalWorkspace() {
 
   /* ===== GET EXISTING PROPOSAL ===== */
   useEffect(() => {
-    if (!group) return;
+    if (!group || group._id === "loading") return;
     const fetchProposal = async () => {
       try {
         const res = await fetch(`${BASE_URL}/api/proposal/group/${group._id}`, {
@@ -119,7 +119,7 @@ export default function StudentProposalWorkspace() {
 
   /* ===== GET DISCUSSION ===== */
   useEffect(() => {
-    if (!group) return;
+    if (!group || group._id === "loading") return;
     const fetchMessages = async () => {
       try {
         const res = await fetch(`${BASE_URL}/api/discussions/${group._id}`, {
@@ -136,7 +136,7 @@ export default function StudentProposalWorkspace() {
 
   /* ===== SOCKET CONNECTION ===== */
   useEffect(() => {
-    if (!group) return;
+    if (!group || group._id === "loading") return;
     if (!socketRef.current) {
       socketRef.current = io(BASE_URL, {
         transports: ["websocket"],
@@ -195,6 +195,18 @@ export default function StudentProposalWorkspace() {
       }
     }
   }, [messages, activeTab, group]);
+
+  const formatSubmissionDate = (dateString) => {
+    if (!dateString) return "";
+    const date = new Date(dateString);
+    return date.toLocaleDateString("en-GB", {
+      day: "numeric",
+      month: "short",
+      year: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+  };
 
   const markAsRead = async (id) => {
     try {
@@ -548,12 +560,19 @@ export default function StudentProposalWorkspace() {
               <p className="text-white font-bold">Proposal Details</p>
               <p className="text-white/40 text-xs">Fill in all sections below to submit your project proposal</p>
             </div>
-            {existingProposal && (
-              <div className={`ml-auto flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold border ${sc.bg} ${sc.border} ${sc.color}`}>
-                <span className={`w-1.5 h-1.5 rounded-full ${sc.dot}`} />
-                {status}
+              <div className="ml-auto flex items-center gap-3">
+                {existingProposal && (
+                  <div className="flex flex-col items-end gap-1">
+                    <div className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold border ${sc.bg} ${sc.border} ${sc.color}`}>
+                      <span className={`w-1.5 h-1.5 rounded-full ${sc.dot}`} />
+                      {status}
+                    </div>
+                    <p className="text-[10px] text-white/30 font-medium">
+                      Submitted: {formatSubmissionDate(existingProposal.createdAt)}
+                    </p>
+                  </div>
+                )}
               </div>
-            )}
           </div>
 
           <div className="p-8 space-y-6">

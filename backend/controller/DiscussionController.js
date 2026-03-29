@@ -1,3 +1,4 @@
+import mongoose from "mongoose";
 import Group from "../models/Groups.js";
 import Discussion from "../models/Discussion.js";
 import { io } from "../index.js";
@@ -69,6 +70,9 @@ export const sendMessage = async (req, res) => {
 export const getGroupDiscussion = async (req, res) => {
   try {
     const { groupId } = req.params;
+    if (!mongoose.Types.ObjectId.isValid(groupId)) {
+      return res.status(400).json({ message: "Invalid group id" });
+    }
     const { context } = req.query; // get context from query e.g. ?context=progress
 
     const query = { group: groupId };

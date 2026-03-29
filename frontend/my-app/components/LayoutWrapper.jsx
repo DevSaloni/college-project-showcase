@@ -7,17 +7,18 @@ import Footer from "@/components/Footer";
 export default function LayoutWrapper({ children }) {
   const pathname = usePathname();
 
-  const hideLayout =
+  const isDashboard =
     pathname.startsWith("/student-dashboard") ||
     pathname.startsWith("/teacher-dashboard") ||
     pathname.startsWith("/admin-dashboard");
 
+  const isAuthPage = pathname === "/login" || pathname === "/register";
 
   return (
     <>
-      {!hideLayout && <Navbar />}
+      {!isDashboard && <Navbar />}
       {children}
-      {!hideLayout && <Footer />}
+      {!isDashboard && !isAuthPage && <Footer />}
     </>
   );
 }

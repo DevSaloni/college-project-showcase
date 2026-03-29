@@ -83,14 +83,7 @@ export default function StudentProfilePage() {
       fetchStudent();
    }, [id, BASE_URL]);
 
-   if (loading) {
-      return (
-         <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4 animate-pulse">
-            <div className="w-12 h-12 rounded-full bg-white/5" />
-            <div className="h-4 w-48 bg-white/5 rounded" />
-         </div>
-      );
-   }
+
 
    if (!student) {
       return (
@@ -256,7 +249,7 @@ export default function StudentProfilePage() {
                         {/* Status badge */}
                         <div className={`flex items-center gap-4 px-5 py-4 rounded-2xl border ${pStat.bg} shadow-lg shadow-black/20`}>
                            <div className="relative">
-                               <div className={`w-3 h-3 rounded-full ${pStat.dot} animate-pulse shadow-glow shadow-${pStat.dot.split('-')[1]}-400/50`} />
+                              <div className={`w-3 h-3 rounded-full ${pStat.dot} animate-pulse shadow-glow shadow-${pStat.dot.split('-')[1]}-400/50`} />
                            </div>
                            <div className="flex-1">
                               <p className={`font-black text-sm uppercase tracking-widest ${pStat.color}`}>{submissionStatus}</p>
@@ -275,7 +268,7 @@ export default function StudentProfilePage() {
                         {proposal.description && (
                            <div className="space-y-1.5">
                               <p className="text-[9px] text-white/30 uppercase tracking-[0.2em] font-black">Methodology</p>
-                              <p className="text-white/60 text-sm leading-relaxed font-bold line-clamp-4 italic">"{proposal.description}"</p>
+                              <p className="text-white/60 text-sm leading-relaxed font-bold line-clamp-4 ">"{proposal.description}"</p>
                            </div>
                         )}
 
@@ -298,7 +291,7 @@ export default function StudentProfilePage() {
                            <div className="flex items-center gap-2 pt-4 border-t border-white/5">
                               <Calendar size={12} className="text-white/20" />
                               <p className="text-white/25 text-[10px] font-black uppercase tracking-widest">
-                                Synced: {new Date(proposal.submittedAt).toLocaleDateString("en-US", { day: "numeric", month: "short", year: "numeric" })}
+                                 Synced: {new Date(proposal.submittedAt).toLocaleDateString("en-US", { day: "numeric", month: "short", year: "numeric" })}
                               </p>
                            </div>
                         )}
@@ -414,12 +407,12 @@ function StudentSubmissionCard({ project, idx }) {
    return (
       <div className="p-6 md:p-8 hover:bg-white/[0.04] transition-all group">
          <div className="flex justify-between items-start gap-4 mb-3">
-             <h3 className="text-white font-black text-lg tracking-tight group-hover:text-[var(--pv-accent)] transition-colors uppercase">
-                Sprint {project.week} – {project.title || "Untitled Operation"}
-             </h3>
-             <span className={`px-4 py-1.5 rounded-full border text-[9px] font-black uppercase tracking-[0.2em] shadow-lg ${status}`}>
-                {statusText}
-             </span>
+            <h3 className="text-white font-black text-lg tracking-tight group-hover:text-[var(--pv-accent)] transition-colors uppercase">
+               Sprint {project.week} – {project.title || "Untitled Operation"}
+            </h3>
+            <span className={`px-4 py-1.5 rounded-full border text-[9px] font-black uppercase tracking-[0.2em] shadow-lg ${status}`}>
+               {statusText}
+            </span>
          </div>
 
          {project.createdAt && (
@@ -436,7 +429,7 @@ function StudentSubmissionCard({ project, idx }) {
          )}
 
          {project.description && (
-            <p className="text-white/50 text-sm mb-5 leading-relaxed font-bold italic">
+            <p className="text-white/50 text-sm mb-5 leading-relaxed font-bold">
                "{project.description}"
             </p>
          )}

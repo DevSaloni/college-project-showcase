@@ -1,9 +1,9 @@
 import Student from "../models/Student.js";
 import Teacher from "../models/Teacher.js";
 import Group from "../models/Groups.js";
-// import Project from "../models/Project.js";
 import Proposal from "../models/Proposal.js";
 import Project from "../models/ProjectCreate.js";
+import ProjectProgress from "../models/ProjectProgress.js"; // ✅ CLEANER IMPORT
 
 export const getAdminOverview = async (req, res) => {
   try {
@@ -123,6 +123,7 @@ export const getStudentAcademicAndProject = async (req, res) => {
           endDate: project.endDate,
           status: project.status,
           proposalStatus: proposal?.status || "N/A",
+          progressPercent: (await (await import("../models/ProjectProgress.js")).default.findOne({ projectId: project._id }))?.progressPercent || 0
         }
         : null,
     });
@@ -143,11 +144,21 @@ export const getRecentGroups = async (req, res) => {
         path: "mentor",
         populate: {
           path: "userId",
-          select: "name"   // only get mentor name
-        }
+          select: "name", // only get mentor name
+        },
       });
 
-    res.json(recentGroups);
+    const enrichedGroups = await Promise.all(
+      recentGroups.map(async (group) => {
+        const progress = await ProjectProgress.findOne({ groupId: group._id });
+        return {
+          ...group.toObject(),
+          projectProgress: progress ? { progressPercent: progress.progressPercent } : { progressPercent: 0 }
+        };
+      })
+    );
+
+    res.json(enrichedGroups);
 
   } catch (error) {
     res.status(500).json({ message: error.message });

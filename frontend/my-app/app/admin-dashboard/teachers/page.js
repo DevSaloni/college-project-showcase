@@ -183,13 +183,13 @@ export default function ManageTeachers() {
 
           <Link href="/admin-dashboard/teachers/add">
             <button
-              className="flex items-center gap-2 px-5 py-2 rounded-xl font-semibold text-black"
+              className="flex items-center gap-2 px-4 py-2 rounded-xl font-black text-[9px] uppercase tracking-widest text-black shadow-lg hover:scale-105 transition-all duration-300"
               style={{
                 background:
                   "linear-gradient(90deg,var(--pv-accent),var(--pv-accent-2))",
               }}
             >
-              <Plus size={16} /> Add Teacher
+              <Plus size={14} /> Add Teacher
             </button>
           </Link>
         </div>
@@ -244,7 +244,7 @@ export default function ManageTeachers() {
                         {t.userId?.name?.charAt(0) || "T"}
                       </div>
                       <div>
-                        <p className="text-white font-black leading-tight tracking-tight">{t.userId?.name || "—"}</p>
+                        <p className="text-white font-black leading-tight tracking-tight capitalize">{t.userId?.name || "—"}</p>
                         <p className="text-white/35 text-xs font-bold mt-0.5">{t.userId?.email || "—"}</p>
                       </div>
                     </div>

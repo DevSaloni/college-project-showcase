@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import {
   User, Mail, GraduationCap, Users, ArrowLeft, BookOpen,
   Calendar, Briefcase, CheckCircle, AlertCircle, Edit, Trash2,
-  MapPin, Award, ShieldCheck, Layers, ChevronRight, Phone
+  MapPin, Award, ShieldCheck, Layers, ChevronRight, Phone, Activity
 } from "lucide-react";
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
@@ -350,6 +350,7 @@ function ProjectDetailsCard({ project }) {
   const projectItems = [
     { icon: Briefcase, label: "Project Title", value: project?.title },
     { icon: Calendar, label: "Duration", value: project?.totalWeeks ? `${project.totalWeeks} weeks` : null },
+    { icon: Activity, label: "Completion", value: project?.progressPercent !== undefined ? `${project.progressPercent}%` : "0%" },
     { icon: Calendar, label: "Start Date", value: project?.startDate ? new Date(project.startDate).toLocaleDateString("en-US", { year: "numeric", month: "short", day: "numeric" }) : null },
     { icon: Calendar, label: "End Date", value: project?.endDate ? new Date(project.endDate).toLocaleDateString("en-US", { year: "numeric", month: "short", day: "numeric" }) : null },
     { icon: CheckCircle, label: "Project Status", value: project?.status, badge: true },

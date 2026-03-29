@@ -71,9 +71,14 @@ export default function AdminOverview() {
         });
 
         const data = await res.json();
-        setRecentGroups(data);
+        if (Array.isArray(data)) {
+          setRecentGroups(data);
+        } else {
+          setRecentGroups([]);
+        }
       } catch (err) {
         console.error("Recent groups error:", err);
+        setRecentGroups([]);
       }
     };
 
@@ -221,7 +226,7 @@ export default function AdminOverview() {
           </div>
 
           <div className="p-4 space-y-3">
-            {recentGroups.length === 0 ? (
+            {!Array.isArray(recentGroups) || recentGroups.length === 0 ? (
               <div className="py-10 text-center opacity-40">
                 <Layers size={32} className="mx-auto mb-2" />
                 <p className="font-black uppercase tracking-widest text-[10px]">No activity</p>
@@ -243,11 +248,22 @@ export default function AdminOverview() {
                           {group?.groupName}
                         </p>
                         <p className="text-[10px] text-white/40 font-bold uppercase tracking-wider truncate">
-                          Mentor: {group?.mentor?.userId?.name?.split(' ')[0] || "N/A"}
+                          Mentor: <span className="capitalize">{group?.mentor?.userId?.name || "N/A"}</span>
                         </p>
                       </div>
                     </div>
-                    <ChevronRight size={16} className="text-white/20 group-hover:text-[var(--pv-accent)] group-hover:translate-x-1 transition-all" />
+                    <div className="flex items-center gap-4">
+                      <div className="text-right hidden sm:block">
+                        <p className="text-white font-black text-xs">{group.projectProgress?.progressPercent || 0}%</p>
+                        <div className="w-20 h-1 bg-white/5 rounded-full mt-1 overflow-hidden border border-white/10">
+                          <div
+                            className="h-full bg-[var(--pv-accent)] transition-all duration-500"
+                            style={{ width: `${group.projectProgress?.progressPercent || 0}%` }}
+                          />
+                        </div>
+                      </div>
+                      <ChevronRight size={16} className="text-white/20 group-hover:text-[var(--pv-accent)] group-hover:translate-x-1 transition-all" />
+                    </div>
                   </div>
                 </Link>
               ))

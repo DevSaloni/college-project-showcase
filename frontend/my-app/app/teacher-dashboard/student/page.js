@@ -113,15 +113,7 @@ export default function StudentListPage() {
           )}
         </div>
 
-        {loading ? (
-          <div className="flex flex-col items-center justify-center py-24 gap-5">
-            <div className="relative w-14 h-14">
-              <div className="absolute inset-0 rounded-full border-4 border-white/5 border-t-[var(--pv-accent)] animate-spin" />
-              <div className="absolute inset-2 rounded-full border-4 border-white/5 border-b-[var(--pv-accent-2)] animate-spin-slow" />
-            </div>
-            <p className="text-white/40 text-sm animate-pulse">Loading student roster…</p>
-          </div>
-        ) : filtered.length === 0 ? (
+        {filtered.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-20 gap-3 text-center">
             <div className="w-14 h-14 rounded-full bg-white/5 border border-white/10 flex items-center justify-center">
               <UserX size={22} className="text-white/25" />

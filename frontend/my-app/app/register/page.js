@@ -1,25 +1,34 @@
 "use client";
-
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-
+import { toast } from "react-hot-toast";
 import axios from "axios";
-
+import { User, Mail, Lock, Eye, EyeOff, UserCircle, LayoutDashboard, ArrowRight, ShieldCheck, Cpu, ChevronDown, Check } from "lucide-react";
 import { useApi } from "@/context/ApiContext";
 
 export default function RegisterPage() {
   const router = useRouter();
+  const { BASE_URL } = useApi();
 
-  const {BASE_URL} = useApi();
+  const [showPassword, setShowPassword] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const dropdownRef = useRef(null);
 
-const [showPassword, setShowPassword] = useState(false);
-const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState({
     name: "",
     email: "",
     password: "",
     role: "student",
   });
+
+  const roles = [
+    { value: "student", label: "Student" },
+    { value: "teacher", label: "Teacher / Mentor" },
+    { value: "recruiter", label: "Industry Recruiter" },
+    { value: "admin", label: "System Admin" },
+  ];
 
   const handleChange = (e) => {
     setFormData({
@@ -28,150 +37,237 @@ const [formData, setFormData] = useState({
     });
   };
 
+  const handleRoleSelect = (roleValue) => {
+    setFormData({ ...formData, role: roleValue });
+    setIsDropdownOpen(false);
+  };
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setIsDropdownOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  const validateForm = () => {
+    const { name, email, password } = formData;
+    if (!name || !email || !password) {
+      toast.error("All identifiers are required");
+      return false;
+    }
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      toast.error("Valid university email is required");
+      return false;
+    }
+    if (password.length < 6) {
+      toast.error("Password requires minimum 6 characters");
+      return false;
+    }
+    return true;
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (!validateForm()) return;
+
+    setLoading(true);
+    const loadId = toast.loading("Establishing credentials...");
 
     try {
       const res = await axios.post(`${BASE_URL}/api/auth/register`, formData);
+      toast.success("Profile successfully established!", { id: loadId });
 
-      alert("Registration successful!");
-      localStorage.setItem("token", res.data.token);   
-localStorage.setItem("role", res.data?.user?.role || res.data?.role || "student");
-      
-      console.log(res.data);
+      localStorage.setItem("token", res.data.token);
+      localStorage.setItem("role", res.data?.user?.role || res.data?.role || "student");
 
-      //reset form
-      setFormData({
-      name: "",
-      email: "",
-      password: "",
-      role: "student",
-    });
-
-    router.push("/login");
-
-
+      router.push("/login");
     } catch (error) {
       console.error(error);
-      alert(error.response?.data?.message || "Registration failed!");
+      toast.error(error.response?.data?.message || "Registration sequence failed!", { id: loadId });
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
-    <div className="w-full min-h-screen bg-[linear-gradient(180deg,#071426,#020712)] flex flex-col lg:flex-row items-start justify-start px-2 pt-20 pb-20">
-      
-      {/* Left panel for large screens */}
-      <div className="hidden lg:flex lg:items-start lg:justify-end lg:w-1/2 pr-29 pt-14">
-        <div className="max-w-md text-left mt-0">
-          <h1 className="text-4xl font-extrabold text-white leading-tight">Welcome to ProjectVista</h1>
-          <p className="mt-4 text-white/70">
-            Showcase your college projects, get mentorship, and connect with recruiters — all in one professional space.
+    <div className="flex h-screen w-full bg-[#020712] overflow-hidden font-['Poppins',_sans-serif]">
+      {/* Left Side: Image & Branding */}
+      <div className="hidden lg:flex lg:w-1/2 relative bg-[#050A16] items-center justify-center p-12 overflow-hidden border-r border-white/5">
+        <div
+          className="absolute inset-0 bg-cover bg-center bg-no-repeat transition-transform duration-1000 hover:scale-105"
+          style={{ backgroundImage: "url('/login-bg.png')" }}
+        />
+        <div className="absolute inset-0 bg-gradient-to-tr from-[#020712] via-[#020712]/70 to-[var(--pv-accent)]/20 shadow-inner" />
+
+        <div className="absolute top-1/4 left-1/4 w-64 h-64 bg-[var(--pv-accent)]/20 rounded-full blur-[100px] animate-pulse" />
+        <div className="absolute bottom-1/4 right-1/4 w-80 h-80 bg-blue-500/10 rounded-full blur-[120px] animate-pulse delay-700" />
+
+        <div className="relative z-10 w-full max-w-lg">
+          <div className="mb-8 inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/5 border border-white/10 backdrop-blur-md">
+            <UserCircle size={14} className="text-[var(--pv-accent)]" />
+            <span className="text-white/60 text-[10px] uppercase tracking-widest font-bold">Identity Verification</span>
+          </div>
+
+          <h1 className="text-4xl xl:text-5xl font-black text-white mb-6 leading-[1.1]">
+            Start Your<br />
+            <span className="text-transparent bg-clip-text bg-[linear-gradient(135deg,var(--pv-accent),var(--pv-accent-2))]">
+              Project Journey
+            </span>
+          </h1>
+
+          <p className="text-white/60 text-base leading-relaxed mb-10 max-w-md">
+            Create your account to start managing your semester projects, collaborate with your team and teachers, and stay organized throughout your project work.
           </p>
-          <ul className="mt-6 space-y-3 text-white/80">
-            <li className="flex items-center gap-3 justify-start">
-              <span className="w-9 h-9 rounded-full flex items-center justify-center" style={{ background: 'linear-gradient(90deg,var(--pv-accent),var(--pv-accent-2))' }}>
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-                  <path d="M5 13l4 4L19 7" stroke="white" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"/>
-                </svg>
-              </span>
-              <span className="text-sm">Verified mentor feedback</span>
-            </li>
-            <li className="flex items-center gap-3 justify-start">
-              <span className="w-9 h-9 rounded-full flex items-center justify-center" style={{ background: 'linear-gradient(90deg,var(--pv-accent),var(--pv-accent-2))' }}>
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-                  <path d="M5 13l4 4L19 7" stroke="white" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"/>
-                </svg>
-              </span>
-              <span className="text-sm">Curated recruitment access</span>
-            </li>
-            <li className="flex items-center gap-3 justify-start">
-              <span className="w-9 h-9 rounded-full flex items-center justify-center" style={{ background: 'linear-gradient(90deg,var(--pv-accent),var(--pv-accent-2))' }}>
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-                  <path d="M5 13l4 4L19 7" stroke="white" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"/>
-                </svg>
-              </span>
-              <span className="text-sm">Beautiful, shareable portfolios</span>
-            </li>
-          </ul>
         </div>
       </div>
 
-      {/* Right - form card */}
-      <div className="w-full lg:w-1/2 flex justify-center mt-0">
-        <div className="w-full max-w-[550px] bg-white/5 border border-white/10 rounded-3xl p-8 sm:p-10 md:p-12 backdrop-blur-3xl shadow-[0_20px_60px_rgba(2,6,23,0.7)] relative z-10">
-
-          <div className="absolute -top-8 left-8 right-8 mx-auto h-1 rounded-full" style={{ background: 'linear-gradient(90deg,var(--pv-accent),var(--pv-accent-2))', opacity: 0.12 }} />
-
-          <div className="flex items-center gap-4 mb-8 ">
-            <div className="w-12 h-12 rounded-lg flex items-center justify-center" style={{ background: 'linear-gradient(135deg,var(--pv-accent),var(--pv-accent-2))' }}>
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M12 2L2 7l10 5 10-5-10-5z" fill="white" opacity="0.95"/></svg>
-            </div>
-            <div>
-              <h2 className="text-2xl sm:text-3xl font-extrabold text-white">Create your account</h2>
-              <p className="text-white/70 text-sm">Sign up to publish projects, get feedback, and connect with industry.</p>
-            </div>
+      {/* Right Side: Register Form */}
+      <div className="w-full lg:w-1/2 flex items-center justify-center px-6 sm:px-12 md:px-16 relative pt-[72px]">
+        <div className="w-full max-w-lg py-4">
+          <div className="mb-6">
+            <h2 className="text-4xl font-bold text-white mb-2">Create Account</h2>
+            <p className="text-white/50 text-xs">Register your academic identity to begin</p>
           </div>
-          <form autoComplete="on" className="mt-3 grid grid-cols-1 gap-4" onSubmit={handleSubmit}>
-            <input name="hidden-username" type="text" autoComplete="username" className="hidden" />
 
-            <label className="block">
-              <span className="text-sm text-white/70">Full name</span>
-              <input name="name"
-               autoComplete="name" 
-               type="text"
-               placeholder="Full name"
-               value={formData.name}
-               onChange={handleChange}
-               className="mt-2 w-full px-5 py-2 bg-white/6 border border-white/8 rounded-2xl text-white placeholder-white/60 focus:outline-none focus:ring-2 focus:ring-(--pv-accent) focus:border-(--pv-accent) transition" />
-            </label>
+          <form onSubmit={handleSubmit} className="space-y-3">
+            {/* Full Name + Email in a 2-column row */}
+            <div className="grid grid-cols-2 gap-3">
+              {/* Full Name */}
+              <div className="space-y-1.5">
+                <label htmlFor="name" className="text-[11px] font-bold text-white/40 uppercase tracking-wider ml-1">Full Name</label>
+                <div className="relative group">
+                  <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-white/30 group-focus-within:text-[var(--pv-accent)] transition-colors">
+                    <User size={16} />
+                  </div>
+                  <input
+                    id="name"
+                    name="name"
+                    type="text"
+                    placeholder="John Doe"
+                    value={formData.name}
+                    onChange={handleChange}
+                    autoComplete="name"
+                    className="w-full pl-11 pr-4 py-3 bg-[#0b1424] border border-white/10 rounded-xl text-white text-sm placeholder-white/20 focus:outline-none focus:ring-1 focus:ring-[var(--pv-accent)]/50 focus:bg-[#0f1a2e] transition-all"
+                  />
+                </div>
+              </div>
 
-            <label className="block">
-              <span className="text-sm text-white/70">Email</span>
-              <input name="email"
-               autoComplete="email"
-               type="email"
-               placeholder="you@college.edu" 
-               value={formData.email}
-               onChange={handleChange}
-              className="mt-2 w-full px-5 py-2 bg-white/6 border border-white/8 rounded-2xl text-white placeholder-white/60 focus:outline-none focus:ring-2 focus:ring-(--pv-accent) focus:border-(--pv-accent) transition" />
-            </label>
+              {/* Email */}
+              <div className="space-y-1.5">
+                <label htmlFor="email" className="text-[11px] font-bold text-white/40 uppercase tracking-wider ml-1">University Email</label>
+                <div className="relative group">
+                  <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-white/30 group-focus-within:text-[var(--pv-accent)] transition-colors">
+                    <Mail size={16} />
+                  </div>
+                  <input
+                    id="email"
+                    name="email"
+                    type="email"
+                    placeholder="you@college.edu"
+                    value={formData.email}
+                    onChange={handleChange}
+                    autoComplete="email"
+                    className="w-full pl-11 pr-4 py-3 bg-[#0b1424] border border-white/10 rounded-xl text-white text-sm placeholder-white/20 focus:outline-none focus:ring-1 focus:ring-[var(--pv-accent)]/50 focus:bg-[#0f1a2e] transition-all"
+                  />
+                </div>
+              </div>
+            </div>
 
-            <label className="block">
-              <span className="text-sm text-white/70">Role</span>
-              <select name="role"
-              value={formData.role}
-               onChange={handleChange}
-               className="mt-2 w-full px-5 py-2 bg-white/6 border border-white/8 rounded-2xl text-white placeholder-white/60 focus:outline-none focus:ring-2 focus:ring-(--pv-accent) focus:border-(--pv-accent) transition">
-                <option value="student" className="text-black">Student</option>
-                <option value="teacher" className="text-black">Teacher</option>
-                <option value="recruiter" className="text-black">Recruiter</option>
-                <option value="admin" className="text-black">Admin</option>
-              </select>
-            </label>
-
-            <label className="block relative">
-              <span className="text-sm text-white/70">Password</span>
-              <input
-                name="password"
-                autoComplete="new-password"
-                type={showPassword ? "text" : "password"}
-                placeholder="Create a strong password"
-                value={formData.password}
-               onChange={handleChange}
-                className="mt-2 w-full px-5 py-2 bg-white/6 border border-white/8 rounded-2xl text-white placeholder-white/60 focus:outline-none focus:ring-2 focus:ring-(--pv-accent) focus:border-(--pv-accent) transition"
-              />
-              <button type="button" aria-label="Toggle password visibility" onClick={() => setShowPassword((s) => !s)} className="absolute right-4 top-[75%] -translate-y-1/2 text-white/60">
-                {showPassword ? '🙈' : '👁️'}
+            {/* CUSTOM DROPDOWN */}
+            <div className="space-y-1.5 relative" ref={dropdownRef}>
+              <label className="text-[11px] font-bold text-white/40 uppercase tracking-wider ml-1">Academic Role</label>
+              <button
+                type="button"
+                onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+                className={`w-full flex items-center justify-between pl-11 pr-4 py-3 bg-[#0b1424] border rounded-xl text-white text-sm transition-all relative ${isDropdownOpen ? "border-[var(--pv-accent)]/50 focus:ring-1 focus:ring-[var(--pv-accent)]/50" : "border-white/10"
+                  }`}
+              >
+                <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-white/30">
+                  <Cpu size={16} className={isDropdownOpen ? "text-[var(--pv-accent)]" : ""} />
+                </div>
+                <span className={formData.role ? "text-white" : "text-white/20"}>
+                  {roles.find(r => r.value === formData.role)?.label || "Select Role"}
+                </span>
+                <ChevronDown size={14} className={`text-white/30 transition-transform duration-300 ${isDropdownOpen ? 'rotate-180' : ''}`} />
               </button>
-            </label>
 
-            <button type="submit"
-             className="mt-2 w-full py-3 rounded-2xl text-white font-semibold shadow-lg" style={{ background: 'linear-gradient(90deg,var(--pv-accent),var(--pv-accent-2))' }}>
-              Create Account
+              {isDropdownOpen && (
+                <div className="absolute top-[calc(100%+8px)] left-0 w-full p-2 bg-[#050A16] border border-white/10 rounded-xl shadow-2xl z-[150] animate-in fade-in zoom-in-95 duration-200">
+                  {roles.map((roleOpt) => (
+                    <button
+                      key={roleOpt.value}
+                      type="button"
+                      onClick={() => handleRoleSelect(roleOpt.value)}
+                      className={`w-full flex items-center justify-between px-4 py-2.5 rounded-lg text-sm transition-all mb-1 last:mb-0 ${formData.role === roleOpt.value
+                        ? "bg-[linear-gradient(90deg,var(--pv-accent),var(--pv-accent-2))] text-black font-bold shadow-lg"
+                        : "text-white/60 hover:text-white hover:bg-white/5"
+                        }`}
+                    >
+                      {roleOpt.label}
+                      {formData.role === roleOpt.value && <Check size={14} />}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* Password */}
+            <div className="space-y-1.5">
+              <label htmlFor="password" className="text-[11px] font-bold text-white/40 uppercase tracking-wider ml-1">Secure Password</label>
+              <div className="relative group">
+                <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-white/30 group-focus-within:text-[var(--pv-accent)] transition-colors">
+                  <Lock size={16} />
+                </div>
+                <input
+                  id="password"
+                  name="password"
+                  type={showPassword ? 'text' : 'password'}
+                  placeholder="••••••••"
+                  value={formData.password}
+                  onChange={handleChange}
+                  autoComplete="new-password"
+                  className="w-full pl-11 pr-11 py-3 bg-[#0b1424] border border-white/10 rounded-xl text-white text-sm placeholder-white/20 focus:outline-none focus:ring-1 focus:ring-[var(--pv-accent)]/50 focus:bg-[#0f1a2e] transition-all"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute inset-y-0 right-0 pr-3.5 flex items-center text-white/30 hover:text-white transition-colors"
+                >
+                  {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                </button>
+              </div>
+            </div>
+
+            <button
+              type="submit"
+              disabled={loading}
+              className="w-full py-4 mt-2 bg-[linear-gradient(90deg,var(--pv-accent),var(--pv-accent-2))] text-black font-extrabold text-sm rounded-xl shadow-lg shadow-[var(--pv-accent)]/20 hover:shadow-[var(--pv-accent)]/30 hover:translate-y-[-1px] active:scale-[0.98] transition-all flex items-center justify-center gap-2 disabled:opacity-70 disabled:hover:translate-y-0"
+            >
+              {loading ? (
+                <div className="w-5 h-5 border-2 border-black/20 border-t-black rounded-full animate-spin" />
+              ) : (
+                <>
+                  Establish Identity
+                  <ArrowRight size={16} />
+                </>
+              )}
             </button>
           </form>
 
-          <p className="text-center text-white/70 mt-4 text-sm">Already have an account? <Link href="/login" className="text-(--pv-accent) hover:underline">Log in</Link></p>
+          <div className="mt-8 text-center">
+            <p className="text-white/40 text-[11px] mb-2 font-medium uppercase tracking-[0.2em]">Already have an account?</p>
+            <Link
+              href="/login"
+              className="inline-flex items-center gap-2 text-xs font-bold text-white hover:text-[var(--pv-accent)] transition-colors group"
+            >
+              Sign into Secure Terminal
+              <ArrowRight size={14} className="group-hover:translate-x-1 transition-transform" />
+            </Link>
+          </div>
         </div>
       </div>
     </div>

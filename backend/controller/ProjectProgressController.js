@@ -17,6 +17,10 @@ export const submitProgress = async (req, res) => {
       });
     }
 
+    const now = new Date();
+    const dayOfWeek = now.getDay(); // 0=Sun, 1=Mon, ..., 5=Fri, 6=Sat
+    const isSubmissionWindow = [0, 5, 6].includes(dayOfWeek);
+
     const project = await ProjectInitial.findById(projectId);
     if (!project) {
       return res.status(404).json({
@@ -28,6 +32,12 @@ export const submitProgress = async (req, res) => {
     let progress = await ProjectProgress.findOne({
       projectId,
     });
+
+    if (Number(week) > Number(project.totalWeeks)) {
+      return res.status(400).json({
+        message: `Project duration is only ${project.totalWeeks} weeks. Cannot submit for Week ${week}.`,
+      });
+    }
 
     if (!progress) {
       progress = new ProjectProgress({
@@ -44,7 +54,6 @@ export const submitProgress = async (req, res) => {
     );
 
     if (existingMilestone) {
-
       // If already approved → do not allow resubmit
       if (existingMilestone.status === "approved") {
         return res.status(400).json({
@@ -59,7 +68,7 @@ export const submitProgress = async (req, res) => {
         });
       }
 
-      // If rejected → allow update (RESUBMIT)
+      // If rejected → allow update (RESUBMIT) ANYTIME (Correction window is always open)
       if (existingMilestone.status === "rejected") {
         existingMilestone.title = title;
         existingMilestone.description = description;
@@ -79,6 +88,37 @@ export const submitProgress = async (req, res) => {
         return res.status(200).json({
           message: "Week resubmitted successfully",
         });
+      }
+    }
+
+    // IF NEW SUBMISSION (no existing milestone for this week)
+    // BLOCK IF OUTSIDE FRI-SUN WINDOW
+    if (!isSubmissionWindow) {
+      return res.status(403).json({
+        message: "Submission window is only open from Friday to Sunday.",
+      });
+    }
+
+    // EXTRA VALIDATIONS FOR NEW SUBMISSIONS
+    if (progress.milestones.length > 0) {
+      const unapproved = progress.milestones.find(m => m.status !== "approved");
+      if (unapproved) {
+        return res.status(400).json({
+          message: `Cannot submit Week ${week}. Week ${unapproved.week} is still ${unapproved.status}.`
+        });
+      }
+
+      const latestMilestone = progress.milestones.reduce((latest, m) => {
+        return new Date(m.submittedAt) > new Date(latest.submittedAt) ? m : latest;
+      }, progress.milestones[0]);
+
+      if (latestMilestone) {
+        const daysSinceLastSubmit = (new Date() - new Date(latestMilestone.submittedAt)) / (1000 * 60 * 60 * 24);
+        if (daysSinceLastSubmit < 4) {
+          return res.status(400).json({
+            message: "You have already submitted a milestone recently. Only one submission is allowed per week."
+          });
+        }
       }
     }
 
@@ -152,6 +192,7 @@ export const getCurrentProgress = async (req, res) => {
         mentorName: project.mentorId?.userId?.name || "Not assigned",
         mentorEmail: project.mentorId?.userId?.email || "—",
         progressPercent: progress?.progressPercent || 0,
+        totalWeeks: project.totalWeeks || 8, // ✅ ADDED
       },
       milestones: progress?.milestones || [],
       progressPercentage: progress?.progressPercent || 0,

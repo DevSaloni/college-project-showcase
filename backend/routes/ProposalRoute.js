@@ -6,19 +6,19 @@ import {
   getProposalByGroup,
   updateProposal
 } from "../controller/ProposalController.js";
-import { protect,teacherOnly } from "../middleware/auth.js";
+import { protect, teacherOnly } from "../middleware/auth.js";
 
 const router = express.Router();
 
 /* STUDENT */
-router.post("/create",protect, createProposal);
+router.post("/create", protect, createProposal);
 
 /* TEACHER */
-router.get("/:groupId/workspace", protect,getWorkspaceData);
+router.get("/:groupId/workspace", protect, getWorkspaceData);
 
-router.put("/update/:id", protect,teacherOnly, updateProposalStatus);
+router.put("/update/:id", protect, teacherOnly, updateProposalStatus);
 router.get("/group/:groupId", protect, getProposalByGroup);
-router.put("/update/:proposalId", protect, updateProposal);
+router.put("/student-update/:proposalId", protect, updateProposal);
 
 
 export default router;

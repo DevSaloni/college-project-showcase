@@ -11,7 +11,7 @@ export const createProposal = async (req, res) => {
   try {
     const proposal = await Proposal.create({
       ...req.body,
-      studentId: req.user.id, 
+      studentId: req.user.id,
     });
 
     res.status(201).json({
@@ -163,7 +163,9 @@ export const updateProposalStatus = async (req, res) => {
 export const getProposalByGroup = async (req, res) => {
   try {
     const { groupId } = req.params;
-
+    if (!mongoose.Types.ObjectId.isValid(groupId)) {
+      return res.status(400).json({ message: "Invalid group id" });
+    }
     const proposal = await Proposal.findOne({ groupId });
 
     const project = await ProjectInitial.findOne({ groupId });
@@ -187,22 +189,31 @@ export const getProposalByGroup = async (req, res) => {
 export const updateProposal = async (req, res) => {
   try {
     const { proposalId } = req.params;
-
+    if (!mongoose.Types.ObjectId.isValid(proposalId)) {
+      return res.status(400).json({ message: "Invalid proposal id" });
+    }
     const proposal = await Proposal.findById(proposalId);
 
     if (!proposal) {
       return res.status(404).json({ message: "Proposal not found" });
     }
 
-    if (proposal.status !== "Pending") {
+    if (proposal.status === "Approved") {
       return res
         .status(403)
-        .json({ message: "Approved/Rejected proposal cannot be edited" });
+        .json({ message: "Approved proposal cannot be edited" });
     }
+
+    // Reset status to "Pending" if resubmitting
+    const updateData = {
+      ...req.body,
+      status: "Pending",
+      teacherFeedback: "" // Clear feedback on resubmit
+    };
 
     const updatedProposal = await Proposal.findByIdAndUpdate(
       proposalId,
-      req.body,
+      updateData,
       { new: true }
     );
 

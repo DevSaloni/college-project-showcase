@@ -111,7 +111,7 @@ export default function StudentDashboardOverview() {
               Live Overview
             </span>
           </div>
-          <h1 className="text-3xl md:text-5xl font-black text-white tracking-tight">
+          <h1 className="text-3xl md:text-5xl font-black text-white tracking-tight capitalize">
             Welcome back, {studentName || "Student"}!
           </h1>
           <p className="text-white/40 text-sm flex items-center gap-2 pt-1 font-medium">
