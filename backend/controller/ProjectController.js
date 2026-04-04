@@ -3,26 +3,30 @@ import Project from "../models/Project.js";
 //save the project
 export const createProject = async (req, res) => {
   try {
-  const project = new Project({
-  ...req.body,
+    const project = new Project({
+      ...req.body,
 
-  teamMembers: req.body.teamMembers
-    ? Array.isArray(req.body.teamMembers)
-      ? req.body.teamMembers
-      : [req.body.teamMembers]
-    : [],
+      teamMembers: req.body.teamMembers
+        ? Array.isArray(req.body.teamMembers)
+          ? req.body.teamMembers
+          : typeof req.body.teamMembers === "string"
+            ? req.body.teamMembers.split(",").map(i => i.trim())
+            : [req.body.teamMembers]
+        : [],
 
-  featureList: req.body.featureList
-    ? Array.isArray(req.body.featureList)
-      ? req.body.featureList
-      : [req.body.featureList]
-    : [],
+      featureList: req.body.featureList
+        ? Array.isArray(req.body.featureList)
+          ? req.body.featureList
+          : typeof req.body.featureList === "string"
+            ? req.body.featureList.split(",").map(i => i.trim())
+            : [req.body.featureList]
+        : [],
 
-  student: req.user._id,
+      student: req.user._id,
 
-  bannerImage: req.files?.bannerImage?.[0]?.path?.replace(/\\/g, "/"),
-  documentation: req.files?.documentation?.[0]?.path?.replace(/\\/g, "/"),
-});
+      bannerImage: req.files?.bannerImage?.[0]?.path?.replace(/\\/g, "/"),
+      documentation: req.files?.documentation?.[0]?.path?.replace(/\\/g, "/"),
+    });
 
     await project.save();
 
@@ -37,18 +41,40 @@ export const getAllProjects = async (req, res) => {
   try {
     const userId = req.user?._id?.toString();
 
-    const projects = await Project.find({ status: "Pending" });
+    const projects = await Project.find({ status: "Pending" }).populate("student", "name email");
 
-    const data = projects.map(p => ({
-      ...p.toObject(),
-      bookmarksCount: p.bookmarks.length,
-      isBookmarked: userId
-        ? p.bookmarks.map(id => id.toString()).includes(userId)
-        : false,
+    const mongoose = await import("mongoose");
+    const StudentModel = (await import("../models/Student.js")).default;
+    const GroupModel = (await import("../models/Groups.js")).default;
+
+    const data = await Promise.all(projects.map(async (p) => {
+      let allCreators = [];
+      if (p.student) {
+        const submitterStudent = await StudentModel.findOne({ userId: p.student._id });
+        if (submitterStudent) {
+          const group = await GroupModel.findOne({ students: submitterStudent._id });
+          if (group) {
+            allCreators = await StudentModel.find({ _id: { $in: group.students } }).populate("userId", "name email");
+          } else {
+            await submitterStudent.populate("userId", "name email");
+            allCreators = [submitterStudent];
+          }
+        }
+      }
+
+      return {
+        ...p.toObject(),
+        creatorProfiles: allCreators,
+        bookmarksCount: p.bookmarks.length,
+        isBookmarked: userId
+          ? p.bookmarks.map(id => id.toString()).includes(userId)
+          : false,
+      };
     }));
 
     res.status(200).json({ data });
   } catch (error) {
+    console.error("Explore Fetch Error", error);
     res.status(500).json({ message: "Server error" });
   }
 };
@@ -57,29 +83,53 @@ export const getAllProjects = async (req, res) => {
 export const getProjectById = async (req, res) => {
   try {
     const project = await Project.findById(req.params.id)
-      .populate("comments.user", "name");
+      .populate("comments.user", "name role")
+      .populate("student", "name email")
+      .populate("views", "name role")
+      .populate("ratings.users", "name role");
 
     if (!project) {
       return res.status(404).json({ message: "Project not found" });
     }
 
-    // ✅ COUNT UNIQUE VIEWS
     // ✅ COUNT UNIQUE VIEWS (teacher / recruiter only)
-      if (
-        req.user &&
-        project.student.toString() !== req.user._id.toString()
-      ) {
-        const alreadyViewed = project.views.some(
-          (u) => u.toString() === req.user._id.toString()
-        );
+    if (
+      req.user &&
+      project.student._id.toString() !== req.user._id.toString()
+    ) {
+      const alreadyViewed = project.views.some(
+        (u) => u.toString() === req.user._id.toString()
+      );
 
-        if (!alreadyViewed) {
-          project.views.push(req.user._id);
-          await project.save();
-        }
+      if (!alreadyViewed) {
+        project.views.push(req.user._id);
+        await project.save();
       }
+    }
 
-    res.status(200).json({ data: project });
+    // Fetch the detailed Student profile for this user
+    const mongoose = await import("mongoose");
+    const StudentModel = (await import("../models/Student.js")).default;
+    const GroupModel = (await import("../models/Groups.js")).default;
+
+    const submitterStudent = await StudentModel.findOne({ userId: project.student._id });
+
+    let allCreators = [];
+    if (submitterStudent) {
+      const group = await GroupModel.findOne({ students: submitterStudent._id });
+      if (group) {
+        allCreators = await StudentModel.find({ _id: { $in: group.students } }).populate("userId", "name email");
+      } else {
+        await submitterStudent.populate("userId", "name email");
+        allCreators = [submitterStudent];
+      }
+    }
+
+    // Attach creator profiles to the response safely
+    const projectData = project.toObject();
+    projectData.creatorProfiles = allCreators;
+
+    res.status(200).json({ data: projectData });
   } catch (err) {
     console.error("View Error:", err);
     res.status(500).json({ message: "Server error" });
@@ -254,8 +304,8 @@ export const getMyProjectsByStatus = async (req, res) => {
 //get projectby id 
 export const getProjectByStudentId = async (req, res) => {
   try {
-    const project = await Project.findOne({ 
-      _id: req.params.id, 
+    const project = await Project.findOne({
+      _id: req.params.id,
       student: req.user._id // ensures only their own project
     });
 

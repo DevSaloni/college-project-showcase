@@ -9,7 +9,7 @@ const commentSchema = new mongoose.Schema(
     },
     role: {
       type: String,
-     enum: ["recruiter", "teacher"],
+      enum: ["recruiter", "teacher"],
       required: true,
     },
     text: {
@@ -24,8 +24,9 @@ const commentSchema = new mongoose.Schema(
 const projectSchema = new mongoose.Schema(
   {
     title: String,
+    groupName: String,
     category: String,
-    categorySlug:String,
+    categorySlug: String,
     year: String,
     mentor: String,
 
@@ -48,30 +49,30 @@ const projectSchema = new mongoose.Schema(
 
     bannerImage: String,
     documentation: String,
-status: {
-  type: String,
-enum: ["Approved", "Pending", "Rejected"],
-  default: "Pending",
-},
+    status: {
+      type: String,
+      enum: ["Approved", "Pending", "Rejected"],
+      default: "Pending",
+    },
 
-// ⭐ RATING
-  ratings: {
-  totalRating: { type: Number, default: 0 },
-  ratingCount: { type: Number, default: 0 },
-  users: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }]
-},
+    // ⭐ RATING
+    ratings: {
+      totalRating: { type: Number, default: 0 },
+      ratingCount: { type: Number, default: 0 },
+      users: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }]
+    },
 
 
     // 💬 COMMENTS
- comments: [commentSchema],
-student: {
-  type: mongoose.Schema.Types.ObjectId,
-  ref: "User",
-  required: true,
-},
+    comments: [commentSchema],
+    student: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      required: true,
+    },
 
-views: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
-bookmarks: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
+    views: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
+    bookmarks: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
 
   },
   {

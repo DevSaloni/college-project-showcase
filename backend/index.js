@@ -56,7 +56,7 @@ io.on("connection", (socket) => {
   });
 });
 
-const PORT = process.env.PORT || 2018;
+const PORT = process.env.PORT || 2021;
 
 // routes
 import UserRoute from "./routes/UserRoute.js";

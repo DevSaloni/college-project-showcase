@@ -9,7 +9,8 @@ import {
   FileText,
   Activity,
   User,
-  LogOut
+  LogOut,
+  Upload
 } from "lucide-react";
 import { toast } from "react-hot-toast";
 
@@ -18,6 +19,7 @@ const menu = [
   { name: "Proposal", icon: FileText, path: "/student-dashboard/proposal" },
   { name: "Project Progress", icon: Activity, path: "/student-dashboard/project-progress" },
   { name: "My Projects", icon: FolderKanban, path: "/student-dashboard/my-projects" },
+  { name: "Submit Project", icon: Upload, path: "/student-dashboard/submit-project" },
   { name: "Profile", icon: User, path: "/student-dashboard/profile" },
 ];
 

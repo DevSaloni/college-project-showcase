@@ -1,7 +1,7 @@
 import express from "express";
-import {createProject,getProjectById,getProjectByStudentId,getAllProjects,getMyProjectsByStatus,addRating,addComment,bookmarkProject,getProjectsByCategory,updateProject} from "../controller/ProjectController.js";
-import {upload} from "../middleware/upload.js";
-import { protect } from "../middleware/auth.js";
+import { createProject, getProjectById, getProjectByStudentId, getAllProjects, getMyProjectsByStatus, addRating, addComment, bookmarkProject, getProjectsByCategory, updateProject } from "../controller/ProjectController.js";
+import { upload } from "../middleware/upload.js";
+import { protect, optionalAuth } from "../middleware/auth.js";
 
 const router = express.Router();
 
@@ -23,7 +23,7 @@ router.get("/student/:id", protect, getProjectByStudentId);
 
 router.get("/category/:slug", getProjectsByCategory);
 
-router.get("/:id", protect, getProjectById);
+router.get("/:id", optionalAuth, getProjectById);
 
 router.put("/update/:id", protect, updateProject);
 

@@ -121,10 +121,19 @@ export const getStudentById = async (req, res) => {
     // also fetch project progress for this student if it exists
     const progress = await ProjectProgress.findOne({ studentId: student._id });
 
+    //also fetch project status
+    const projectsCount = group ? await Proposal.countDocuments({ groupId: group._id }) : 0;
+    const approvedProjects = group ? await Proposal.countDocuments({ groupId: group._id, status: "Approved" }) : 0;
+
     res.status(200).json({
+      success: true,
       student,
       group,
       progress,
+      stats: {
+        totalProjects: projectsCount,
+        approvedProjects: approvedProjects,
+      }
     });
   } catch (error) {
     res.status(500).json({ message: error.message });

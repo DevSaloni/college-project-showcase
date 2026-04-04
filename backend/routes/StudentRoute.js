@@ -12,7 +12,7 @@ import {
 } from "../controller/StudentController.js";
 
 import { uploadStudentImage } from "../middleware/student.js";
-import { protect } from "../middleware/auth.js";
+import { protect, optionalAuth } from "../middleware/auth.js";
 
 const router = express.Router();
 
@@ -27,7 +27,7 @@ router.get("/all", protect, getAllStudents);
 router.get("/dropdown", protect, getStudentsForGroup);
 router.get("/my-academic-projects", protect, getMyAcademicProjects);
 
-router.get("/:id", protect, getStudentById);
+router.get("/:id", optionalAuth, getStudentById);
 router.get("/project-details/:id", protect, getProjectDetails);
 
 router.put(
