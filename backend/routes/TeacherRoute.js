@@ -1,7 +1,7 @@
 import express from "express";
 import {
   addTeacher, getAllTeachers, getTeachersForGroup, getTeacherById, updateTeacher, deleteTeacher,
-  getTeacherStudents, getTeacherStudentById, getTeacherGroups, getTeacherGroupById, getTeacherProfile
+  getTeacherStudents, getTeacherStudentById, getTeacherGroups, getTeacherGroupById
 } from "../controller/TeacherController.js";
 import { uploadTeachersImage } from "../middleware/teacher.js";
 import { protect } from "../middleware/auth.js";
@@ -15,7 +15,7 @@ router.post(
   addTeacher
 );
 
-router.get("/profile", protect, getTeacherProfile);
+// router.get("/profile", protect, getTeacherProfile);
 router.get("/all", protect, getAllTeachers);
 router.get("/dropdown", protect, getTeachersForGroup);
 router.get("/students", protect, getTeacherStudents);

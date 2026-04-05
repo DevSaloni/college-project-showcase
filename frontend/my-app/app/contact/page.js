@@ -1,181 +1,253 @@
 "use client";
 
-import { Mail, Phone, MapPin, Send, User, MessageSquare } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import axios from "axios";
+import { toast } from "react-hot-toast";
+import { Mail, User, MessageSquare, Send, Compass, ArrowRight, Github, Linkedin, Twitter, Sparkles } from "lucide-react";
 import { useApi } from "@/context/ApiContext";
-
+import Link from "next/link";
 
 export default function ContactPage() {
-const {BASE_URL} = useApi();
+  const { BASE_URL } = useApi();
 
-const[formData,setFormData] = useState({
-  name:"",
-  email:"",
-  message:""
-});
+  const [formData, setFormData] = useState({
+    name: "",
+    email: "",
+    message: ""
+  });
 
-const handleChange = (e)=>{
-  setFormData({
+  const [loading, setLoading] = useState(false);
+  const [creators, setCreators] = useState([]);
+  const [mentors, setMentors] = useState([]);
+
+  useEffect(() => {
+    const fetchTeam = async () => {
+      try {
+        const res = await axios.get(`${BASE_URL}/api/projects/all`);
+        // Get unique creators from projects
+        const allCreators = res.data.data.flatMap(p => p.creatorProfiles || []).slice(0, 3);
+        setCreators(allCreators);
+
+        // For mentors/teachers, we'll try to fetch all or use placeholders if auth is needed
+        try {
+          const tRes = await axios.get(`${BASE_URL}/api/teachers/all`); // This might fail if protected
+          setMentors(tRes.data.data.slice(0, 2));
+        } catch (e) {
+          // Fallback to stylized mock if backend is protected
+          setMentors([
+            { userId: { name: "Dr. Sarah Mitchell" }, department: "AI & Neural Systems" },
+            { userId: { name: "Prof. James Chen" }, department: "Blockchain Architect" }
+          ]);
+        }
+      } catch (err) {
+        console.error(err);
+      }
+    };
+    fetchTeam();
+  }, [BASE_URL]);
+
+  const handleChange = (e) => {
+    setFormData({
       ...formData,
       [e.target.name]: e.target.value,
     });
-};
+  };
 
-const handleSubmit = async (e) => {
-  e.preventDefault();
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (!formData.name || !formData.email || !formData.message) {
+      toast.error("All identifiers are required for transmission.");
+      return;
+    }
 
-  try {
-    await axios.post(`${BASE_URL}/api/contact/save`, formData);
-    alert("Your Message Saved Successfully");
+    setLoading(true);
+    const loadId = toast.loading("Establishing connection...");
 
-    // reset form
-    setFormData({
-      name: "",
-      email: "",
-      message: "",
-    });
-  } catch (err) {
-    console.error(err);
-    alert("Something went wrong");
-  }
-};
-
+    try {
+      await axios.post(`${BASE_URL}/api/contact/save`, formData);
+      toast.success("Message successfully transmitted!", { id: loadId });
+      setFormData({ name: "", email: "", message: "" });
+    } catch (err) {
+      console.error(err);
+      toast.error("Transmission failed. Please retry signal.", { id: loadId });
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
-    <section className="relative py-24 bg-[#050A16] overflow-hidden">
+    <div className="flex h-screen w-full bg-[#020712] overflow-hidden font-['Poppins',_sans-serif]">
 
-      {/* Background Glow */}
-      <div
-        className="absolute inset-0 opacity-40 blur-[150px]"
-        style={{
-          background:
-            "radial-gradient(circle at 80% 20%, var(--pv-accent), transparent 70%)",
-        }}
-      />
+      {/* ── LEFT SIDE: THEMATIC BRANDING & IMAGE ── */}
+      <div className="hidden lg:flex lg:w-1/2 relative bg-[#050A16] items-center justify-center p-12 overflow-hidden border-r border-white/5">
 
-      <div className="max-w-6xl mx-auto px-6 relative z-10">
-        {/* Heading */}
-        <h2 className="text-4xl lg:text-5xl font-extrabold text-white text-center">
-          Contact Us
-        </h2>
-        <p className="text-white/70 text-center mt-3 max-w-2xl mx-auto">
-          We’d love to hear from you! Reach out for support, collaboration, or general inquiries.
-        </p>
+        {/* Background Image / Overlay */}
+        <div
+          className="absolute inset-0 bg-cover bg-center bg-no-repeat transition-transform duration-1000 hover:scale-105"
+          style={{ backgroundImage: "url('/contact-bg.png')" }}
+        />
+        <div className="absolute inset-0 bg-gradient-to-tr from-[#020712] via-[#020712]/70 to-[var(--pv-accent)]/20 shadow-inner" />
 
-        {/* Grid Layout */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 mt-16">
+        {/* Glow Effects */}
+        <div className="absolute top-1/4 left-1/4 w-64 h-64 bg-[var(--pv-accent)]/20 rounded-full blur-[100px] animate-pulse" />
+        <div className="absolute bottom-1/4 right-1/4 w-80 h-80 bg-blue-500/10 rounded-full blur-[120px] animate-pulse delay-700" />
 
-          {/* LEFT — CONTACT DETAILS */}
-          <div className="bg-white/[0.03] border border-white/10 p-10 rounded-2xl backdrop-blur-xl shadow-lg">
-
-            <h3 className="text-2xl font-semibold text-white mb-6">
-              Get in Touch
-            </h3>
-
-            <div className="space-y-6">
-              {/* Email */}
-              <div className="flex items-start space-x-4">
-                <Mail className="w-7 h-7 text-[var(--pv-accent)]" />
-                <div>
-                  <h4 className="text-lg font-semibold text-white">Email</h4>
-                  <p className="text-white/70 text-sm">support@projectverse.com</p>
-                </div>
-              </div>
-
-              {/* Phone */}
-              <div className="flex items-start space-x-4">
-                <Phone className="w-7 h-7 text-[var(--pv-accent)]" />
-                <div>
-                  <h4 className="text-lg font-semibold text-white">Phone</h4>
-                  <p className="text-white/70 text-sm">+91 98765 43210</p>
-                </div>
-              </div>
-
-              {/* Location */}
-              <div className="flex items-start space-x-4">
-                <MapPin className="w-7 h-7 text-[var(--pv-accent)]" />
-                <div>
-                  <h4 className="text-lg font-semibold text-white">Location</h4>
-                  <p className="text-white/70 text-sm">Peth, Maharashtra, India</p>
-                </div>
-              </div>
-            </div>
-
-            {/* Bottom Highlight Box */}
-            <div className="mt-10 p-6 bg-white/[0.05] border border-white/10 rounded-xl">
-              <p className="text-white/70 text-sm leading-relaxed">
-                Our team will respond within{" "}
-                <span className="text-[var(--pv-accent)] font-semibold">
-                  24 hours
-                </span>{" "}
-                on working days.  
-              </p>
-            </div>
+        {/* Content Overlay */}
+        <div className="relative z-10 w-full max-w-lg">
+          <div className="mb-8 inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/5 border border-white/10 backdrop-blur-md">
+            <Compass size={14} className="text-[var(--pv-accent)]" />
+            <span className="text-white/60 text-[10px] uppercase tracking-widest font-bold">Innovation Support</span>
           </div>
 
-          {/* RIGHT — CONTACT FORM */}
-          <form className="bg-white/[0.03] p-10 rounded-2xl border border-white/10 backdrop-blur-xl shadow-lg"
-          onSubmit={handleSubmit}>
+          <h1 className="text-4xl xl:text-5xl font-black text-white mb-6 leading-[1.1] tracking-tight">
+            Connect with the<br />
+            <span className="text-transparent bg-clip-text bg-[linear-gradient(135deg,var(--pv-accent),var(--pv-accent-2))]">
+              Future of Tech
+            </span>
+          </h1>
 
-            <h3 className="text-2xl font-semibold text-white mb-6">
-              Send a Message
-            </h3>
+          <p className="text-white/60 text-base leading-relaxed mb-10 max-w-md">
+            Have questions about ProjectVista? Reach out to us for collaborations, support, or general project inquiries. Join the community of innovators and start your journey today.
+          </p>
 
-            {/* Name + Email */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-              <div className="flex items-center bg-white/[0.05] border border-white/10 rounded-lg px-4">
-                <User className="text-[var(--pv-accent)] mr-3" />
-                <input
-                  type="text"
-                  name="name"
-                  value={formData.name}
-                  onChange={handleChange}
-                  placeholder="Your Name"
-                  className="bg-transparent w-full py-3 text-white outline-none"
-                />
-              </div>
-
-              <div className="flex items-center bg-white/[0.05] border border-white/10 rounded-lg px-4">
-                <Mail className="text-[var(--pv-accent)] mr-3" />
-                <input
-                  type="email"
-                   name="email"
-                  value={formData.email}
-                  onChange={handleChange}
-                  placeholder="Your Email"
-                  className="bg-transparent w-full py-3 text-white outline-none"
-                />
+          <div className="flex gap-4">
+            <div className="flex -space-x-3">
+              {creators.concat(mentors).slice(0, 4).map((person, i) => {
+                const user = person.userId || {};
+                const img = person.image ? (person.image.startsWith("http") ? person.image : `${BASE_URL}${person.image.startsWith("/") ? "" : "/"}${person.image}`) : `https://api.dicebear.com/7.x/avataaars/svg?seed=${user.name || i}`;
+                return (
+                  <div key={i} title={user.name} className="w-10 h-10 rounded-full border-2 border-[#050A16] bg-white/10 overflow-hidden backdrop-blur-md">
+                    <img src={img} alt={user.name} className="w-full h-full object-cover" />
+                  </div>
+                );
+              })}
+              <div className="w-10 h-10 rounded-full border-2 border-[#050A16] bg-[var(--pv-accent)] flex items-center justify-center text-black font-black text-[10px]">
+                +2k
               </div>
             </div>
-
-            {/* Message */}
-            <div className="flex items-start bg-white/[0.05] border border-white/10 rounded-lg px-4 mt-6">
-              <MessageSquare className="text-[var(--pv-accent)] mt-3 mr-3" />
-              <textarea
-                rows="4"
-                 name="message"
-                  value={formData.message}
-                  onChange={handleChange}
-                placeholder="Your Message"
-                className="bg-transparent w-full py-3 text-white outline-none"
-              ></textarea>
+            <div className="text-white/40 text-xs font-semibold self-center ml-2">
+              Join <span className="text-white">{creators.length > 0 ? "2,000+" : "Loading..."} creators</span> <br /> sharing their vision.
             </div>
-
-            {/* Button */}
-            <button
-              type="submit"
-              className="mt-8 w-full bg-[var(--pv-accent)] text-black font-semibold py-4 rounded-xl 
-              transition-all flex items-center justify-center space-x-2"
-            >
-              <Send className="w-5 h-5" />
-              <span>Send Message</span>
-            </button>
-
-          </form>
-
+          </div>
         </div>
       </div>
-    </section>
+
+      {/* ── RIGHT SIDE: CONTACT FORM ── */}
+      <div className="w-full lg:w-1/2 flex items-center justify-center px-6 sm:px-12 md:px-16 relative pt-[80px]">
+
+        {/* Dynamic Backgrounds on Form Side */}
+        <div className="absolute top-0 right-0 w-full h-[300px] z-0 pointer-events-none opacity-[0.03] overflow-hidden">
+          <div className="absolute inset-0"
+            style={{
+              backgroundImage: `linear-gradient(rgba(255, 255, 255, 1) 1px, transparent 1px), linear-gradient(90deg, rgba(255, 255, 255, 1) 1px, transparent 1px)`,
+              backgroundSize: '40px 40px'
+            }}
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-[#020712] to-transparent" />
+        </div>
+
+        <div className="w-full max-w-lg relative z-10 py-4">
+          <div className="mb-8 text-left">
+            <h2 className="text-4xl font-bold text-white mb-2">Send a Signal</h2>
+            <p className="text-white/50 text-xs">Reach out for support, collaboration, or feedback</p>
+          </div>
+          <form onSubmit={handleSubmit} className="space-y-3.5">
+            <div className="grid grid-cols-2 gap-4">
+              {/* Innovator Name */}
+              <div className="space-y-1">
+                <label htmlFor="name" className="text-[11px] font-bold text-white/40 uppercase tracking-wider ml-1">full name</label>
+                <div className="relative group">
+                  <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-white/30 group-focus-within:text-[var(--pv-accent)] transition-colors">
+                    <User size={18} />
+                  </div>
+                  <input
+                    id="name"
+                    name="name"
+                    type="text"
+                    placeholder="Enter your name"
+                    value={formData.name}
+                    onChange={handleChange}
+                    className="w-full pl-12 pr-4 py-3.5 bg-white/[0.02] border border-white/10 rounded-2xl text-white text-sm placeholder-white/20 focus:outline-none focus:ring-1 focus:ring-[var(--pv-accent)]/50 focus:bg-white/[0.05] transition-all shadow-inner"
+                  />
+                </div>
+              </div>
+
+              {/* University Email */}
+              <div className="space-y-1">
+                <label htmlFor="email" className="text-[11px] font-bold text-white/40 uppercase tracking-wider ml-1">email</label>
+                <div className="relative group">
+                  <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-white/30 group-focus-within:text-[var(--pv-accent)] transition-colors">
+                    <Mail size={18} />
+                  </div>
+                  <input
+                    id="email"
+                    name="email"
+                    type="email"
+                    placeholder="you@university.edu"
+                    value={formData.email}
+                    onChange={handleChange}
+                    className="w-full pl-12 pr-4 py-3.5 bg-white/[0.02] border border-white/10 rounded-2xl text-white text-sm placeholder-white/20 focus:outline-none focus:ring-1 focus:ring-[var(--pv-accent)]/50 focus:bg-white/[0.05] transition-all shadow-inner"
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Transmission Details */}
+            <div className="space-y-1">
+              <label htmlFor="message" className="text-[11px] font-bold text-white/40 uppercase tracking-wider ml-1">message</label>
+              <div className="relative group">
+                <div className="absolute left-4 top-4 text-white/30 group-focus-within:text-[var(--pv-accent)] transition-colors">
+                  <MessageSquare size={18} />
+                </div>
+                <textarea
+                  id="message"
+                  name="message"
+                  placeholder="How can we help you create impact?"
+                  value={formData.message}
+                  onChange={handleChange}
+                  className="w-full h-28 pl-12 pr-4 py-4 bg-white/[0.02] border border-white/10 rounded-2xl text-white text-sm placeholder-white/20 focus:outline-none focus:ring-1 focus:ring-[var(--pv-accent)]/50 focus:bg-white/[0.05] transition-all resize-none shadow-inner"
+                />
+              </div>
+            </div>
+
+            <button
+              type="submit"
+              disabled={loading}
+              className="w-full py-4 rounded-2xl bg-[linear-gradient(135deg,var(--pv-accent),var(--pv-accent-2))] text-black font-black text-xs uppercase tracking-[0.2em] shadow-lg shadow-[var(--pv-accent)]/20 hover:shadow-[var(--pv-accent)]/40 hover:-translate-y-1 active:translate-y-0 transition-all flex items-center justify-center gap-3 disabled:opacity-50 disabled:hover:translate-y-0 font-bold"
+            >
+              {loading ? (
+                <div className="w-5 h-5 border-2 border-black/20 border-t-black rounded-full animate-spin" />
+              ) : (
+                <>
+                  Send Message <Send size={18} />
+                </>
+              )}
+            </button>
+          </form>
+
+          {/* Social architecture footer */}
+          <div className="mt-6 text-center">
+            <p className="text-white/20 text-[9px] font-black uppercase tracking-[0.3em] mb-3">Reach out via Direct Social Channels</p>
+            <div className="flex items-center justify-center gap-6">
+              {[<Linkedin size={18} />, <Twitter size={18} />, <Github size={18} />].map((icon, i) => (
+                <button key={i} className="text-white/20 hover:text-[var(--pv-accent)] transition-all hover:scale-110">
+                  {icon}
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <style jsx>{`
+        @keyframes grid-move {
+          0% { background-position: 0 0; }
+          100% { background-position: 40px 40px; }
+        }
+        .animate-grid-move {
+          animation: grid-move 20s linear infinite;
+        }
+      `}</style>
+    </div>
   );
 }

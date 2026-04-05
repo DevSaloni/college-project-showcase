@@ -8,36 +8,6 @@ import ProjectProgress from "../models/ProjectProgress.js";
 import Proposal from "../models/Proposal.js";
 import ProjectInitial from "../models/ProjectCreate.js";
 
-/* ================= GET MY OWN PROFILE (logged-in teacher) ================= */
-export const getTeacherProfile = async (req, res) => {
-  try {
-    const userId = req.user._id;
-
-    const teacher = await Teacher.findOne({ userId })
-      .populate("userId", "name email");
-
-    if (!teacher) {
-      return res.status(404).json({ message: "Teacher profile not found" });
-    }
-
-    // Count groups and students assigned
-    const groups = await Group.find({ mentor: teacher._id })
-      .populate("students", "_id");
-
-    const studentsCount = groups.reduce((total, g) => total + g.students.length, 0);
-
-    res.status(200).json({
-      success: true,
-      teacher,
-      groupsAssigned: groups.length,
-      studentsCount,
-    });
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ message: err.message });
-  }
-};
-
 /* ================= ADD TEACHER ================= */
 export const addTeacher = async (req, res) => {
   try {
@@ -79,7 +49,6 @@ export const addTeacher = async (req, res) => {
 
 
 /* ================= GET ALL TEACHERS ================= */
-
 export const getAllTeachers = async (req, res) => {
   try {
     const teachers = await Teacher.find()
@@ -158,14 +127,6 @@ export const updateTeacher = async (req, res) => {
       designation,
       phone,
       status,
-      bio,
-      experience,
-      qualification,
-      subjects,
-      expertise,
-      linkedin,
-      github,
-      location
     } = req.body;
 
     const updatedData = {
@@ -173,14 +134,6 @@ export const updateTeacher = async (req, res) => {
       designation,
       phone,
       status,
-      bio,
-      experience,
-      qualification,
-      subjects,
-      expertise,
-      linkedin,
-      github,
-      location
     };
 
     if (req.file) {
@@ -291,42 +244,6 @@ export const getTeacherStudents = async (req, res) => {
     );
 
     res.status(200).json({ success: true, students });
-  } catch (error) {
-    res.status(500).json({ message: error.message });
-  }
-};
-
-/* ================= GET LOGGED-IN TEACHER PROFILE ================= */
-export const getTeacher = async (req, res) => {
-  try {
-    const userId = req.user._id;
-
-    const teacher = await Teacher.findOne({ userId })
-      .populate("userId", "name email");
-
-    if (!teacher) {
-      return res.status(404).json({ message: "Teacher profile not found" });
-    }
-
-    // Get stats
-    const groups = await Group.find({ mentor: teacher._id });
-    const studentsCount = groups.reduce((total, g) => total + g.students.length, 0);
-    const projects = await ProjectInitial.find({ groupId: { $in: groups.map(g => g._id) } });
-
-    res.status(200).json({
-      success: true,
-      profile: {
-        ...teacher._doc,
-        name: teacher.userId.name,
-        email: teacher.userId.email,
-        stats: {
-          groupsCount: groups.length,
-          studentsCount,
-          projectsCount: projects.length
-        }
-      }
-    });
-
   } catch (error) {
     res.status(500).json({ message: error.message });
   }

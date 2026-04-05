@@ -12,13 +12,13 @@ export default function LayoutWrapper({ children }) {
     pathname.startsWith("/teacher-dashboard") ||
     pathname.startsWith("/admin-dashboard");
 
-  const isAuthPage = pathname === "/login" || pathname === "/register";
+  const isFullHeightPage = pathname === "/login" || pathname === "/register" || pathname === "/contact";
 
   return (
     <>
       {!isDashboard && <Navbar />}
       {children}
-      {!isDashboard && !isAuthPage && <Footer />}
+      {!isDashboard && !isFullHeightPage && <Footer />}
     </>
   );
 }

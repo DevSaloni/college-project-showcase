@@ -1,131 +1,78 @@
 "use client";
 import Link from "next/link";
+import { ArrowRight, Compass, Sparkles, Code, Users, Star, Activity } from "lucide-react";
 
 const Herosection = () => {
   return (
-<section className="relative w-full overflow-hidden py-10 sm:py-12 lg:py-17">
-      {/* Added mt-20 to push hero down after navbar */}
+    <section className="relative min-h-screen w-full overflow-hidden flex items-center pt-24 pb-20 font-['Poppins',_sans-serif]">
+      {/* Background Ambience */}
+      <div className="absolute inset-0 bg-[#020712] pointer-events-none z-0" />
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-[#050A16] via-[#020712] to-[#020712] z-0 pointer-events-none" />
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 flex flex-col lg:flex-row items-center gap-8">
-        {/* LEFT — TEXT FIRST ON ALL SMALL SCREENS */}
-        <div className="w-full lg:w-1/2 text-center lg:text-left order-1 lg:order-none">
-          <h1 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-white leading-tight">
-            Showcase your college project to the world
-          </h1>
+      {/* Dynamic Orbs */}
+      <div className="absolute top-[10%] left-[5%] w-[400px] h-[400px] bg-[var(--pv-accent)]/10 rounded-full blur-[120px] animate-pulse pointer-events-none z-0" />
+      <div className="absolute bottom-[10%] right-[5%] w-[500px] h-[500px] bg-blue-600/10 rounded-full blur-[140px] animate-pulse delay-1000 duration-[4000ms] pointer-events-none z-0" />
 
-          <p className="mt-4 text-base sm:text-lg text-white/80 max-w-xl mx-auto lg:mx-0">
-            A platform that connects students, mentors, and recruiters — present your work,
-            get feedback, and grab opportunities.
-          </p>
+      {/* Grid Pattern */}
+      <div className="absolute inset-0 z-0 pointer-events-none opacity-[0.03]"
+        style={{
+          backgroundImage: `linear-gradient(rgba(255, 255, 255, 1) 1px, transparent 1px), linear-gradient(90deg, rgba(255, 255, 255, 1) 1px, transparent 1px)`,
+          backgroundSize: '80px 80px'
+        }}
+      />
 
-          {/* Buttons */}
-          <div className="mt-8 flex flex-wrap justify-center lg:justify-start gap-4">
-            <Link
-              href="/upload-project"
-              className="inline-flex items-center px-6 py-3 rounded-full text-white font-medium shadow-lg"
-              style={{ background: "linear-gradient(90deg, var(--pv-accent), var(--pv-accent-2))" }}
-            >
-              Upload Project
-            </Link>
+      <div className="container mx-auto px-6 relative z-10 w-full">
+        <div className="flex flex-col lg:flex-row items-center justify-between gap-12 lg:gap-16">
 
-            <Link
-              href="/explore"
-              className="inline-flex items-center px-6 py-3 rounded-full border border-white/10 text-white/90 hover:text-[var(--pv-accent)]"
-            >
-              Explore Projects
-            </Link>
+          {/* LEFT: Content */}
+          <div className="w-full lg:w-[55%] xl:w-[60%] text-left space-y-8 order-1 lg:order-none pr-0 xl:pr-10">
+
+            {/* Top Badge */}
+            <div className="inline-flex items-center gap-3 px-4 py-2 rounded-full bg-white/5 border border-white/10 backdrop-blur-2xl shadow-2xl">
+              <Compass size={14} className="text-[var(--pv-accent)]" />
+              <span className="text-white/80 text-[10px] uppercase tracking-[0.3em] font-black">Next-Gen Showcase Platform</span>
+            </div>
+
+            {/* Headline */}
+            <div className="space-y-6">
+              <h1 className="text-5xl sm:text-6xl lg:text-[5.5rem] xl:text-[6rem] font-black text-white leading-[1.05] tracking-tight">
+                Elevate Your <br className="hidden sm:block" />
+                <span className="text-transparent bg-clip-text bg-[linear-gradient(135deg,var(--pv-accent),var(--pv-accent-2))] whitespace-nowrap">
+                  Academic Legacy
+                </span>
+              </h1>
+              <p className="text-xs sm:text-sm text-white/50 max-w-lg font-medium leading-relaxed">
+                Connect with mentors, impress recruiters, and showcase your institutional projects on a global stage designed for modern innovators.
+              </p>
+            </div>
+
+            {/* Action Buttons */}
+            <div className="flex flex-col sm:flex-row gap-5 pt-2">
+              <Link
+                href="/explore"
+                className="group relative inline-flex items-center justify-center gap-3 px-8 py-4 rounded-2xl bg-[linear-gradient(135deg,var(--pv-accent),var(--pv-accent-2))] text-black font-black text-xs sm:text-sm uppercase tracking-[0.15em] shadow-lg shadow-[var(--pv-accent)]/20 hover:shadow-[var(--pv-accent)]/40 hover:-translate-y-1 transition-all overflow-hidden"
+              >
+                <div className="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300 ease-out" />
+                <span className="relative flex items-center gap-2">Explore Repository<ArrowRight size={16} /></span>
+              </Link>
+
+
+            </div>
           </div>
 
-          {/* Stats */}
-          <div className="mt-6 flex justify-center lg:justify-start items-center gap-6 text-sm text-white/70">
-            <div>
-              <strong className="text-white">1.2k+</strong>
-              <div className="text-xs">Projects</div>
-            </div>
-            <div>
-              <strong className="text-white">300+</strong>
-              <div className="text-xs">Mentors</div>
-            </div>
-            <div>
-              <strong className="text-white">500+</strong>
-              <div className="text-xs">Recruiters</div>
-            </div>
-          </div>
+
+
         </div>
-
-        {/* RIGHT — IMAGE SECOND ON SMALL SCREENS */}
-        <div className="w-full lg:w-1/2 flex justify-center order-2 lg:order-none">
-          <div className="relative w-[260px] sm:w-[300px] md:w-[340px] h-[380px] sm:h-[420px] md:h-[440px]">
-
-            {/* Background blob */}
-            <svg
-              className="absolute -left-10 -top-12 w-40 sm:w-56 h-40 sm:h-56 blur-3xl opacity-80"
-              viewBox="0 0 200 200"
-            >
-              <defs>
-                <linearGradient id="blobGrad" x1="0" x2="1">
-                  <stop offset="0%" stopColor="var(--pv-accent)" />
-                  <stop offset="100%" stopColor="var(--pv-accent-2)" />
-                </linearGradient>
-              </defs>
-
-              <path
-                fill="url(#blobGrad)"
-                d="M44.6,-58.7C58.2,-49.8,69.5,-36.3,73.6,-20.9C77.8,-5.5,74.8,11.7,65.6,25.3C56.4,38.9..."
-                transform="translate(100 100)"
-              />
-            </svg>
-
-            {/* Mockup card */}
-            <div
-              className="relative z-10 rounded-2xl shadow-2xl overflow-hidden mx-auto"
-              style={{
-                width: "100%",
-                height: "100%",
-                background: "linear-gradient(180deg, rgba(4,10,20,0.9), rgba(6,18,34,0.95))",
-                border: "1px solid rgba(255,255,255,0.03)"
-              }}
-            >
-              <div className="p-4">
-                <div className="h-9 w-28 bg-white/6 rounded-md mb-4" />
-
-                <div className="space-y-3">
-                  <div className="p-3 rounded-lg bg-white/4">
-                    <div className="h-3 w-2/3 bg-white/25 rounded mb-2" />
-                    <div className="h-2 w-1/2 bg-white/10 rounded" />
-                  </div>
-
-                  <div className="p-3 rounded-lg bg-white/4">
-                    <div className="h-3 w-1/2 bg-white/25 rounded mb-2" />
-                    <div className="h-2 w-1/3 bg-white/10 rounded" />
-                  </div>
-
-                  <div className="p-3 rounded-lg bg-white/4">
-                    <div className="h-3 w-3/4 bg-white/25 rounded mb-2" />
-                    <div className="h-2 w-1/2 bg-white/10 rounded" />
-                  </div>
-                </div>
-
-                <div className="mt-4 flex items-center gap-3">
-                  <div
-                    className="w-10 h-10 rounded-full"
-                    style={{
-                      background: "linear-gradient(90deg, var(--pv-accent), var(--pv-accent-2))"
-                    }}
-                  />
-
-                  <div>
-                    <div className="h-3 w-28 bg-white/10 rounded mb-1" />
-                    <div className="h-2 w-20 bg-white/8 rounded" />
-                  </div>
-                </div>
-              </div>
-            </div>
-
-          </div>
-        </div>
-
       </div>
+
+      <style>{`
+        .perspective-1000 { perspective: 1000px; }
+        @keyframes float {
+          0% { transform: translateY(0px); }
+          50% { transform: translateY(-15px); }
+          100% { transform: translateY(0px); }
+        }
+      `}</style>
     </section>
   );
 };
