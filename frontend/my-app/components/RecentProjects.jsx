@@ -41,24 +41,24 @@ export default function RecentProjects() {
   };
 
   return (
-    <section className="py-24 bg-[#050A16] relative overflow-hidden selection:bg-[var(--pv-accent)] selection:text-black" style={{ fontFamily: "Poppins, sans-serif" }}>
+    <section className="py-20 bg-[#000000] relative overflow-hidden selection:bg-[var(--pv-accent)] selection:text-black" style={{ fontFamily: "Poppins, sans-serif" }}>
 
       {/* Decorative Glows */}
       <div className="absolute top-[10%] left-[20%] w-[500px] h-[500px] blur-[150px] opacity-[0.08] pointer-events-none" style={{ background: "radial-gradient(circle, var(--pv-accent) 0%, transparent 70%)" }} />
       <div className="absolute bottom-[0%] right-[-5%] w-[400px] h-[400px] blur-[150px] opacity-[0.05] pointer-events-none" style={{ background: "radial-gradient(circle, white 0%, transparent 70%)" }} />
 
-      <div className="max-w-7xl mx-auto px-6 relative z-10">
+      <div className="max-w-[1440px] mx-auto px-6 sm:px-10 lg:px-12 relative z-10">
 
-        {/* Section Header (Matching Feature/HowItWorks Pattern) */}
-        <div className="flex flex-col items-center justify-center text-center mb-16 z-10">
+        {/* Section Header (Left-aligned to match Hero/Explore) */}
+        <div className="flex flex-col items-start justify-start text-left mb-16 z-10">
           <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/5 border border-white/10 mb-4 hover:border-[var(--pv-accent)]/50 transition-all duration-300">
             <span className="w-2 h-2 rounded-full bg-[var(--pv-accent)] shadow-[0_0_10px_var(--pv-accent)]"></span>
             <span className="text-[10px] uppercase font-black tracking-widest text-[var(--pv-accent)] drop-shadow-md">Recent Projects</span>
           </div>
-          <h2 className="text-4xl md:text-5xl font-black text-white tracking-tight leading-tight mb-5">
-            Discover the <br className="sm:hidden" /> latest innovations
+          <h2 className="section-title mb-6">
+            Discover the latest innovations
           </h2>
-          <p className="text-white/50 text-[14px] leading-relaxed max-w-xl mx-auto">
+          <p className="section-text">
             Explore the most recent groundbreaking projects deployed by our top student creators and visionaries across the platform.
           </p>
         </div>
@@ -77,7 +77,7 @@ export default function RecentProjects() {
                   alt={p.title}
                   className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-1000"
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-[#050A16] via-[#050A16]/20 to-transparent opacity-60" />
+                <div className="absolute inset-0 bg-gradient-to-t from-[#000000] via-[#000000]/20 to-transparent opacity-60" />
 
                 {/* Category Floater */}
                 <div className="absolute top-4 right-4 bg-white/5 backdrop-blur-xl border border-white/10 px-3 py-1.5 rounded-full text-[9px] font-black uppercase tracking-widest text-white shadow-2xl">
@@ -109,7 +109,7 @@ export default function RecentProjects() {
 
                 {/* Title & Desc */}
                 <h3 className="text-white text-lg lg:text-xl font-black mb-1.5 leading-tight line-clamp-1 truncate">{p.title}</h3>
-                <p className="text-white/50 text-[11px] leading-relaxed line-clamp-2 mb-3">
+                <p className="text-white/60 text-sm leading-relaxed line-clamp-2 mb-3 font-medium">
                   {p.description}
                 </p>
 
@@ -150,7 +150,7 @@ export default function RecentProjects() {
                       return (
                         <div
                           key={i}
-                          className={`w-9 h-9 rounded-full ring-2 ring-[#050A16] flex items-center justify-center text-white text-[10px] font-bold shadow-2xl relative hover:z-20 transition-all hover:scale-110 hover:-translate-y-1 overflow-hidden ${!image ? bgColors[i % bgColors.length] : "bg-zinc-800"}`}
+                          className={`w-9 h-9 rounded-full ring-2 ring-[#000000] flex items-center justify-center text-white text-[10px] font-bold shadow-2xl relative hover:z-20 transition-all hover:scale-110 hover:-translate-y-1 overflow-hidden ${!image ? bgColors[i % bgColors.length] : "bg-zinc-800"}`}
                           title={name}
                         >
                           {imgSrc ? (
@@ -162,7 +162,7 @@ export default function RecentProjects() {
                       )
                     })}
                     {(p.creatorProfiles?.length > 3 || p.teamMembers?.length > 3) && (
-                      <div className="w-9 h-9 rounded-full bg-white/5 ring-2 ring-[#050A16] flex items-center justify-center text-white text-[11px] font-black shadow-2xl relative backdrop-blur-xl border border-white/10">
+                      <div className="w-9 h-9 rounded-full bg-white/5 ring-2 ring-[#000000] flex items-center justify-center text-white text-[11px] font-black shadow-2xl relative backdrop-blur-xl border border-white/10">
                         +{(p.creatorProfiles?.length || p.teamMembers?.length) - 3}
                       </div>
                     )}

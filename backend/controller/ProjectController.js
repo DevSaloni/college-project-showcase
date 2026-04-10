@@ -327,19 +327,39 @@ export const updateProject = async (req, res) => {
 
     const allowedFields = [
       "title",
+      "category",
+      "projectType",
+      "projectDuration",
+      "problem",
       "description",
+      "projectOutcome",
       "tech",
+      "toolsUsed",
       "github",
       "demoVideo",
-      "projectOutcome",
-      "featureList",
       "teamMembers",
+      "featureList",
+      "department",
+      "year",
+      "groupName",
+      "mentor"
     ];
 
     const updates = {};
     allowedFields.forEach((field) => {
-      if (req.body[field] !== undefined) updates[field] = req.body[field];
+      if (req.body[field] !== undefined) {
+        if (field === "teamMembers" || field === "featureList") {
+          updates[field] = Array.isArray(req.body[field]) ? req.body[field] : (typeof req.body[field] === "string" ? req.body[field].split(",").map(i => i.trim()) : []);
+        } else {
+          updates[field] = req.body[field];
+        }
+      }
     });
+
+    // Auto-update slug if category is modified
+    if (updates.category) {
+      updates.categorySlug = updates.category.toLowerCase().trim().replace(/[^a-z0-9]+/g, "-");
+    }
 
     const project = await Project.findOneAndUpdate(
       { _id: id, student: req.user._id }, // only update if owned by student

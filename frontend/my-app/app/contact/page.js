@@ -76,80 +76,26 @@ export default function ContactPage() {
   };
 
   return (
-    <div className="flex h-screen w-full bg-[#020712] overflow-hidden font-['Poppins',_sans-serif]">
+    <div className="flex h-screen w-full bg-[#000000] overflow-hidden font-['Poppins',_sans-serif]">
 
-      {/* ── LEFT SIDE: THEMATIC BRANDING & IMAGE ── */}
-      <div className="hidden lg:flex lg:w-1/2 relative bg-[#050A16] items-center justify-center p-12 overflow-hidden border-r border-white/5">
-
-        {/* Background Image / Overlay */}
-        <div
-          className="absolute inset-0 bg-cover bg-center bg-no-repeat transition-transform duration-1000 hover:scale-105"
-          style={{ backgroundImage: "url('/contact-bg.png')" }}
-        />
-        <div className="absolute inset-0 bg-gradient-to-tr from-[#020712] via-[#020712]/70 to-[var(--pv-accent)]/20 shadow-inner" />
-
-        {/* Glow Effects */}
-        <div className="absolute top-1/4 left-1/4 w-64 h-64 bg-[var(--pv-accent)]/20 rounded-full blur-[100px] animate-pulse" />
-        <div className="absolute bottom-1/4 right-1/4 w-80 h-80 bg-blue-500/10 rounded-full blur-[120px] animate-pulse delay-700" />
-
-        {/* Content Overlay */}
-        <div className="relative z-10 w-full max-w-lg">
-          <div className="mb-8 inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/5 border border-white/10 backdrop-blur-md">
-            <Compass size={14} className="text-[var(--pv-accent)]" />
-            <span className="text-white/60 text-[10px] uppercase tracking-widest font-bold">Innovation Support</span>
-          </div>
-
-          <h1 className="text-4xl xl:text-5xl font-black text-white mb-6 leading-[1.1] tracking-tight">
-            Connect with the<br />
-            <span className="text-transparent bg-clip-text bg-[linear-gradient(135deg,var(--pv-accent),var(--pv-accent-2))]">
-              Future of Tech
-            </span>
-          </h1>
-
-          <p className="text-white/60 text-base leading-relaxed mb-10 max-w-md">
-            Have questions about ProjectVista? Reach out to us for collaborations, support, or general project inquiries. Join the community of innovators and start your journey today.
-          </p>
-
-          <div className="flex gap-4">
-            <div className="flex -space-x-3">
-              {creators.concat(mentors).slice(0, 4).map((person, i) => {
-                const user = person.userId || {};
-                const img = person.image ? (person.image.startsWith("http") ? person.image : `${BASE_URL}${person.image.startsWith("/") ? "" : "/"}${person.image}`) : `https://api.dicebear.com/7.x/avataaars/svg?seed=${user.name || i}`;
-                return (
-                  <div key={i} title={user.name} className="w-10 h-10 rounded-full border-2 border-[#050A16] bg-white/10 overflow-hidden backdrop-blur-md">
-                    <img src={img} alt={user.name} className="w-full h-full object-cover" />
-                  </div>
-                );
-              })}
-              <div className="w-10 h-10 rounded-full border-2 border-[#050A16] bg-[var(--pv-accent)] flex items-center justify-center text-black font-black text-[10px]">
-                +2k
-              </div>
-            </div>
-            <div className="text-white/40 text-xs font-semibold self-center ml-2">
-              Join <span className="text-white">{creators.length > 0 ? "2,000+" : "Loading..."} creators</span> <br /> sharing their vision.
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* ── RIGHT SIDE: CONTACT FORM ── */}
-      <div className="w-full lg:w-1/2 flex items-center justify-center px-6 sm:px-12 md:px-16 relative pt-[80px]">
+      {/* ── LEFT SIDE: CONTACT FORM ── */}
+      <div className="w-full lg:w-1/2 flex items-center justify-center px-6 sm:px-10 lg:px-12 relative pt-[80px] border-r border-white/5">
 
         {/* Dynamic Backgrounds on Form Side */}
-        <div className="absolute top-0 right-0 w-full h-[300px] z-0 pointer-events-none opacity-[0.03] overflow-hidden">
+        <div className="absolute top-0 left-0 w-full h-[300px] z-0 pointer-events-none opacity-[0.03] overflow-hidden">
           <div className="absolute inset-0"
             style={{
               backgroundImage: `linear-gradient(rgba(255, 255, 255, 1) 1px, transparent 1px), linear-gradient(90deg, rgba(255, 255, 255, 1) 1px, transparent 1px)`,
               backgroundSize: '40px 40px'
             }}
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-[#020712] to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-t from-[#000000] to-transparent" />
         </div>
 
         <div className="w-full max-w-lg relative z-10 py-4">
           <div className="mb-8 text-left">
             <h2 className="text-4xl font-bold text-white mb-2">Send a Signal</h2>
-            <p className="text-white/50 text-xs">Reach out for support, collaboration, or feedback</p>
+            <p className="text-white/80 text-xs font-medium">Reach out for support, collaboration, or feedback</p>
           </div>
           <form onSubmit={handleSubmit} className="space-y-3.5">
             <div className="grid grid-cols-2 gap-4">
@@ -234,6 +180,60 @@ export default function ContactPage() {
                   {icon}
                 </button>
               ))}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* ── RIGHT SIDE: THEMATIC BRANDING & IMAGE ── */}
+      <div className="hidden lg:flex lg:w-1/2 relative bg-[#000000] items-center justify-start px-8 sm:px-12 lg:px-16 xl:px-20 overflow-hidden">
+
+        {/* Background Image / Overlay */}
+        <div
+          className="absolute inset-0 bg-cover bg-center bg-no-repeat transition-transform duration-1000 hover:scale-105"
+          style={{ backgroundImage: "url('/contact-bg.png')" }}
+        />
+        <div className="absolute inset-0 bg-gradient-to-tr from-[#000000] via-[#000000]/70 to-[var(--pv-accent)]/20 shadow-inner" />
+
+        {/* Glow Effects */}
+        <div className="absolute top-1/4 left-1/4 w-64 h-64 bg-[var(--pv-accent)]/20 rounded-full blur-[100px] animate-pulse" />
+        <div className="absolute bottom-1/4 right-1/4 w-80 h-80 bg-blue-500/10 rounded-full blur-[120px] animate-pulse delay-700" />
+
+        {/* Content Overlay */}
+        <div className="relative z-10 w-full max-w-lg">
+          <div className="mb-8 inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/5 border border-white/10 backdrop-blur-md">
+            <Compass size={14} className="text-[var(--pv-accent)]" />
+            <span className="text-white/60 text-[10px] uppercase tracking-widest font-bold">Innovation Support</span>
+          </div>
+
+          <h1 className="text-4xl xl:text-5xl font-black text-white mb-6 leading-[1.1] tracking-tight">
+            Connect with the<br />
+            <span className="text-transparent bg-clip-text bg-[linear-gradient(135deg,var(--pv-accent),var(--pv-accent-2))]">
+              Future of Tech
+            </span>
+          </h1>
+
+          <p className="text-white/80 text-base leading-relaxed mb-10 max-w-md">
+            Have questions about ProjectVista? Reach out to us for collaborations, support, or general project inquiries. Join the community of innovators and start your journey today.
+          </p>
+
+          <div className="flex gap-4">
+            <div className="flex -space-x-3">
+              {creators.concat(mentors).slice(0, 4).map((person, i) => {
+                const user = person.userId || {};
+                const img = person.image ? (person.image.startsWith("http") ? person.image : `${BASE_URL}${person.image.startsWith("/") ? "" : "/"}${person.image}`) : `https://api.dicebear.com/7.x/avataaars/svg?seed=${user.name || i}`;
+                return (
+                  <div key={i} title={user.name} className="w-10 h-10 rounded-full border-2 border-[#000000] bg-white/10 overflow-hidden backdrop-blur-md">
+                    <img src={img} alt={user.name} className="w-full h-full object-cover" />
+                  </div>
+                );
+              })}
+              <div className="w-10 h-10 rounded-full border-2 border-[#000000] bg-[var(--pv-accent)] flex items-center justify-center text-black font-black text-[10px]">
+                +2k
+              </div>
+            </div>
+            <div className="text-white/40 text-xs font-semibold self-center ml-2">
+              Join <span className="text-white">{creators.length > 0 ? "2,000+" : "Loading..."} creators</span> <br /> sharing their vision.
             </div>
           </div>
         </div>

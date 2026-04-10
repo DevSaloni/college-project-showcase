@@ -4,13 +4,13 @@ import { Toaster } from "react-hot-toast";
 
 export default function DashboardLayout({ children }) {
   return (
-    <div className="flex bg-[#050A16] min-h-screen relative">
+    <div className="flex bg-[#000000] min-h-screen relative">
       <Toaster position="top-right" />
       {/* Sidebar */}
       <Sidebar />
 
       {/* Main Content */}
-      <main className="ml-64 flex-1 px-8 py-6">
+      <main className="flex-1 w-full md:ml-64 px-4 sm:px-6 md:px-8 pt-24 pb-10 md:py-6 overflow-x-hidden transition-all duration-300">
         {children}
       </main>
     </div>

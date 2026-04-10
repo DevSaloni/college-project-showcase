@@ -41,6 +41,17 @@ export default function StudentProfilePage() {
   const [errorMsg, setErrorMsg] = useState("");
   const [activeTab, setActiveTab] = useState("about");
 
+  // Load publicView from session storage on mount
+  useEffect(() => {
+    const savedView = sessionStorage.getItem("recruiterPreviewActive");
+    if (savedView === "true") setPublicView(true);
+  }, []);
+
+  // Save publicView to session storage when it changes
+  useEffect(() => {
+    sessionStorage.setItem("recruiterPreviewActive", publicView);
+  }, [publicView]);
+
   const [profile, setProfile] = useState(null);
   const [studentId, setStudentId] = useState("");
   const [stats, setStats] = useState({ totalProjects: 0, approvedProjects: 0 });
@@ -230,34 +241,55 @@ export default function StudentProfilePage() {
 
       {publicView && (
         <div className="mb-6 flex items-center justify-between px-6 py-4 rounded-3xl bg-blue-500/10 border border-blue-500/20 animate-in fade-in slide-in-from-top-4">
-           <div className="flex items-center gap-3">
-              <Eye size={20} className="text-blue-400 animate-pulse" />
-              <div>
-                 <h3 className="font-bold text-white text-sm">Recruiter Preview Mode Active</h3>
-                 <p className="text-xs text-white/50 mt-0.5">This is exactly how your profile appears to recruiters and external viewers.</p>
-              </div>
-           </div>
-           <button onClick={() => setPublicView(false)} className="text-xs font-bold text-black hover:scale-105 active:scale-95 bg-white px-5 py-2.5 rounded-xl transition-all shadow-xl">
-             Exit Preview
-           </button>
+          <div className="flex items-center gap-3">
+            <Eye size={20} className="text-blue-400 animate-pulse" />
+            <div>
+              <h3 className="font-bold text-white text-sm">Recruiter Preview Mode Active</h3>
+              <p className="text-xs text-white/50 mt-0.5">This is exactly how your profile appears to recruiters and external viewers.</p>
+            </div>
+          </div>
+          <button onClick={() => setPublicView(false)} className="text-xs font-bold text-black hover:scale-105 active:scale-95 bg-white px-5 py-2.5 rounded-xl transition-all shadow-xl">
+            Exit Preview
+          </button>
         </div>
       )}
 
       {/* TOASTS */}
       {/* Validation messages are handled directly with interactive toasts */}
 
-      {/* HERO BANNER */}
-      <div className="relative w-full rounded-3xl overflow-hidden mb-0" style={{ minHeight: 220 }}>
+      {publicView && !form.openToWork ? (
+        <div className="bg-white/[0.02] shadow-2xl border border-white/10 flex flex-col items-center justify-center text-center p-6 min-h-[400px] rounded-3xl mt-2 animate-in fade-in duration-500">
+          <div className="w-20 h-20 bg-white/5 rounded-full flex items-center justify-center mb-6">
+            <Globe size={40} className="text-white/20" />
+          </div>
+          <h1 className="text-3xl font-black text-white mb-2">Profile is Private</h1>
+          <p className="text-white/50 text-sm max-w-md mx-auto mb-6 leading-relaxed">
+            Because your Recruiter Visibility is currently turned off, recruiters and external viewers see this private screen instead of your active profile layout.
+          </p>
+          <button 
+            onClick={() => {
+              setForm({ ...form, openToWork: true });
+              setEditMode(true); // Automatically let them save it
+            }} 
+            className="px-6 py-3 bg-green-500 hover:bg-green-600 text-black font-bold rounded-xl shadow-lg shadow-green-500/20 transition-all flex items-center gap-2"
+          >
+            <Rocket size={16} /> Turn On Visibility
+          </button>
+        </div>
+      ) : (
+        <div className="animate-in fade-in duration-500">
+          {/* HERO BANNER */}
+      <div className="relative w-full rounded-3xl overflow-hidden mb-0 min-h-[240px] md:min-h-[220px]">
         <div className="absolute inset-0" style={{ background: "linear-gradient(135deg, #0d1b35 0%, #12082a 40%, #1a0a10 70%, #0d1b35 100%)" }} />
         <div className="absolute -top-16 -left-16 w-64 h-64 rounded-full blur-3xl opacity-30" style={{ background: "radial-gradient(circle, #FF6B6B 0%, transparent 70%)" }} />
         <div className="absolute -bottom-10 right-10 w-48 h-48 rounded-full blur-3xl opacity-20" style={{ background: "radial-gradient(circle, #7c3aed 0%, transparent 70%)" }} />
         <div className="absolute inset-0 opacity-5" style={{ backgroundImage: "linear-gradient(rgba(255,107,107,0.4) 1px, transparent 1px), linear-gradient(90deg, rgba(255,107,107,0.4) 1px, transparent 1px)", backgroundSize: "40px 40px" }} />
 
-        <div className="relative z-10 px-10 pt-10 pb-0">
-          <div className="flex flex-col md:flex-row items-end gap-7">
+        <div className="relative z-10 px-6 md:px-10 pt-8 md:pt-10 pb-0">
+          <div className="flex flex-col md:flex-row items-center md:items-end gap-6 md:gap-7">
             {/* Avatar */}
-            <div className="relative shrink-0 translate-y-12">
-              <div className="w-28 h-28 rounded-2xl overflow-hidden shadow-2xl bg-[#1e293b] border-2 border-white/10" style={{ boxShadow: "0 0 40px rgba(255,107,107,0.15)" }}>
+            <div className="relative shrink-0 md:translate-y-12">
+              <div className="w-24 h-24 md:w-28 md:h-28 rounded-2xl overflow-hidden shadow-2xl bg-[#1e293b] border-2 border-white/10" style={{ boxShadow: "0 0 40px rgba(255,107,107,0.15)" }}>
                 {imagePreview ? (
                   <img src={imagePreview} alt={name} className="w-full h-full object-cover" />
                 ) : (
@@ -277,8 +309,8 @@ export default function StudentProfilePage() {
             </div>
 
             {/* Name + meta */}
-            <div className={`flex-1 pb-5 space-y-1 ${loading ? "animate-pulse" : ""}`}>
-              <div className="flex items-center gap-3 flex-wrap">
+            <div className={`flex-1 pb-5 space-y-1 text-center md:text-left ${loading ? "animate-pulse" : ""}`}>
+              <div className="flex items-center justify-center md:justify-start gap-3 flex-wrap">
                 {loading ? (
                   <div className="h-10 w-64 bg-white/10 rounded-xl" />
                 ) : (
@@ -289,27 +321,27 @@ export default function StudentProfilePage() {
                 )}
               </div>
               {loading ? (
-                 <div className="h-4 w-48 bg-white/10 rounded-md mt-2" />
+                <div className="h-4 w-48 bg-white/10 rounded-md mt-2" />
               ) : (
-                 <p className="text-white/50 text-sm font-medium">
-                   {form.department || "No Department"}{form.department && form.year && " · "}{form.year} Year
-                 </p>
+                <p className="text-white/50 text-sm font-medium">
+                  {form.department || "No Department"}{form.department && form.year && " · "}{form.year} Year
+                </p>
               )}
-              <div className="flex flex-wrap items-center gap-3 pt-1">
+              <div className="flex flex-wrap items-center justify-center md:justify-start gap-3 pt-1">
                 {loading ? (
-                   <div className="h-3 w-80 bg-white/5 rounded-md mt-1" />
+                  <div className="h-3 w-80 bg-white/5 rounded-md mt-1" />
                 ) : (
-                   <>
-                     <span className="flex items-center gap-1.5 text-xs text-white/40"><Mail size={12} className="text-[#FF6B6B]" /> {email}</span>
-                     {form.location && <span className="flex items-center gap-1.5 text-xs text-white/40"><MapPin size={12} className="text-[#FF6B6B]" /> {form.location}</span>}
-                     <span className="flex items-center gap-1.5 text-xs text-white/40"><Rocket size={12} className="text-[#FF6B6B]" /> Roll No: {form.rollNo}</span>
-                   </>
+                  <>
+                    <span className="flex items-center gap-1.5 text-[11px] md:text-xs text-white/40"><Mail size={12} className="text-[#FF6B6B]" /> {email}</span>
+                    {form.location && <span className="flex items-center gap-1.5 text-[11px] md:text-xs text-white/40"><MapPin size={12} className="text-[#FF6B6B]" /> {form.location}</span>}
+                    <span className="flex items-center gap-1.5 text-[11px] md:text-xs text-white/40"><Rocket size={12} className="text-[#FF6B6B]" /> Roll No: {form.rollNo}</span>
+                  </>
                 )}
               </div>
             </div>
 
             {/* Actions */}
-            <div className="pb-6 flex items-center gap-2 shrink-0">
+            <div className="pb-8 md:pb-6 flex items-center justify-center md:justify-end gap-2 shrink-0 w-full md:w-auto">
               {publicView ? (
                 <button onClick={() => setPublicView(false)} className="flex items-center gap-2 px-5 py-2.5 rounded-xl font-bold text-sm text-white/90 hover:text-white transition-all hover:bg-white/10" style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)" }}>
                   <X size={15} /> Exit Recruiter View
@@ -339,9 +371,9 @@ export default function StudentProfilePage() {
       </div>
 
       {/* STATS BAR */}
-      <div className="w-full rounded-b-3xl px-10 py-5 flex items-center justify-between gap-4 flex-wrap bg-white/[0.02] border-x border-b border-white/10">
+      <div className="w-full rounded-b-3xl px-6 md:px-10 py-6 md:py-5 flex flex-col md:flex-row items-center justify-between gap-6 md:gap-4 bg-white/[0.02] border-x border-b border-white/10">
         <div className="w-28 hidden md:block" />
-        <div className="flex-1 flex items-center gap-8 flex-wrap">
+        <div className="flex-1 flex items-center justify-center md:justify-start gap-5 md:gap-8 flex-wrap">
           <StatItem icon={Layers} value={stats.totalProjects} label="Total Projects" accent="#FF6B6B" />
           <div className="w-px h-8 bg-white/10 hidden sm:block" />
           <StatItem icon={CheckCircle2} value={stats.approvedProjects} label="Approved" accent="#34d399" />
@@ -351,9 +383,9 @@ export default function StudentProfilePage() {
       </div>
 
       {/* TAB NAV */}
-      <div className="mt-8 mb-6 flex gap-1 p-1 rounded-2xl w-fit bg-white/[0.04] border border-white/10">
+      <div className="mt-8 mb-6 flex gap-1 p-1 rounded-2xl w-full md:w-fit bg-white/[0.04] border border-white/10 overflow-x-auto no-scrollbar">
         {tabs.map((t) => (
-          <button key={t.id} onClick={() => setActiveTab(t.id)} className={`px-5 py-2 rounded-xl text-sm font-semibold transition-all duration-200 ${activeTab === t.id ? 'bg-[#FF6B6B22] text-[#FF6B6B] border border-[#FF6B6B44]' : 'text-white/40 border border-transparent hover:text-white/60'}`}>
+          <button key={t.id} onClick={() => setActiveTab(t.id)} className={`whitespace-nowrap px-5 py-2 rounded-xl text-sm font-semibold transition-all duration-200 ${activeTab === t.id ? 'bg-[#FF6B6B22] text-[#FF6B6B] border border-[#FF6B6B44]' : 'text-white/40 border border-transparent hover:text-white/60'}`}>
             {t.label}
           </button>
         ))}
@@ -438,8 +470,8 @@ export default function StudentProfilePage() {
               <div className="flex items-center gap-3">
                 <Rocket size={18} className={form.openToWork ? 'text-green-400' : 'text-white/20'} />
                 <div>
-                  <p className="text-sm font-bold text-white">Career Availability</p>
-                  <p className="text-[10px] text-white/40 uppercase tracking-widest mt-0.5">Open for Internships & Full-time</p>
+                  <p className="text-sm font-bold text-white">Recruiter Visibility</p>
+                  <p className="text-[10px] text-white/40 uppercase tracking-widest mt-0.5">{form.openToWork ? 'Profile Visible to Recruiters' : 'Profile is Private'}</p>
                 </div>
                 {editMode && (
                   <button onClick={() => setForm({ ...form, openToWork: !form.openToWork })} className={`ml-4 w-12 h-6 rounded-full relative transition-all ${form.openToWork ? 'bg-green-500' : 'bg-white/10'}`}>
@@ -490,6 +522,8 @@ export default function StudentProfilePage() {
               )}
             </div>
           </div>
+        </div>
+      )}
         </div>
       )}
     </div>

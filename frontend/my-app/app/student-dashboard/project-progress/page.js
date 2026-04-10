@@ -35,7 +35,7 @@ import {
   MoreVertical,
   Calendar,
   Timer,
-    
+
 } from "lucide-react";
 import axios from "axios";
 import { useApi } from "@/context/ApiContext";
@@ -320,17 +320,7 @@ export default function ProjectProgressPage() {
     }
   };
 
-  if (loading) {
-    return (
-      <div className="flex flex-col items-center justify-center min-h-[70vh] gap-6">
-        <div className="relative w-16 h-16">
-          <div className="absolute inset-0 rounded-full border-4 border-white/5 border-t-[var(--pv-accent)] animate-spin" />
-          <div className="absolute inset-2 rounded-full border-4 border-white/5 border-b-[var(--pv-accent-2)] animate-spin" style={{ animationDirection: "reverse" }} />
-        </div>
-        <p className="text-white/40 text-sm font-medium tracking-widest uppercase animate-pulse">Syncing Workspace…</p>
-      </div>
-    );
-  }
+
 
   const getPhaseName = (p) => {
     if (p < 25) return "Discovery & Planning";
@@ -351,12 +341,9 @@ export default function ProjectProgressPage() {
       {/* ── HEADER SECTION ── */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6 border-b border-white/10 pb-8">
         <div className="space-y-1">
-          <div className="flex items-center gap-2 text-[var(--pv-accent)] text-xs font-bold uppercase tracking-widest mb-2">
-            <Activity size={13} />
-            <span>Execution Workspace</span>
-          </div>
-          <h1 className="text-3xl md:text-5xl font-black text-white tracking-tight">
-            Project Milestone <span className="text-transparent bg-clip-text bg-gradient-to-r from-[var(--pv-accent)] to-[var(--pv-accent-2)]">Hub</span>
+
+          <h1 className="text-3xl md:text-4xl font-black text-white tracking-tight">
+            Project Milestone Hub
           </h1>
           <p className="text-white/40 text-sm max-w-lg">
             Monitor your milestones, submit weekly progress, and drive your project towards excellence.
@@ -423,8 +410,8 @@ export default function ProjectProgressPage() {
             key={id}
             onClick={() => setActiveTab(id)}
             className={`flex items-center gap-2.5 px-6 py-3 rounded-xl font-bold text-sm transition-all duration-200 ${activeTab === id
-                ? "bg-[var(--pv-accent)] text-black shadow-lg shadow-[var(--pv-accent)]/20"
-                : "bg-white/[0.05] text-white/60 hover:bg-white/10 hover:text-white border border-white/10"
+              ? "bg-[var(--pv-accent)] text-black shadow-lg shadow-[var(--pv-accent)]/20"
+              : "bg-white/[0.05] text-white/60 hover:bg-white/10 hover:text-white border border-white/10"
               }`}
           >
             <Icon size={15} />
@@ -578,9 +565,9 @@ export default function ProjectProgressPage() {
                                 {sc.label}
                               </div>
                             </div>
-                            
+
                             {ms.description && <p className="text-white/60 text-sm leading-relaxed mb-4 line-clamp-2">{ms.description}</p>}
-                            
+
                             {ms.mentorFeedback && (
                               <div className={`p-4 rounded-xl border ${sc.bg} ${sc.border} relative overflow-hidden group/feedback`}>
                                 <div className="flex items-center gap-2 mb-2 text-[10px] font-black uppercase tracking-widest opacity-60">

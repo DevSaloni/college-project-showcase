@@ -37,39 +37,26 @@ export default function FeaturesSection() {
   ];
 
   return (
-    <section className="py-24 bg-[#050A16] relative selection:bg-[var(--pv-accent)] selection:text-black overflow-hidden" style={{ fontFamily: "Poppins, sans-serif" }}>
+    <section className="py-24 bg-[#000000] relative selection:bg-[var(--pv-accent)] selection:text-black overflow-hidden">
 
       {/* Deep Background Glows to match Explore/Dashboard */}
       <div className="absolute top-0 right-0 w-[600px] h-[600px] blur-[150px] opacity-10 pointer-events-none" style={{ background: "radial-gradient(circle, var(--pv-accent) 0%, transparent 70%)" }} />
-      <div className="absolute bottom-0 left-[-20%] w-[500px] h-[500px] blur-[150px] opacity-[0.08] pointer-events-none" style={{ background: "radial-gradient(circle, #4A90E2 0%, transparent 70%)" }} />
+      <div className="absolute bottom-0 left-[-20%] w-[500px] h-[500px] blur-[150px] opacity-[0.08] pointer-events-none" style={{ background: "radial-gradient(circle, #4A90E2) 0%, transparent 70%)" }} />
 
-      <div className="container mx-auto px-6 max-w-7xl relative z-10">
+      <div className="max-w-[1440px] mx-auto px-6 sm:px-10 lg:px-12 relative z-10">
 
-        {/* Premium Header Layout */}
-        <div className="flex flex-col xl:flex-row items-center xl:items-end justify-between gap-8 mb-16">
-          <div className="space-y-4 text-center xl:text-left max-w-2xl">
-            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/5 border border-white/10 mb-2">
-              <span className="w-2 h-2 rounded-full bg-[var(--pv-accent)] shadow-[0_0_10px_var(--pv-accent)]"></span>
-              <span className="text-[10px] uppercase font-black tracking-widest text-white/70">Platform features</span>
-            </div>
-            <h2 className="text-3xl md:text-5xl font-black text-white tracking-tight leading-tight">
-              Features That Power <br /> Your Projects
-            </h2>
-            <p className="text-white/50 text-sm md:text-[15px] leading-relaxed max-w-xl mx-auto xl:mx-0">
-              Everything students, mentors, and recruiters need in one platform.
-            </p>
+        {/* Left-aligned Premium Header (Matching Explore/Hero Pattern) */}
+        <div className="flex flex-col items-start justify-start text-left mb-20 z-10">
+          <div className="inline-flex items-center gap-3 px-4 py-2 rounded-full bg-white/5 border border-white/10 mb-6 hover:border-[var(--pv-accent)]/50 transition-all duration-300">
+            <span className="w-1.5 h-1.5 rounded-full bg-[var(--pv-accent)] shadow-[0_0_12px_var(--pv-accent)]"></span>
+            <span className="text-[11px] uppercase font-black tracking-[0.25em] text-[var(--pv-accent)]">Platform features</span>
           </div>
-
-          <div className="shrink-0 flex items-center">
-            <Link href="/explore">
-              <button className="group flex items-center gap-3 px-6 py-3.5 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 hover:border-[var(--pv-accent)]/50 transition-all duration-300 backdrop-blur-md">
-                <span className="text-xs font-bold text-white uppercase tracking-widest">Explore Platform</span>
-                <div className="w-6 h-6 rounded-full bg-[var(--pv-accent)] flex items-center justify-center group-hover:scale-110 group-hover:translate-x-1 transition-all">
-                  <ArrowRight size={12} className="text-black font-black" />
-                </div>
-              </button>
-            </Link>
-          </div>
+          <h2 className="section-title mb-6">
+            Features That Power  Your Projects
+          </h2>
+          <p className="section-text">
+            A comprehensive suite of tools designed specifically for students, mentors, and recruiters to thrive in a digital-first academic ecosystem.
+          </p>
         </div>
 
         {/* Features Grid */}
@@ -90,7 +77,7 @@ export default function FeaturesSection() {
                 {feature.title}
               </h3>
 
-              <p className="text-white/50 text-[13px] leading-relaxed relative z-10 group-hover:text-white/70 transition-colors">
+              <p className="text-white/60 text-sm leading-relaxed relative z-10 group-hover:text-white/80 transition-colors font-medium">
                 {feature.desc}
               </p>
 
@@ -100,6 +87,18 @@ export default function FeaturesSection() {
               </div>
             </div>
           ))}
+        </div>
+
+        {/* View All Features / Explore Button Centered at Bottom */}
+        <div className="mt-16 flex justify-center">
+          <Link href="/explore">
+            <button className="group flex items-center gap-3 px-8 py-4 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 hover:border-[var(--pv-accent)]/50 transition-all duration-300 backdrop-blur-md">
+              <span className="text-xs font-bold text-white uppercase tracking-widest">Explore Platform</span>
+              <div className="w-6 h-6 rounded-full bg-[var(--pv-accent)] flex items-center justify-center group-hover:scale-110 group-hover:translate-x-1 transition-all">
+                <ArrowRight size={12} className="text-black font-black" />
+              </div>
+            </button>
+          </Link>
         </div>
 
       </div>

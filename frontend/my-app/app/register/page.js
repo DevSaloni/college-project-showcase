@@ -94,45 +94,15 @@ export default function RegisterPage() {
   };
 
   return (
-    <div className="flex h-screen w-full bg-[#020712] overflow-hidden font-['Poppins',_sans-serif]">
-      {/* Left Side: Image & Branding */}
-      <div className="hidden lg:flex lg:w-1/2 relative bg-[#050A16] items-center justify-center p-12 overflow-hidden border-r border-white/5">
-        <div
-          className="absolute inset-0 bg-cover bg-center bg-no-repeat transition-transform duration-1000 hover:scale-105"
-          style={{ backgroundImage: "url('/login-bg.png')" }}
-        />
-        <div className="absolute inset-0 bg-gradient-to-tr from-[#020712] via-[#020712]/70 to-[var(--pv-accent)]/20 shadow-inner" />
-
-        <div className="absolute top-1/4 left-1/4 w-64 h-64 bg-[var(--pv-accent)]/20 rounded-full blur-[100px] animate-pulse" />
-        <div className="absolute bottom-1/4 right-1/4 w-80 h-80 bg-blue-500/10 rounded-full blur-[120px] animate-pulse delay-700" />
-
-        <div className="relative z-10 w-full max-w-lg">
-          <div className="mb-8 inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/5 border border-white/10 backdrop-blur-md">
-            <UserCircle size={14} className="text-[var(--pv-accent)]" />
-            <span className="text-white/60 text-[10px] uppercase tracking-widest font-bold">Identity Verification</span>
-          </div>
-
-          <h1 className="text-4xl xl:text-5xl font-black text-white mb-6 leading-[1.1]">
-            Start Your<br />
-            <span className="text-transparent bg-clip-text bg-[linear-gradient(135deg,var(--pv-accent),var(--pv-accent-2))]">
-              Project Journey
-            </span>
-          </h1>
-
-          <p className="text-white/60 text-base leading-relaxed mb-10 max-w-md">
-            Create your account to start managing your semester projects, collaborate with your team and teachers, and stay organized throughout your project work.
-          </p>
-        </div>
-      </div>
-
-      {/* Right Side: Register Form */}
-      <div className="w-full lg:w-1/2 flex items-center justify-center px-6 sm:px-12 md:px-16 relative pt-[72px]">
+    <div className="flex h-screen w-full bg-[#000000] overflow-hidden font-['Poppins',_sans-serif]">
+      {/* Left Side: Register Form */}
+      <div className="w-full lg:w-1/2 flex items-center justify-center px-6 sm:px-10 lg:px-12 relative pt-[72px] lg:border-r lg:border-white/5">
         <div className="w-full max-w-lg py-4">
           <div className="mb-6">
             <h2 className="text-4xl font-bold text-white mb-2">Create Account</h2>
             <p className="text-white/50 text-xs">Register your academic identity to begin</p>
           </div>
-
+ 
           <form onSubmit={handleSubmit} className="space-y-3">
             {/* Full Name + Email in a 2-column row */}
             <div className="grid grid-cols-2 gap-3">
@@ -155,7 +125,7 @@ export default function RegisterPage() {
                   />
                 </div>
               </div>
-
+ 
               {/* Email */}
               <div className="space-y-1.5">
                 <label htmlFor="email" className="text-[11px] font-bold text-white/40 uppercase tracking-wider ml-1">University Email</label>
@@ -176,7 +146,7 @@ export default function RegisterPage() {
                 </div>
               </div>
             </div>
-
+ 
             {/* CUSTOM DROPDOWN */}
             <div className="space-y-1.5 relative" ref={dropdownRef}>
               <label className="text-[11px] font-bold text-white/40 uppercase tracking-wider ml-1">Academic Role</label>
@@ -194,9 +164,9 @@ export default function RegisterPage() {
                 </span>
                 <ChevronDown size={14} className={`text-white/30 transition-transform duration-300 ${isDropdownOpen ? 'rotate-180' : ''}`} />
               </button>
-
+ 
               {isDropdownOpen && (
-                <div className="absolute top-[calc(100%+8px)] left-0 w-full p-2 bg-[#050A16] border border-white/10 rounded-xl shadow-2xl z-[150] animate-in fade-in zoom-in-95 duration-200">
+                <div className="absolute top-[calc(100%+8px)] left-0 w-full p-2 bg-[#000000] border border-white/10 rounded-xl shadow-2xl z-[150] animate-in fade-in zoom-in-95 duration-200">
                   {roles.map((roleOpt) => (
                     <button
                       key={roleOpt.value}
@@ -214,7 +184,7 @@ export default function RegisterPage() {
                 </div>
               )}
             </div>
-
+ 
             {/* Password */}
             <div className="space-y-1.5">
               <label htmlFor="password" className="text-[11px] font-bold text-white/40 uppercase tracking-wider ml-1">Secure Password</label>
@@ -241,7 +211,7 @@ export default function RegisterPage() {
                 </button>
               </div>
             </div>
-
+ 
             <button
               type="submit"
               disabled={loading}
@@ -257,7 +227,7 @@ export default function RegisterPage() {
               )}
             </button>
           </form>
-
+ 
           <div className="mt-8 text-center">
             <p className="text-white/40 text-[11px] mb-2 font-medium uppercase tracking-[0.2em]">Already have an account?</p>
             <Link
@@ -268,6 +238,36 @@ export default function RegisterPage() {
               <ArrowRight size={14} className="group-hover:translate-x-1 transition-transform" />
             </Link>
           </div>
+        </div>
+      </div>
+ 
+      {/* Right Side: Image & Branding */}
+      <div className="hidden lg:flex lg:w-1/2 relative bg-[#000000] items-center justify-start px-8 sm:px-12 lg:px-16 xl:px-20 overflow-hidden">
+        <div
+          className="absolute inset-0 bg-cover bg-center bg-no-repeat transition-transform duration-1000 hover:scale-105"
+          style={{ backgroundImage: "url('/login-bg.png')" }}
+        />
+        <div className="absolute inset-0 bg-gradient-to-tr from-[#000000] via-[#000000]/70 to-[var(--pv-accent)]/20 shadow-inner" />
+ 
+        <div className="absolute top-1/4 left-1/4 w-64 h-64 bg-[var(--pv-accent)]/20 rounded-full blur-[100px] animate-pulse" />
+        <div className="absolute bottom-1/4 right-1/4 w-80 h-80 bg-blue-500/10 rounded-full blur-[120px] animate-pulse delay-700" />
+ 
+        <div className="relative z-10 w-full max-w-lg">
+          <div className="mb-8 inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/5 border border-white/10 backdrop-blur-md">
+            <UserCircle size={14} className="text-[var(--pv-accent)]" />
+            <span className="text-white/60 text-[10px] uppercase tracking-widest font-bold">Identity Verification</span>
+          </div>
+ 
+          <h1 className="text-4xl xl:text-5xl font-black text-white mb-6 leading-[1.1]">
+            Start Your<br />
+            <span className="text-transparent bg-clip-text bg-[linear-gradient(135deg,var(--pv-accent),var(--pv-accent-2))]">
+              Project Journey
+            </span>
+          </h1>
+ 
+          <p className="text-white/60 text-base leading-relaxed mb-10 max-w-md">
+            Create your account to start managing your semester projects, collaborate with your team and teachers, and stay organized throughout your project work.
+          </p>
         </div>
       </div>
     </div>

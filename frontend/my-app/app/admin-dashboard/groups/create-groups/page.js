@@ -156,7 +156,7 @@ export default function CreateGroup() {
 
   /* ================= UI ================= */
   return (
-    <div className="max-w-4xl mx-auto space-y-8">
+    <div className="max-w-7xl mx-auto space-y-8 pb-10">
       {/* ===== HEADER ===== */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
 

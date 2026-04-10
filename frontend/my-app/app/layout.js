@@ -21,7 +21,7 @@ export default function RootLayout({ children }) {
           precedence="default"
         />
       </head>
-      <body className="bg-[#050816] text-white">
+      <body className="bg-black text-white">
         <ApiProvider>
           <LayoutWrapper>
             <main>{children}

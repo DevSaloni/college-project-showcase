@@ -60,6 +60,35 @@ export const getAllTeachers = async (req, res) => {
   }
 };
 
+/* ================= GET TEACHER PROFILE ================= */
+export const getTeacherProfile = async (req, res) => {
+  try {
+    const userId = req.user._id;
+    const teacher = await Teacher.findOne({ userId })
+      .populate("userId", "name email");
+
+    if (!teacher) {
+      return res.status(404).json({ success: false, message: "Teacher not found" });
+    }
+
+    // Number of groups assigned to this teacher
+    const groups = await Group.find({ mentor: teacher._id });
+    const studentsCount = groups.reduce(
+      (total, g) => total + g.students.length,
+      0
+    );
+
+    res.status(200).json({
+      success: true,
+      teacher,
+      groupsAssigned: groups.length,
+      studentsCount,
+    });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+};
+
 /* ================= GET TEACHERS FOR DROPDOWN ================= */
 export const getTeachersForGroup = async (req, res) => {
   try {

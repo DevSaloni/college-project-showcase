@@ -27,7 +27,7 @@ export default function ForgotPasswordPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-[#050A16] relative overflow-hidden pt-20 px-4 text-white">
+    <div className="min-h-screen flex items-center justify-center bg-[#000000] relative overflow-hidden pt-20 px-4 text-white">
 
       {/* Background Glow */}
       <div

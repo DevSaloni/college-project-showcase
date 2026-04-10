@@ -33,50 +33,47 @@ export default function FAQSection() {
   ];
 
   return (
-    <section className="py-24 bg-[#050A16] relative overflow-hidden selection:bg-[var(--pv-accent)] selection:text-black" style={{ fontFamily: "Poppins, sans-serif" }}>
+    <section className="py-20 bg-[#000000] relative overflow-hidden selection:bg-[var(--pv-accent)] selection:text-black" style={{ fontFamily: "Poppins, sans-serif" }}>
 
       {/* Decorative Glows */}
       <div className="absolute top-[20%] left-[-10%] w-[500px] h-[500px] blur-[150px] opacity-[0.08] pointer-events-none" style={{ background: "radial-gradient(circle, var(--pv-accent) 0%, transparent 70%)" }} />
       <div className="absolute bottom-[0%] right-[-5%] w-[400px] h-[400px] blur-[150px] opacity-[0.05] pointer-events-none" style={{ background: "radial-gradient(circle, white 0%, transparent 70%)" }} />
 
-      <div className="max-w-4xl mx-auto px-6 relative z-10">
+      <div className="max-w-[1440px] mx-auto px-6 sm:px-10 lg:px-12 relative z-10">
 
-        {/* Section Header */}
-        <div className="flex flex-col items-center justify-center text-center mb-16 z-10">
+        {/* Section Header (Left-aligned to match Hero/Explore) */}
+        <div className="flex flex-col items-start justify-start text-left mb-16 z-10">
           <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/5 border border-white/10 mb-4 hover:border-[var(--pv-accent)]/50 transition-all duration-300">
             <span className="w-2 h-2 rounded-full bg-[var(--pv-accent)] shadow-[0_0_10px_var(--pv-accent)]"></span>
             <span className="text-[10px] uppercase font-black tracking-widest text-[var(--pv-accent)] drop-shadow-md">Frequently Asked Questions</span>
           </div>
-          <h2 className="text-4xl md:text-5xl font-black text-white tracking-tight leading-tight mb-5">
-            Got questions? <br className="sm:hidden" /> We've got answers
+          <h2 className="section-title mb-8">
+            Got questions?  We've got answers
           </h2>
-          <p className="text-white/50 text-[14px] leading-relaxed max-w-xl mx-auto text-center">
-            Everything you need to know about the product and billing. Can't find the answer you're looking for? Feel free to browse our documentation.
+          <p className="section-text">
+            Everything you need to know about the product and platform. Can't find the answer you're looking for? Feel free to contact us.
           </p>
         </div>
 
-        {/* FAQ Accordion */}
-        <div className="space-y-4">
+        {/* FAQ Accordion - Improved with no boxes and sharper text */}
+        <div className="space-y-6">
           {faqs.map((faq, index) => {
             const isOpen = openIndex === index;
 
             return (
               <div
                 key={index}
-                className={`group rounded-2xl border transition-all duration-500 overflow-hidden ${isOpen
-                  ? "bg-white/[0.05] border-[var(--pv-accent)]/40 shadow-[0_10px_30px_rgba(var(--pv-accent-rgb),0.15)]"
-                  : "bg-white/[0.02] border-white/10 hover:border-white/20 hover:bg-white/[0.04]"
-                  }`}
+                className="group border-b border-white/[0.08] transition-all duration-500 overflow-hidden"
               >
                 <button
                   onClick={() => toggleFAQ(index)}
-                  className="w-full text-left px-6 py-5 flex items-center justify-between gap-4 outline-none"
+                  className="w-full text-left py-7 flex items-center justify-between gap-4 outline-none group-hover:bg-white/[0.01] px-2 rounded-t-xl transition-all"
                 >
-                  <h3 className={`text-[15px] sm:text-base font-bold transition-colors duration-300 ${isOpen ? "text-[var(--pv-accent)]" : "text-white"}`}>
+                  <h3 className={`text-lg sm:text-xl font-black tracking-tight transition-colors duration-300 ${isOpen ? "text-[var(--pv-accent)]" : "text-white/90 group-hover:text-white"}`}>
                     {faq.question}
                   </h3>
-                  <div className={`w-8 h-8 shrink-0 rounded-full flex items-center justify-center transition-all duration-500 origin-center ${isOpen ? "bg-[var(--pv-accent)]/10 text-[var(--pv-accent)] rotate-180" : "bg-white/5 text-white/50 group-hover:text-white"}`}>
-                    <ChevronDown size={16} strokeWidth={3} />
+                  <div className={`w-10 h-10 shrink-0 rounded-full flex items-center justify-center transition-all duration-500 origin-center ${isOpen ? "bg-[var(--pv-accent)]/10 text-[var(--pv-accent)] rotate-180" : "bg-white/5 text-white/50 group-hover:text-white group-hover:scale-110"}`}>
+                    <ChevronDown size={20} strokeWidth={2.5} />
                   </div>
                 </button>
 
@@ -85,7 +82,7 @@ export default function FAQSection() {
                     }`}
                 >
                   <div className="overflow-hidden">
-                    <div className="p-6 pt-0 border-t border-white/5 text-white/50 text-sm leading-relaxed">
+                    <div className="px-2 pb-8 section-text text-sm md:text-base leading-relaxed font-light">
                       {faq.answer}
                     </div>
                   </div>
@@ -94,6 +91,7 @@ export default function FAQSection() {
             );
           })}
         </div>
+
 
       </div>
     </section>

@@ -85,7 +85,7 @@ export default function StudentProfilePage() {
 
 
 
-   if (!student) {
+   if (!student && !loading) {
       return (
          <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4 text-center">
             <AlertCircle size={48} className="text-red-400/50" />
@@ -100,7 +100,7 @@ export default function StudentProfilePage() {
 
    /* ── Derived values ── */
 
-   const isActive = student.status === "Active" || !student.status;
+   const isActive = student?.status === "Active" || !student?.status;
 
    const approvedProjects = projects.filter(
       (p) => p.status?.toLowerCase() === "approved"
@@ -180,7 +180,7 @@ export default function StudentProfilePage() {
                {/* Avatar */}
                <div className="relative shrink-0">
                   <div className="w-24 h-24 rounded-3xl bg-gradient-to-br from-[var(--pv-accent)]/30 to-blue-600/20 border border-white/10 flex items-center justify-center text-4xl font-black text-white shadow-inner">
-                     {student.name?.charAt(0)?.toUpperCase() || "S"}
+                     {student?.name?.charAt(0)?.toUpperCase() || "S"}
                   </div>
                   <span className={`absolute -bottom-1 -right-1 w-5 h-5 rounded-full border-4 border-[#0f0f0f] ${isActive ? "bg-green-400" : "bg-red-400"}`} />
                </div>
@@ -188,18 +188,18 @@ export default function StudentProfilePage() {
                {/* Core identity */}
                <div className="flex-1 min-w-0">
                   <div className="flex flex-wrap items-center gap-3 mb-1">
-                     <h1 className="text-3xl md:text-4xl font-black text-white tracking-tight leading-none uppercase">{student.name}</h1>
+                     <h1 className="text-3xl md:text-4xl font-black text-white tracking-tight leading-none uppercase">{student?.name || "Loading..."}</h1>
                      {isActive && <BadgeCheck size={24} className="text-[var(--pv-accent)] shrink-0" />}
                   </div>
 
-                  <p className="text-white/40 text-sm font-bold tracking-tight mb-5 uppercase">{student.email}</p>
+                  <p className="text-white/40 text-sm font-bold tracking-tight mb-5 uppercase">{student?.email || "Loading..."}</p>
 
                   <div className="flex flex-wrap gap-2">
-                     <Chip icon={Hash} text={`Roll ${student.rollNo}`} />
-                     <Chip icon={GraduationCap} text={student.department} />
-                     <Chip icon={Calendar} text={`Year ${student.year}`} />
-                     {student.groupName && <Chip icon={Users} text={`Group: ${student.groupName}`} accent />}
-                     {student.mentorName && <Chip icon={BadgeCheck} text={`Mentor: ${student.mentorName}`} />}
+                     <Chip icon={Hash} text={`Roll ${student?.rollNo || "-"}`} />
+                     <Chip icon={GraduationCap} text={student?.department || "..."} />
+                     <Chip icon={Calendar} text={`Year ${student?.year || "-"}`} />
+                     {student?.groupName && <Chip icon={Users} text={`Group: ${student.groupName}`} accent />}
+                     {student?.mentorName && <Chip icon={BadgeCheck} text={`Mentor: ${student.mentorName}`} />}
                   </div>
                </div>
 
@@ -235,12 +235,12 @@ export default function StudentProfilePage() {
                   <div className="flex items-center gap-2.5 px-6 py-5 border-b border-white/8 bg-white/[0.02]">
                      <ClipboardList size={16} className="text-[var(--pv-accent)]" />
                      <h2 className="text-white font-black text-xs uppercase tracking-widest">Active Proposal</h2>
-                     {student.groupName && (
+                     {student?.groupName && (
                         <span className="ml-auto text-[10px] text-white/30 font-black uppercase tracking-widest">{student.groupName}</span>
                      )}
                   </div>
 
-                  {!student.groupName ? (
+                  {!student?.groupName ? (
                      <BlankSlate icon={Layers} text="No group assigned" sub="Student is not in any group yet." />
                   ) : !proposal ? (
                      <BlankSlate icon={FileText} text="No proposal yet" sub="The group hasn't submitted a proposal." />

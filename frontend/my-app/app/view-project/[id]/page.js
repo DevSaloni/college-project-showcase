@@ -115,38 +115,30 @@ export default function ViewProjectPage() {
     }
   };
 
-  if (loading) {
+  if (!project && !loading) {
     return (
-      <div className="min-h-screen bg-[#050A16] flex items-center justify-center">
-        <div className="w-8 h-8 rounded-full border-2 border-t-transparent border-[var(--pv-accent)] animate-spin" />
-      </div>
-    );
-  }
-
-  if (!project) {
-    return (
-      <div className="min-h-screen bg-[#050A16] flex items-center justify-center text-white">
+      <div className="min-h-screen bg-black flex items-center justify-center text-white">
         <h1 className="text-xl font-black">Project Not Found</h1>
       </div>
     );
   }
 
-  const averageRating = project.ratings?.ratingCount > 0
-    ? (project.ratings.totalRating / project.ratings.ratingCount).toFixed(1)
+  const averageRating = project?.ratings?.ratingCount > 0
+    ? (project?.ratings?.totalRating / project?.ratings?.ratingCount).toFixed(1)
     : "New";
 
-  const bannerUrl = project.bannerImage?.startsWith("http")
-    ? project.bannerImage
-    : `${BASE_URL}/${project.bannerImage?.startsWith("/") ? project.bannerImage.substring(1) : project.bannerImage}`;
+  const bannerUrl = project?.bannerImage?.startsWith("http")
+    ? project?.bannerImage
+    : `${BASE_URL}/${project?.bannerImage?.startsWith("/") ? project?.bannerImage.substring(1) : project?.bannerImage}`;
 
   return (
-    <div className="min-h-screen bg-[#050A16] pt-24 pb-20 relative selection:bg-[var(--pv-accent)] selection:text-black" style={{ fontFamily: "Poppins, sans-serif" }}>
+    <div className="min-h-screen bg-black pt-24 pb-20 relative selection:bg-[var(--pv-accent)] selection:text-black" style={{ fontFamily: "Poppins, sans-serif" }}>
 
       {/* Background Glows */}
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[400px] blur-[180px] opacity-10 pointer-events-none" style={{ background: "radial-gradient(circle, var(--pv-accent) 0%, transparent 70%)" }} />
       <div className="absolute bottom-0 right-0 w-[500px] h-[500px] blur-[150px] opacity-10 pointer-events-none" style={{ background: "radial-gradient(circle, #4A90E2) 0%, transparent 70%)" }} />
 
-      <div className="container mx-auto px-6 relative z-10">
+      <div className="max-w-[1440px] mx-auto px-6 sm:px-10 lg:px-12 relative z-10">
 
         {/* Top Navigation */}
         <div className="flex items-center justify-between mb-8">
@@ -163,12 +155,12 @@ export default function ViewProjectPage() {
           <div className="space-y-3">
             <div className="flex items-center gap-3">
               <span className="bg-white/5 backdrop-blur-xl border border-white/10 px-3 py-1.5 rounded-full text-[9px] font-black uppercase tracking-widest text-white shadow-2xl">
-                {project.category || "Project"}
+                {project?.category || "Project"}
               </span>
-              <span className="text-[11px] font-bold text-[var(--pv-accent)] uppercase tracking-wider">{project.department || "General"}</span>
+              <span className="text-[11px] font-bold text-[var(--pv-accent)] uppercase tracking-wider">{project?.department || "General"}</span>
             </div>
             <h1 className="text-3xl md:text-4xl font-black text-white tracking-tight">
-              {project.title}
+              {project?.title}
             </h1>
             <p className="text-white/40 text-sm max-w-2xl">
               Discover the technical architecture, problem statement, and the visionaries behind this innovation.
@@ -182,23 +174,23 @@ export default function ViewProjectPage() {
             </div>
             <div className="flex items-center gap-2 px-3 py-1.5 rounded-md bg-white/5 border border-white/10 text-white/50">
               <Eye size={14} />
-              <span className="text-[11px] font-bold">{project.views?.length || 0} Views</span>
+              <span className="text-[11px] font-bold">{project?.views?.length || 0} Views</span>
             </div>
           </div>
         </div>
 
         {/* Cinematic Banner */}
         <div className="relative aspect-[21/9] w-full rounded-3xl overflow-hidden mb-16 border border-white/5 shadow-2xl">
-          <img src={bannerUrl} alt={project.title} className="w-full h-full object-cover" />
+          <img src={bannerUrl} alt={project?.title || "Project Banner"} className="w-full h-full object-cover" />
           <div className="absolute inset-0 bg-gradient-to-t from-[#050A16] via-transparent to-transparent opacity-60" />
 
           <div className="absolute bottom-6 right-6 flex gap-3">
-            {project.github && (
+            {project?.github && (
               <a href={project.github} target="_blank" className="p-3 rounded-full bg-black/60 backdrop-blur-md border border-white/10 text-white hover:bg-[var(--pv-accent)] hover:text-black transition-all shadow-xl">
                 <Github size={20} />
               </a>
             )}
-            {project.demoVideo && (
+            {project?.demoVideo && (
               <a href={project.demoVideo} target="_blank" className="p-3 rounded-full bg-black/60 backdrop-blur-md border border-white/10 text-white hover:bg-red-500 transition-all shadow-xl">
                 <Youtube size={20} />
               </a>
@@ -217,7 +209,7 @@ export default function ViewProjectPage() {
               <p className="section-label">Core Challenge</p>
               <h2 className="section-title">Problem Statement</h2>
               <p className="section-text">
-                {project.problem || "This project addresses real-world inefficiencies and aims to create a scalable and efficient solution."}
+                {project?.problem || "This project addresses real-world inefficiencies and aims to create a scalable and efficient solution."}
               </p>
             </section>
 
@@ -226,18 +218,18 @@ export default function ViewProjectPage() {
               <p className="section-label">Solution</p>
               <h2 className="section-title">Project Overview</h2>
               <p className="section-text">
-                {project.description || "A structured and scalable solution designed with modern technologies."}
+                {project?.description || "A structured and scalable solution designed with modern technologies."}
               </p>
             </section>
 
             {/* Features */}
-            {project.featureList?.length > 0 && (
+            {project?.featureList?.length > 0 && (
               <section className="space-y-4">
                 <p className="section-label">Key Features</p>
                 <h2 className="section-title">What This Project Offers</h2>
 
                 <ul className="space-y-3">
-                  {project.featureList.map((f, i) => (
+                  {project?.featureList?.map((f, i) => (
                     <li key={i} className="flex gap-3 section-text">
                       <span className="text-[var(--pv-accent)] font-semibold">
                         {i + 1}.
@@ -250,11 +242,11 @@ export default function ViewProjectPage() {
             )}
 
             {/* Outcome */}
-            {project.projectOutcome && (
+            {project?.projectOutcome && (
               <section className="space-y-4">
                 <p className="section-label">Outcome</p>
                 <h2 className="section-title">Final Result</h2>
-                <p className="section-text">{project.projectOutcome}</p>
+                <p className="section-text">{project?.projectOutcome}</p>
               </section>
             )}
 
@@ -269,7 +261,7 @@ export default function ViewProjectPage() {
                 <div className="p-4 rounded-xl bg-white/[0.02] border border-white/10">
                   <p className="sub-title">Technologies</p>
                   <p className="section-text">
-                    {project.tech || "Not specified"}
+                    {project?.tech || "Not specified"}
                   </p>
                 </div>
 
@@ -277,7 +269,7 @@ export default function ViewProjectPage() {
                 <div className="p-4 rounded-xl bg-white/[0.02] border border-white/10">
                   <p className="sub-title">Tools Used</p>
                   <p className="section-text">
-                    {project.toolsUsed || "Not specified"}
+                    {project?.toolsUsed || "Not specified"}
                   </p>
                 </div>
 
@@ -292,14 +284,14 @@ export default function ViewProjectPage() {
             {/* Feedback / Comments Section */}
             <div className="bg-white/[0.02] border border-white/10 rounded-2xl p-8 space-y-8">
               <h3 className="text-[11px] font-black text-white uppercase tracking-[0.3em] flex items-center gap-2">
-                <MessageSquare size={16} /> Insights Feed ({project.comments?.length || 0})
+                <MessageSquare size={16} /> Insights Feed ({project?.comments?.length || 0})
               </h3>
 
               <div className="space-y-6 max-h-[400px] overflow-y-auto no-scrollbar">
-                {project.comments?.length === 0 ? (
+                {project?.comments?.length === 0 ? (
                   <p className="text-[11px] text-white/20 italic">No activity yet...</p>
                 ) : (
-                  project.comments?.map((c, i) => (
+                  project?.comments?.map((c, i) => (
                     <div key={i} className="space-y-2 border-l-2 border-white/5 pl-4 py-1">
                       <div className="flex items-center gap-2">
                         <span className="text-[10px] font-black text-white leading-none">{c.user?.name || "User"}</span>
@@ -359,7 +351,7 @@ export default function ViewProjectPage() {
 
           <div className="w-full max-w-6xl">
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 justify-center">
-              {project.creatorProfiles?.map((cProfile, i) => (
+              {project?.creatorProfiles?.map((cProfile, i) => (
                 <CreatorCard key={i} creator={cProfile} BASE_URL={BASE_URL} />
               ))}
             </div>
@@ -386,7 +378,7 @@ function CreatorCard({ creator, BASE_URL }) {
       <div className="absolute inset-x-0 bottom-0 top-16 bg-[#0A0F1B]/60 border border-white/10 rounded-3xl -z-10 group-hover:border-[var(--pv-accent)]/30 group-hover:bg-[#0A0F1B]/80 transition-all duration-500 shadow-xl" />
       <div className="relative w-24 h-24 mb-4">
         <div className="absolute -inset-2 bg-[var(--pv-accent)]/10 blur-xl rounded-full opacity-0 group-hover:opacity-100 transition-opacity" />
-        <div className="w-full h-full rounded-2xl bg-[#050A16] border border-white/10 p-1 group-hover:scale-105 transition-transform overflow-hidden relative z-10">
+        <div className="w-full h-full rounded-2xl bg-black border border-white/10 p-1 group-hover:scale-105 transition-transform overflow-hidden relative z-10">
           {profileImg ? (
             <img src={profileImg} alt={user.name} className="w-full h-full object-cover rounded-xl" />
           ) : (

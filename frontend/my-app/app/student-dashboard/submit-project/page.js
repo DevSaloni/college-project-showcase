@@ -30,16 +30,16 @@ import axios from "axios";
 export default function SubmitProjectPage() {
   const { BASE_URL } = useApi();
   const router = useRouter();
-  
+
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
+  const [publishedProjects, setPublishedProjects] = useState([]);
+  const [existingExploreProjectId, setExistingExploreProjectId] = useState(null);
+
   const [completedProjects, setCompletedProjects] = useState([]);
   const [selectedProjectId, setSelectedProjectId] = useState(null);
-  
-  // Project details loaded from the selected active/completed project
   const [projectData, setProjectData] = useState(null);
 
-  // Form data for the final publish
   const [formData, setFormData] = useState({
     title: "",
     category: "",
@@ -63,73 +63,105 @@ export default function SubmitProjectPage() {
   const [bannerImage, setBannerImage] = useState(null);
   const [documentation, setDocumentation] = useState(null);
 
-  // 1. Fetch academic projects to find completed ones
+  // 1. Fetch academic projects and published projects
   useEffect(() => {
-    const fetchAcademicProjects = async () => {
+    const fetchData = async () => {
       try {
         const token = localStorage.getItem("token");
         if (!token) return;
-        
-        const res = await axios.get(`${BASE_URL}/api/student/my-academic-projects`, {
-          headers: { Authorization: `Bearer ${token}` }
-        });
-        
-        const allSems = res.data.data || [];
+
+        const [academicRes, publishedRes] = await Promise.all([
+          axios.get(`${BASE_URL}/api/student/my-academic-projects`, { headers: { Authorization: `Bearer ${token}` } }),
+          axios.get(`${BASE_URL}/api/projects/my-projects/status`, { headers: { Authorization: `Bearer ${token}` } }).catch(() => ({ data: { data: { Approved: [], Pending: [], Rejected: [] } } }))
+        ]);
+
+        const allSems = academicRes.data.data || [];
         const completed = allSems.flatMap(sem => sem.projects).filter(p => p.status === "Completed" || p.status === "Active");
-        // Allowing Active projects too so the user can see something during testing.
         setCompletedProjects(completed);
+
+        const pubData = publishedRes.data.data || { Approved: [], Pending: [], Rejected: [] };
+        const allPublished = [...pubData.Approved, ...pubData.Pending, ...pubData.Rejected];
+        setPublishedProjects(allPublished);
       } catch (err) {
         console.error(err);
       } finally {
         setLoading(false);
       }
     };
-    fetchAcademicProjects();
+    fetchData();
   }, [BASE_URL]);
 
   // 2. Fetch full details when a project is selected
   useEffect(() => {
-    if (!selectedProjectId) return;
-    
+    if (!selectedProjectId) {
+      setExistingExploreProjectId(null);
+      return;
+    }
+
     const fetchProjectDetails = async () => {
       try {
         const token = localStorage.getItem("token");
         const res = await axios.get(`${BASE_URL}/api/student/project-details/${selectedProjectId}`, {
           headers: { Authorization: `Bearer ${token}` }
         });
-        
+
         const data = res.data.data;
         setProjectData(data);
+
+        const publishedMatch = publishedProjects.find(pub => pub.title === data.title);
         
-        // Auto-fill form
-        setFormData({
-          title: data.title || "",
-          category: "",
-          projectType: "Academic",
-          projectDuration: data.totalWeeks ? `${data.totalWeeks} Weeks` : "",
-          problem: data.problemStatement || "",
-          description: data.description || "",
-          projectOutcome: data.expectedOutcome || "",
-          tech: Array.isArray(data.techStack) ? data.techStack.join(", ") : (data.techStack || ""),
-          toolsUsed: "",
-          github: "",
-          demoVideo: "",
-          teamMembers: "", 
-          featureList: Array.isArray(data.features) ? data.features.join(", ") : (data.features || ""),
-          department: data.department || "",
-          year: data.year || "",
-          groupName: data.groupName || "",
-          mentor: data.mentorName || ""
-        });
-        
+        if (publishedMatch) {
+          setExistingExploreProjectId(publishedMatch._id);
+          setFormData({
+            title: publishedMatch.title || "",
+            category: publishedMatch.category || "",
+            projectType: publishedMatch.projectType || "Academic",
+            projectDuration: publishedMatch.projectDuration || (data.totalWeeks ? `${data.totalWeeks} Weeks` : ""),
+            problem: publishedMatch.problem || data.problemStatement || "",
+            description: publishedMatch.description || data.description || "",
+            projectOutcome: publishedMatch.projectOutcome || data.expectedOutcome || "",
+            tech: publishedMatch.tech || (Array.isArray(data.techStack) ? data.techStack.join(", ") : (data.techStack || "")),
+            toolsUsed: publishedMatch.toolsUsed || "",
+            github: publishedMatch.github || "",
+            demoVideo: publishedMatch.demoVideo || "",
+            teamMembers: publishedMatch.teamMembers ? (Array.isArray(publishedMatch.teamMembers) ? publishedMatch.teamMembers.join(", ") : publishedMatch.teamMembers) : "",
+            featureList: publishedMatch.featureList ? (Array.isArray(publishedMatch.featureList) ? publishedMatch.featureList.join(", ") : publishedMatch.featureList) : (Array.isArray(data.features) ? data.features.join(", ") : (data.features || "")),
+            department: publishedMatch.department || data.department || "",
+            year: publishedMatch.year || data.year || "",
+            groupName: publishedMatch.groupName || data.groupName || "",
+            mentor: publishedMatch.mentor || data.mentorName || ""
+          });
+        } else {
+          setExistingExploreProjectId(null);
+          setFormData({
+            title: data.title || "",
+            category: "",
+            projectType: "Academic",
+            projectDuration: data.totalWeeks ? `${data.totalWeeks} Weeks` : "",
+            problem: data.problemStatement || "",
+            description: data.description || "",
+            projectOutcome: data.expectedOutcome || "",
+            tech: Array.isArray(data.techStack) ? data.techStack.join(", ") : (data.techStack || ""),
+            toolsUsed: "",
+            github: "",
+            demoVideo: "",
+            teamMembers: "",
+            featureList: Array.isArray(data.features) ? data.features.join(", ") : (data.features || ""),
+            department: data.department || "",
+            year: data.year || "",
+            groupName: data.groupName || "",
+            mentor: data.mentorName || ""
+          });
+        }
+
       } catch (err) {
         console.error(err);
         toast.error("Failed to load project details.");
       }
     };
-    
+
     fetchProjectDetails();
-  }, [selectedProjectId, BASE_URL]);
+  }, [selectedProjectId, BASE_URL, publishedProjects]);
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -147,29 +179,40 @@ export default function SubmitProjectPage() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!formData.title || !formData.category || !bannerImage) {
-      toast.error("Please fill Title, Category, and provide a Banner Image.");
+    if (!formData.title || !formData.category) {
+      toast.error("Please fill Title and Category.");
       return;
     }
-    
+    if (!existingExploreProjectId && !bannerImage) {
+      toast.error("Please provide a Banner Image for new publish.");
+      return;
+    }
+
     setSubmitting(true);
     try {
-      const payload = new FormData();
-      Object.keys(formData).forEach((key) => {
-        payload.append(key, formData[key]);
-      });
-      
-      if (bannerImage) payload.append("bannerImage", bannerImage);
-      if (documentation) payload.append("documentation", documentation);
+      if (existingExploreProjectId) {
+        const payload = { ...formData };
+        await axios.put(`${BASE_URL}/api/projects/update/${existingExploreProjectId}`, payload, {
+          headers: { Authorization: `Bearer ${localStorage.getItem("token")}` }
+        });
+        toast.success("Project updated successfully on Explore Page!");
+      } else {
+        const payload = new FormData();
+        Object.keys(formData).forEach((key) => {
+          payload.append(key, formData[key]);
+        });
 
-      const res = await axios.post(`${BASE_URL}/api/projects/create`, payload, {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
-          "Content-Type": "multipart/form-data"
-        },
-      });
+        if (bannerImage) payload.append("bannerImage", bannerImage);
+        if (documentation) payload.append("documentation", documentation);
 
-      toast.success("Project submitted successfully to Explore Page!");
+        await axios.post(`${BASE_URL}/api/projects/create`, payload, {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+            "Content-Type": "multipart/form-data"
+          },
+        });
+        toast.success("Project submitted successfully to Explore Page!");
+      }
       router.push("/explore");
     } catch (err) {
       console.error(err);
@@ -179,9 +222,7 @@ export default function SubmitProjectPage() {
     }
   };
 
-  if (loading) {
-    return <div className="text-white">Loading...</div>;
-  }
+
 
   return (
     <div className="max-w-7xl mx-auto space-y-8 pb-20 animate-in fade-in slide-in-from-bottom-4 duration-500">
@@ -222,58 +263,65 @@ export default function SubmitProjectPage() {
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {completedProjects.map((p) => (
-                <div 
-                  key={p._id}
-                  onClick={() => setSelectedProjectId(p._id)}
-                  className="bg-black/40 border border-white/10 hover:border-[var(--pv-accent)]/50 rounded-2xl p-5 cursor-pointer transition-all group hover:shadow-lg hover:shadow-[var(--pv-accent)]/10"
-                >
-                  <p className="text-white font-bold mb-1 truncate group-hover:text-[var(--pv-accent)] transition-colors">{p.title}</p>
-                  <div className="flex items-center justify-between mt-3">
-                    <span className="text-[10px] uppercase tracking-widest font-bold text-white/30">Select Project</span>
-                    <ChevronRight size={14} className="text-white/30 group-hover:text-[var(--pv-accent)] group-hover:translate-x-1 transition-all" />
+              {completedProjects.map((p) => {
+                const isPublished = publishedProjects.some(pub => pub.title === p.title);
+                return (
+                  <div
+                    key={p._id}
+                    onClick={() => setSelectedProjectId(p._id)}
+                    className="bg-black/40 border border-white/10 hover:border-[var(--pv-accent)]/50 rounded-2xl p-5 cursor-pointer transition-all group hover:shadow-lg hover:shadow-[var(--pv-accent)]/10"
+                  >
+                    <div className="flex items-center justify-between mb-1">
+                      <p className="text-white font-bold truncate group-hover:text-[var(--pv-accent)] transition-colors">{p.title}</p>
+                      {isPublished && <span className="px-2 py-0.5 rounded-md bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 text-[10px] font-bold uppercase tracking-wider">Published</span>}
+                    </div>
+                    <div className="flex items-center justify-between mt-3">
+                      <span className="text-[10px] uppercase tracking-widest font-bold text-white/30">{isPublished ? 'Edit Project' : 'Select Project'}</span>
+                      <ChevronRight size={14} className="text-white/30 group-hover:text-[var(--pv-accent)] group-hover:translate-x-1 transition-all" />
+                    </div>
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           )}
         </div>
       ) : (
         /* STAGE 2: PUBLISH FORM */
         <form onSubmit={handleSubmit} className="bg-white/[0.02] border border-white/10 rounded-3xl overflow-hidden shadow-2xl space-y-0">
-          
+
           <div className="px-8 py-5 border-b border-white/10 bg-white/[0.02] flex items-center justify-between">
             <div className="flex items-center gap-3">
               <div className="p-2 rounded-xl bg-[var(--pv-accent)]/10 border border-[var(--pv-accent)]/20">
                 <Star size={18} className="text-[var(--pv-accent)]" />
               </div>
               <div>
-                <p className="text-white font-bold">Review & Publish</p>
-                <p className="text-white/40 text-xs">Finalize your project details before publishing to Explore</p>
+                <p className="text-white font-bold">{existingExploreProjectId ? 'Update Explore Project' : 'Review & Publish'}</p>
+                <p className="text-white/40 text-xs">{existingExploreProjectId ? 'Update your published project details.' : 'Finalize your project details before publishing to Explore'}</p>
               </div>
             </div>
-            <button 
-              type="button" 
+            <button
+              type="button"
               onClick={() => setSelectedProjectId(null)}
-              className="px-4 py-2 rounded-xl bg-white/5 hover:bg-white/10 text-white/70 text-xs font-bold border border-white/10 transition-all"
+              className="px-4 py-2 rounded-xl bg-white/5 hover:bg-white/10 text-white/70 text-xs font-bold border border-white/10 transition-all flex items-center gap-2"
             >
-              Change Project
+              <ChevronRight size={14} className="rotate-180" />
+              Back
             </button>
           </div>
 
           <div className="p-8 space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <InputField icon={Star} label="Project Title *" name="title" value={formData.title} onChange={handleChange} placeholder="Project Vault Platform" />
-              <InputField icon={Layers} label="Category *" name="category" value={formData.category} onChange={handleChange} placeholder="e.g. Web Development" />
+              <InputField icon={Star} label="Project Title *" name="title" value={formData.title} onChange={handleChange} placeholder="Project Vault Platform" disabled={!!existingExploreProjectId} />
+              <InputField icon={Layers} label="Category *" name="category" value={formData.category} onChange={handleChange} placeholder="e.g. Web Development" disabled={!!existingExploreProjectId} />
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <InputField icon={Layers} label="Project Type" name="projectType" value={formData.projectType} onChange={handleChange} placeholder="Major / Minor" />
-              <InputField icon={Layers} label="Department" name="department" value={formData.department} onChange={handleChange} placeholder="e.g. Computer Science" />
+              <InputField icon={Layers} label="Project Type" name="projectType" value={formData.projectType} onChange={handleChange} placeholder="Major / Minor" disabled={!!existingExploreProjectId} />
+              <InputField icon={Layers} label="Department" name="department" value={formData.department} onChange={handleChange} placeholder="e.g. Computer Science" disabled={!!existingExploreProjectId} />
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <TextareaField icon={AlertCircle} label="Problem Statement" name="problem" value={formData.problem} onChange={handleChange} placeholder="What problem does this solve?" />
+              <TextareaField icon={AlertCircle} label="Problem Statement" name="problem" value={formData.problem} onChange={handleChange} placeholder="What problem does this solve?" disabled={!!existingExploreProjectId} />
               <TextareaField icon={FileText} label="Project Description" name="description" value={formData.description} onChange={handleChange} placeholder="Detailed overview of the project" />
             </div>
 
@@ -284,7 +332,7 @@ export default function SubmitProjectPage() {
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <InputField icon={Cpu} label="Tech Stack" name="tech" value={formData.tech} onChange={handleChange} placeholder="Comma-separated e.g. React, Node, MongoDB" />
-              <InputField icon={Cpu} label="Tools Used" name="toolsUsed" value={formData.toolsUsed} onChange={handleChange} placeholder="Comma-separated e.g. VS Code, Figma" />
+              <InputField icon={Cpu} label="Tools Used" name="toolsUsed" value={formData.toolsUsed} onChange={handleChange} placeholder="Comma-separated e.g. VS Code, Figma" disabled={!!existingExploreProjectId} />
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -294,53 +342,53 @@ export default function SubmitProjectPage() {
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <InputField icon={Users} label="Team Members" name="teamMembers" value={formData.teamMembers} onChange={handleChange} placeholder="Comma-separated names e.g. Alice, Bob" />
-              <InputField icon={Layers} label="Group Name" name="groupName" value={formData.groupName} onChange={handleChange} placeholder="Group 12" />
+              <InputField icon={Layers} label="Group Name" name="groupName" value={formData.groupName} onChange={handleChange} placeholder="Group 12" disabled={!!existingExploreProjectId} />
             </div>
 
-            {/* File Uploads */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6 p-6 rounded-2xl bg-black/20 border border-white/5">
-              <div>
-                <label className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-white/50 mb-3">
-                  <ImageIcon size={14} className="text-[var(--pv-accent)]" />
-                  Banner Image *
-                </label>
-                <div className="relative">
-                  <input type="file" required accept="image/*" onChange={handleBannerChange} className="w-full text-sm text-white/50 file:mr-4 file:py-2.5 file:px-5 file:rounded-xl file:border-0 file:text-sm file:font-semibold file:bg-white/5 file:text-white hover:file:bg-white/10 file:transition-colors file:cursor-pointer cursor-pointer border border-dashed border-white/10 rounded-xl p-2 pb-2 bg-white/[0.01] hover:bg-white/[0.02]" />
-                  {bannerImage && <div className="absolute top-1/2 -translate-y-1/2 right-4 text-emerald-400 bg-emerald-500/10 p-1 rounded-full"><Check size={14} /></div>}
+            {!existingExploreProjectId && (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6 p-6 rounded-2xl bg-black/20 border border-white/5">
+                <div>
+                  <label className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-white/50 mb-3">
+                    <ImageIcon size={14} className="text-[var(--pv-accent)]" />
+                    Banner Image *
+                  </label>
+                  <div className="relative">
+                    <input type="file" required accept="image/*" onChange={handleBannerChange} className="w-full text-sm text-white/50 file:mr-4 file:py-2.5 file:px-5 file:rounded-xl file:border-0 file:text-sm file:font-semibold file:bg-white/5 file:text-white hover:file:bg-white/10 file:transition-colors file:cursor-pointer cursor-pointer border border-dashed border-white/10 rounded-xl p-2 pb-2 bg-white/[0.01] hover:bg-white/[0.02]" />
+                    {bannerImage && <div className="absolute top-1/2 -translate-y-1/2 right-4 text-emerald-400 bg-emerald-500/10 p-1 rounded-full"><Check size={14} /></div>}
+                  </div>
+                </div>
+
+                <div>
+                  <label className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-white/50 mb-3">
+                    <FileText size={14} className="text-[var(--pv-accent)]" />
+                    Documentation (Optional)
+                  </label>
+                  <div className="relative">
+                    <input type="file" accept=".pdf,.doc,.docx" onChange={handleDocChange} className="w-full text-sm text-white/50 file:mr-4 file:py-2.5 file:px-5 file:rounded-xl file:border-0 file:text-sm file:font-semibold file:bg-white/5 file:text-white hover:file:bg-white/10 file:transition-colors file:cursor-pointer cursor-pointer border border-dashed border-white/10 rounded-xl p-2 pb-2 bg-white/[0.01] hover:bg-white/[0.02]" />
+                    {documentation && <div className="absolute top-1/2 -translate-y-1/2 right-4 text-emerald-400 bg-emerald-500/10 p-1 rounded-full"><Check size={14} /></div>}
+                  </div>
                 </div>
               </div>
-              
-              <div>
-                <label className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-white/50 mb-3">
-                  <FileText size={14} className="text-[var(--pv-accent)]" />
-                  Documentation (Optional)
-                </label>
-                <div className="relative">
-                  <input type="file" accept=".pdf,.doc,.docx" onChange={handleDocChange} className="w-full text-sm text-white/50 file:mr-4 file:py-2.5 file:px-5 file:rounded-xl file:border-0 file:text-sm file:font-semibold file:bg-white/5 file:text-white hover:file:bg-white/10 file:transition-colors file:cursor-pointer cursor-pointer border border-dashed border-white/10 rounded-xl p-2 pb-2 bg-white/[0.01] hover:bg-white/[0.02]" />
-                  {documentation && <div className="absolute top-1/2 -translate-y-1/2 right-4 text-emerald-400 bg-emerald-500/10 p-1 rounded-full"><Check size={14} /></div>}
-                </div>
-              </div>
-            </div>
+            )}
 
             <div className="pt-6 border-t border-white/10 flex justify-end">
               <button
                 type="submit"
                 disabled={submitting}
-                className={`inline-flex items-center gap-2.5 px-8 py-3.5 rounded-2xl font-bold text-sm transition-all duration-200 border-b-2 active:translate-y-0.5 active:border-b-0 ${
-                  submitting
+                className={`inline-flex items-center gap-2.5 px-8 py-3.5 rounded-2xl font-bold text-sm transition-all duration-200 border-b-2 active:translate-y-0.5 active:border-b-0 ${submitting
                     ? "bg-amber-500/10 text-amber-400 border-amber-500/20 cursor-not-allowed"
                     : "bg-[var(--pv-accent)] text-black border-black/20 hover:shadow-lg hover:shadow-[var(--pv-accent)]/20 hover:scale-[1.02] cursor-pointer"
-                }`}
+                  }`}
               >
                 {submitting ? (
                   <>
                     <div className="w-4 h-4 rounded-full border-2 border-black/20 border-t-black animate-spin" />
-                    Publishing...
+                    {existingExploreProjectId ? 'Updating...' : 'Publishing...'}
                   </>
                 ) : (
                   <>
                     <Upload size={16} />
-                    Publish to Explore
+                    {existingExploreProjectId ? 'Update Explore Project' : 'Publish to Explore'}
                   </>
                 )}
               </button>

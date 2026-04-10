@@ -71,7 +71,7 @@ export default function AllGroupsPage() {
               <MetaItem
                 icon={Users}
                 label="Students"
-                value={`${group.students?.length || 0} Members`}
+                value={`${group.students || 0} Members`}
               />
               <MetaItem
                 icon={FileText}

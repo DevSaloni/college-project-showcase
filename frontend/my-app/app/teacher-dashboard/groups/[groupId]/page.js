@@ -24,9 +24,12 @@ import {
   GraduationCap,
   Layers,
   Sparkles,
-  AlertCircle
+  AlertCircle,
+  Edit2,
+  Trash2
 } from "lucide-react";
 import { useApi } from "@/context/ApiContext";
+import { toast } from "react-hot-toast";
 
 export default function GroupWorkspacePage() {
   const { BASE_URL } = useApi();
@@ -46,6 +49,8 @@ export default function GroupWorkspacePage() {
   const [duration, setDuration] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 const [file, setFile] = useState(null);
+  const [editingMessageId, setEditingMessageId] = useState(null);
+  const [editMessageText, setEditMessageText] = useState("");
 
   /* ================= FETCH DATA ================= */
 
@@ -108,10 +113,13 @@ if (!socketRef.current) {
     });
   });
 
-
+  socket.on("messageUpdated", (updatedMsg) => {
+    setMessages((prev) => prev.map((m) => m._id === updatedMsg._id ? updatedMsg : m));
+  });
 
   return () => {
     socket.off("receiveMessage");
+    socket.off("messageUpdated");
     
   };
 
@@ -200,23 +208,57 @@ const sendMessage = async () => {
   } catch (err) {
     console.error(err);
   }
+};
 
-
-  if (loading) {
-    return (
-      <div className="flex flex-col items-center justify-center min-h-[70vh] gap-6">
-        <div className="relative w-16 h-16">
-          <div className="absolute inset-0 rounded-full border-4 border-white/5 border-t-[var(--pv-accent)] animate-spin" />
-          <div className="absolute inset-2 rounded-full border-4 border-white/5 border-b-[var(--pv-accent-2)] animate-spin-slow" />
-        </div>
-        <p className="text-white/40 text-sm font-medium tracking-wide animate-pulse">
-          Setting up workspace...
-        </p>
-      </div>
-    );
+const submitEdit = async () => {
+  if (!editMessageText.trim()) return;
+  try {
+    const res = await fetch(`${BASE_URL}/api/discussions/${editingMessageId}/edit`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${localStorage.getItem("token")}`,
+      },
+      body: JSON.stringify({ message: editMessageText }),
+    });
+    
+    if (res.ok) {
+      setEditingMessageId(null);
+      setEditMessageText("");
+      toast.success("Message edited successfully");
+    } else {
+      toast.error("Failed to edit message");
+    }
+  } catch (err) {
+    console.error(err);
+    toast.error("Failed to edit message");
   }
+};
 
-  if (!group) {
+const deleteMessage = async (msgId) => {
+  if (!confirm("Are you sure you want to delete this message?")) return;
+  try {
+    const res = await fetch(`${BASE_URL}/api/discussions/${msgId}/delete`, {
+      method: "DELETE",
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem("token")}`,
+      },
+    });
+
+    if (res.ok) {
+      toast.success("Message deleted successfully");
+    } else {
+      toast.error("Failed to delete message");
+    }
+  } catch (err) {
+    console.error(err);
+    toast.error("Failed to delete message");
+  }
+};
+
+
+  // Removed blocking loader for instantaneous layout rendering
+  if (!group && !loading) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4">
         <div className="w-20 h-20 rounded-3xl bg-red-500/10 border border-red-500/20 flex items-center justify-center mb-4">
@@ -255,10 +297,10 @@ const sendMessage = async () => {
             <ChevronRight size={12} />
             <span className="text-white/60">Workspace</span>
           </div>
-          <h1 className="text-3xl md:text-4xl font-black text-white tracking-tight flex items-center gap-4">
-            {group.groupName}
-            <span className={`px-4 py-1.5 rounded-full text-xs font-bold border ${currentStatusStyle.split(' dot-bg-')[0]}`}>
-              {proposalStatus.toUpperCase()}
+          <h1 className="text-2xl md:text-4xl font-black text-white tracking-tight flex flex-wrap items-center gap-3">
+            {group?.groupName || "Loading..."}
+            <span className={`px-3 py-1 rounded-full text-[10px] md:text-xs font-bold border ${currentStatusStyle.split(' dot-bg-')[0]} uppercase`}>
+              {proposalStatus}
             </span>
           </h1>
           <p className="text-white/40 text-sm">
@@ -268,7 +310,7 @@ const sendMessage = async () => {
 
         <button
           onClick={() => router.back()}
-          className="group flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-bold bg-white/5 border border-white/10 text-white hover:bg-white/10 transition-all border-b-2 active:translate-y-0.5"
+          className="group flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl text-sm font-bold bg-white/5 border border-white/10 text-white hover:bg-white/10 transition-all border-b-2 active:translate-y-0.5 w-full md:w-auto"
         >
           <ArrowLeft size={18} className="group-hover:-translate-x-1 transition-transform" />
           Back to Roster
@@ -472,20 +514,46 @@ const sendMessage = async () => {
                             {msg.sender?.name?.charAt(0)|| "S"}
                           </div>
                         )}
+                        {isMe && !msg.isDeleted && (
+                          <div className="opacity-0 group-hover:opacity-100 transition-opacity flex flex-col gap-1 mb-4">
+                            <button onClick={() => { setEditingMessageId(msg._id); setEditMessageText(msg.message); }} className="p-1.5 bg-white/5 hover:bg-white/10 rounded-lg text-white/50 hover:text-white transition-colors">
+                              <Edit2 size={11} />
+                            </button>
+                            <button onClick={() => deleteMessage(msg._id)} className="p-1.5 bg-red-500/10 hover:bg-red-500/20 rounded-lg text-red-400 transition-colors">
+                              <Trash2 size={11} />
+                            </button>
+                          </div>
+                        )}
+
                         <div className={`max-w-[80%] space-y-1`}>
                           {!isMe && (
                             <span className="text-[10px] text-white/30 font-bold uppercase tracking-wider ml-1">
                               {msg.sender?.name || "Student"}
                             </span>
                           )}
-                          <div
-                            className={`p-4 rounded-2xl text-sm leading-relaxed shadow-lg ${isMe
-                                ? 'bg-[var(--pv-accent)] text-black font-medium rounded-br-none'
-                                : 'bg-white/10 text-white rounded-bl-none border border-white/5'
-                              }`}
-                          >
-                            {msg.message}
-                          </div>
+
+                          {editingMessageId === msg._id ? (
+                            <div className="p-3 bg-black/40 border border-white/20 rounded-2xl flex flex-col gap-2 min-w-[240px]">
+                              <textarea value={editMessageText} onChange={(e) => setEditMessageText(e.target.value)} className="bg-transparent outline-none text-white text-sm resize-none w-full" rows={2} autoFocus />
+                              <div className="flex justify-end gap-2">
+                                <button onClick={() => setEditingMessageId(null)} className="text-xs text-white/50 hover:text-white px-3 py-1 rounded-lg bg-white/5 transition-colors">Cancel</button>
+                                <button onClick={submitEdit} className="text-xs text-black font-bold px-3 py-1 rounded-lg bg-[var(--pv-accent)] transition-colors">Save</button>
+                              </div>
+                            </div>
+                          ) : (
+                            <div
+                              className={`p-4 rounded-2xl text-sm leading-relaxed shadow-lg ${
+                                msg.isDeleted ? "bg-black/20 text-white/30 italic border border-white/5 rounded-bl-none"
+                                : isMe
+                                    ? 'bg-[var(--pv-accent)] text-black font-medium rounded-br-none'
+                                    : 'bg-white/10 text-white rounded-bl-none border border-white/5'
+                                }`}
+                            >
+                              {msg.message}
+                              {msg.isEdited && !msg.isDeleted && <span className={`text-[9px] ml-1 font-bold ${isMe ? "opacity-40" : "text-white/20"}`}>(edited)</span>}
+                            </div>
+                          )}
+
                           <p className={`text-[9px] text-white/20 font-medium ${isMe ? 'text-right mr-1' : 'ml-1'}`}>
                             {new Date(msg.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                           </p>
@@ -545,9 +613,9 @@ const sendMessage = async () => {
             </h3>
 
             <div className="space-y-4">
-              <SidebarItem icon={Layers} label="Department" value={group.department} />
-              <SidebarItem icon={GraduationCap} label="Academic Year" value={`${group.year} Year`} />
-              <SidebarItem icon={Users} label="Total Members" value={`${group.students?.length || 0} Students`} />
+              <SidebarItem icon={Layers} label="Department" value={group?.department} />
+              <SidebarItem icon={GraduationCap} label="Academic Year" value={group?.year ? `${group.year} Year` : "Loading..."} />
+              <SidebarItem icon={Users} label="Total Members" value={`${group?.students?.length || 0} Students`} />
               <SidebarItem icon={Calendar} label="Submission" value={proposal?.createdAt ? new Date(proposal.createdAt).toDateString() : "Not Submitted"} />
             </div>
           </div>
@@ -559,12 +627,12 @@ const sendMessage = async () => {
                 <Users size={18} className="text-blue-400" /> Team Members
               </h3>
               <span className="px-2.5 py-1 bg-white/5 rounded-lg text-xs font-bold text-white/40">
-                {group.students?.length || 0}
+                {group?.students?.length || 0}
               </span>
             </div>
 
             <div className="space-y-3">
-              {group.students?.map((s, idx) => (
+              {group?.students?.map((s, idx) => (
                 <div key={s._id} className="flex items-center gap-4 p-3 rounded-2xl bg-white/[0.02] border border-white/5 hover:bg-white/[0.05] transition-all group">
                   <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-white/10 to-white/5 flex items-center justify-center text-sm font-black text-white/60 group-hover:text-white transition-colors border border-white/5">
                     {s.userId?.name?.charAt(0) || idx + 1}
@@ -579,7 +647,7 @@ const sendMessage = async () => {
                 </div>
               ))}
 
-              {(!group.students || group.students.length === 0) && (
+              {(!group?.students || group?.students?.length === 0) && (
                 <p className="text-center py-6 text-white/30 text-sm">No students assigned</p>
               )}
             </div>
@@ -661,5 +729,4 @@ function SidebarItem({ icon: Icon, label, value }) {
       </div>
     </div>
   );
-}
 }

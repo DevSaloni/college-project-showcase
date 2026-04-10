@@ -208,11 +208,11 @@ export default function TeacherProfilePage() {
         />
 
         {/* Content inside banner */}
-        <div className="relative z-10 px-10 pt-10 pb-0">
-          <div className="flex flex-col md:flex-row items-end gap-7">
+        <div className="relative z-10 px-6 md:px-10 pt-10 pb-0 flex flex-col items-center md:items-start text-center md:text-left">
+          <div className="flex flex-col md:flex-row items-center md:items-end gap-6 md:gap-7 w-full">
 
             {/* Avatar */}
-            <div className="relative shrink-0 translate-y-12">
+            <div className="relative shrink-0 md:translate-y-12">
               <div
                 className="w-28 h-28 rounded-2xl overflow-hidden shadow-2xl bg-[#1e293b] border-2 border-white/10"
                 style={{ boxShadow: "0 0 40px rgba(255,107,107,0.25)" }}
@@ -232,7 +232,7 @@ export default function TeacherProfilePage() {
               <span
                 className={`absolute -bottom-1.5 -right-1.5 w-5 h-5 rounded-full border-2`}
                 style={{
-                  borderColor: "#050A16",
+                  borderColor: "#000000",
                   backgroundColor: isActive ? "#4ade80" : "#f87171",
                   boxShadow: isActive ? "0 0 8px #4ade8099" : "0 0 8px #f8717199",
                 }}
@@ -252,7 +252,7 @@ export default function TeacherProfilePage() {
             </div>
 
             {/* Name + meta */}
-            <div className={`flex-1 pb-5 space-y-1 ${loading ? "animate-pulse" : ""}`}>
+            <div className={`flex-1 pb-2 md:pb-5 space-y-1 ${loading ? "animate-pulse" : ""}`}>
               {loading ? (
                 <div className="space-y-4">
                   <div className="h-10 w-64 bg-white/10 rounded-xl" />
@@ -264,8 +264,8 @@ export default function TeacherProfilePage() {
                 </div>
               ) : (
                 <>
-                  <div className="flex items-center gap-3 flex-wrap">
-                    <h1 className="text-3xl md:text-4xl font-extrabold text-white tracking-tight leading-tight">
+                  <div className="flex items-center justify-center md:justify-start gap-3 flex-wrap">
+                    <h1 className="text-2xl md:text-4xl font-extrabold text-white tracking-tight leading-tight">
                       {name}
                     </h1>
                     <span
@@ -278,10 +278,10 @@ export default function TeacherProfilePage() {
                       {profile?.status}
                     </span>
                   </div>
-                  <p className="text-white/50 text-sm font-medium">
+                  <p className="text-white/50 text-xs md:text-sm font-medium">
                     {profile?.designation}{profile?.designation && profile?.department && " · "}{profile?.department}
                   </p>
-                  <div className="flex flex-wrap items-center gap-3 pt-1">
+                  <div className="flex flex-wrap items-center justify-center md:justify-start gap-3 pt-1">
                     <span className="flex items-center gap-1.5 text-xs text-white/40">
                       <Mail size={12} className="text-[#FF6B6B]" /> {email}
                     </span>
@@ -301,7 +301,7 @@ export default function TeacherProfilePage() {
             </div>
 
             {/* Actions */}
-            <div className="pb-6 flex items-center gap-2 shrink-0">
+            <div className="pb-6 flex items-center justify-center md:justify-end gap-2 w-full md:w-auto shrink-0 md:translate-y-6">
               {!editMode ? (
                 <button
                   onClick={() => setEditMode(true)}
@@ -338,7 +338,7 @@ export default function TeacherProfilePage() {
           STATS BAR  (sits just below hero)
       ══════════════════════════════════════ */}
       <div
-        className="w-full rounded-b-3xl px-10 py-5 flex items-center justify-between gap-4 flex-wrap"
+        className="w-full rounded-b-3xl px-6 md:px-10 py-8 md:py-5 flex items-center justify-center md:justify-between gap-6 flex-wrap"
         style={{
           background: "rgba(255,255,255,0.02)",
           borderLeft: "1px solid rgba(255,255,255,0.1)",

@@ -20,7 +20,7 @@ export default function Navbar() {
   const pathname = usePathname();
   const router = useRouter();
 
-  const [isScrolled, setIsScrolled] = useState(false);
+
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [openCategories, setOpenCategories] = useState(false);
   const [mobileCatOpen, setMobileCatOpen] = useState(false);
@@ -41,13 +41,10 @@ export default function Navbar() {
 
   useEffect(() => {
     updateAuthStatus();
-    const onScroll = () => setIsScrolled(window.scrollY > 30);
-    window.addEventListener("scroll", onScroll);
     window.addEventListener("login-status", updateAuthStatus);
     setIsMenuOpen(false);
     setOpenCategories(false);
     return () => {
-      window.removeEventListener("scroll", onScroll);
       window.removeEventListener("login-status", updateAuthStatus);
     };
   }, [pathname]);
@@ -94,34 +91,19 @@ export default function Navbar() {
       {/* ══════════════ NAVBAR BAR ══════════════ */}
       <nav
         style={{ fontFamily: "'Poppins', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif" }}
-        className={`fixed top-0 left-0 w-full z-[100] transition-all duration-500 ease-in-out ${isScrolled
-          ? "py-3 bg-[#020712]/80 backdrop-blur-2xl border-b border-white/[0.07] shadow-[0_4px_40px_rgba(0,0,0,0.4)]"
-          : "py-5 bg-transparent border-b border-transparent"
-          }`}
+        className="fixed top-0 left-0 w-full z-[100] py-2 bg-black border-b border-white/[0.07] shadow-[0_4px_40px_rgba(0,0,0,0.4)]"
       >
-        <div className="max-w-7xl mx-auto px-5 sm:px-8 flex items-center justify-between">
+        <div className="max-w-[1440px] mx-auto px-6 sm:px-10 lg:px-12 flex items-center justify-between">
 
           {/* ── Logo ── */}
-          <Link href="/" className="flex items-center gap-2.5 group shrink-0">
-            <div
-              className="w-8 h-8 rounded-lg flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform duration-300"
-              style={{ background: "linear-gradient(135deg, var(--pv-accent), var(--pv-accent-2))" }}
-            >
-              <svg width="15" height="15" viewBox="0 0 24 24" fill="none">
-                <path d="M12 2L2 7l10 5 10-5-10-5z" fill="black" opacity="0.9" />
-                <path d="M2 17l10 5 10-5" stroke="black" strokeWidth="2.2" strokeOpacity="0.6" />
-                <path d="M2 12l10 5 10-5" stroke="black" strokeWidth="2.2" strokeOpacity="0.4" />
-              </svg>
+          <Link href="/" className="flex items-center group shrink-0 -ml-2">
+            <div className="p-1 bg-black">
+              <img
+                src="/logo.jpg"
+                alt="ProjectVault"
+                className="h-12 w-auto object-contain group-hover:scale-105 transition-all duration-500"
+              />
             </div>
-            <span className="text-xl font-black text-white tracking-tight">
-              Project
-              <span
-                className="text-transparent bg-clip-text"
-                style={{ backgroundImage: "linear-gradient(135deg, var(--pv-accent), var(--pv-accent-2))" }}
-              >
-                Vault
-              </span>
-            </span>
           </Link>
 
           {/* ── Desktop Links ── */}
@@ -130,7 +112,7 @@ export default function Navbar() {
               <Link
                 key={name}
                 href={path}
-                className={`relative text-[15px] font-semibold transition-colors duration-200 pb-0.5 ${pathname === path
+                className={`relative text-[14px] font-normal uppercase tracking-[0.12em] transition-colors duration-200 pb-0.5 ${pathname === path
                   ? "text-white"
                   : "text-white/60 hover:text-white"
                   }`}
@@ -154,22 +136,39 @@ export default function Navbar() {
             {isLoggedIn ? (
               <>
                 {/* Avatar pill */}
-                <Link
-                  href={getDashboardPath()}
-                  className="flex items-center gap-2.5 px-3 py-1.5 rounded-xl border border-white/10 hover:border-white/20 hover:bg-white/5 transition-all group"
-                >
+                {role === "recruiter" ? (
                   <div
-                    className="w-7 h-7 rounded-lg flex items-center justify-center text-black text-xs font-black shrink-0"
-                    style={{ background: "linear-gradient(135deg, var(--pv-accent), var(--pv-accent-2))" }}
+                    className="flex items-center gap-2.5 px-3 py-1.5 rounded-xl border border-white/10"
                   >
-                    {initials}
+                    <div
+                      className="w-7 h-7 rounded-lg flex items-center justify-center text-black text-xs font-black shrink-0"
+                      style={{ background: "linear-gradient(135deg, var(--pv-accent), var(--pv-accent-2))" }}
+                    >
+                      {initials}
+                    </div>
+                    <div className="leading-none">
+                      <p className="text-white text-[13px] font-bold">{userName}</p>
+                      <p className="text-white/40 text-[11px] capitalize mt-0.5">{role}</p>
+                    </div>
                   </div>
-                  <div className="leading-none">
-                    <p className="text-white text-[13px] font-bold">{userName}</p>
-                    <p className="text-white/40 text-[11px] capitalize mt-0.5">{role}</p>
-                  </div>
-                  <LayoutDashboard size={13} className="text-white/30 group-hover:text-[var(--pv-accent)] transition-colors ml-1" />
-                </Link>
+                ) : (
+                  <Link
+                    href={getDashboardPath()}
+                    className="flex items-center gap-2.5 px-3 py-1.5 rounded-xl border border-white/10 hover:border-white/20 hover:bg-white/5 transition-all group"
+                  >
+                    <div
+                      className="w-7 h-7 rounded-lg flex items-center justify-center text-black text-xs font-black shrink-0"
+                      style={{ background: "linear-gradient(135deg, var(--pv-accent), var(--pv-accent-2))" }}
+                    >
+                      {initials}
+                    </div>
+                    <div className="leading-none">
+                      <p className="text-white text-[13px] font-bold">{userName}</p>
+                      <p className="text-white/40 text-[11px] capitalize mt-0.5">{role}</p>
+                    </div>
+                    <LayoutDashboard size={13} className="text-white/30 group-hover:text-[var(--pv-accent)] transition-colors ml-1" />
+                  </Link>
+                )}
 
                 <button
                   onClick={handleLogout}
@@ -183,13 +182,13 @@ export default function Navbar() {
               <>
                 <Link
                   href="/login"
-                  className="px-4 py-2 text-sm font-semibold text-white/70 hover:text-white rounded-xl border border-transparent hover:border-white/10 hover:bg-white/5 transition-all"
+                  className="px-4 py-2 text-[13px] font-normal uppercase tracking-widest text-white/70 hover:text-white rounded-xl border border-transparent hover:border-white/10 hover:bg-white/5 transition-all"
                 >
                   Sign In
                 </Link>
                 <Link
                   href="/register"
-                  className="px-5 py-2 text-sm font-black text-black rounded-xl shadow-lg hover:-translate-y-0.5 active:scale-[0.97] transition-all"
+                  className="px-5 py-2 text-[13px] font-normal uppercase tracking-widest text-black rounded-xl shadow-lg hover:-translate-y-0.5 active:scale-[0.97] transition-all"
                   style={{
                     background: "linear-gradient(90deg, var(--pv-accent), var(--pv-accent-2))",
                     boxShadow: "0 4px 20px color-mix(in srgb, var(--pv-accent) 35%, transparent)"
@@ -238,22 +237,18 @@ export default function Navbar() {
         {/* Use inline style for the drawer background */}
         <div
           className="h-full flex flex-col"
-          style={{ background: "rgba(5,10,22,0.98)", backdropFilter: "blur(32px)", borderLeft: "1px solid rgba(255,255,255,0.07)" }}
+          style={{ background: "rgba(0,0,0,0.98)", backdropFilter: "blur(32px)", borderLeft: "1px solid rgba(255,255,255,0.07)" }}
         >
           {/* Drawer header */}
           <div className="flex items-center justify-between px-6 py-5 border-b border-white/[0.06]">
-            <Link href="/" onClick={() => setIsMenuOpen(false)} className="flex items-center gap-2 group">
-              <div
-                className="w-7 h-7 rounded-md flex items-center justify-center"
-                style={{ background: "linear-gradient(135deg, var(--pv-accent), var(--pv-accent-2))" }}
-              >
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none">
-                  <path d="M12 2L2 7l10 5 10-5-10-5z" fill="black" opacity="0.9" />
-                </svg>
+            <Link href="/" onClick={() => setIsMenuOpen(false)} className="flex items-center group">
+              <div className="overflow-hidden">
+                <img
+                  src="/logo.jpg"
+                  alt="ProjectVault"
+                  className="h-10 w-auto object-contain mix-blend-screen filter brightness-[0.8] contrast-[5] brightness-[1.5]"
+                />
               </div>
-              <span className="text-base font-black text-white tracking-tight">
-                Project<span className="text-transparent bg-clip-text" style={{ backgroundImage: "linear-gradient(135deg,var(--pv-accent),var(--pv-accent-2))" }}>Vault</span>
-              </span>
             </Link>
             <button
               onClick={() => setIsMenuOpen(false)}
@@ -264,119 +259,79 @@ export default function Navbar() {
           </div>
 
           {/* Drawer nav links */}
-          <div className="flex-1 overflow-y-auto px-4 py-6 space-y-1">
-            {navLinks.map(({ name, path, icon: Icon }) => (
-              <Link
-                key={name}
-                href={path}
-                onClick={() => setIsMenuOpen(false)}
-                className={`flex items-center gap-3 px-4 py-3.5 rounded-xl text-[15px] font-semibold transition-all ${pathname === path
-                  ? "text-black font-bold"
-                  : "text-white/70 hover:text-white hover:bg-white/5"
-                  }`}
-                style={pathname === path
-                  ? { background: "linear-gradient(90deg, var(--pv-accent), var(--pv-accent-2))" }
-                  : {}}
-              >
-                <Icon size={16} />
-                {name}
-              </Link>
-            ))}
+          <div className="flex-1 flex flex-col px-8 py-10 overflow-y-auto no-scrollbar">
+            {/* ── Main Links ── */}
+            <div className="space-y-2">
+              {navLinks.map(({ name, path, icon: Icon }) => (
+                <Link
+                  key={name}
+                  href={path}
+                  onClick={() => setIsMenuOpen(false)}
+                  className={`flex items-center justify-between py-5 transition-all duration-300 group ${pathname === path
+                    ? "text-white"
+                    : "text-white/50 hover:text-white"
+                    }`}
+                >
+                  <div className="flex items-center gap-4">
+                    <div className={`transition-colors duration-300 ${pathname === path ? "text-[var(--pv-accent)]" : "text-white/30 group-hover:text-white"}`}>
+                      <Icon size={20} />
+                    </div>
+                    <span className={`text-[14px] font-normal uppercase tracking-[0.2em] transition-colors duration-300`}>
+                      {name}
+                    </span>
+                  </div>
+                  {pathname === path && (
+                    <div className="w-1.5 h-1.5 rounded-full bg-[var(--pv-accent)] shadow-[0_0_10px_var(--pv-accent)]" />
+                  )}
+                </Link>
+              ))}
+            </div>
 
-            {/* Mobile Categories accordion */}
-            <div>
-              <button
-                onClick={() => setMobileCatOpen(v => !v)}
-                className="w-full flex items-center justify-between gap-3 px-4 py-3.5 rounded-xl text-[15px] font-semibold text-white/70 hover:text-white hover:bg-white/5 transition-all"
-              >
-                <span className="flex items-center gap-3">
-                  <Layers size={16} />
-                  Categories
-                </span>
-                <ChevronDown
-                  size={14}
-                  className={`transition-transform duration-300 ${mobileCatOpen ? "rotate-180" : ""}`}
-                />
-              </button>
-
-              {mobileCatOpen && (
-                <div className="mt-1 ml-4 pl-4 border-l border-white/[0.08] space-y-0.5">
-                  {CATEGORIES.map((cat) => (
+            {/* ── Auth Actions (Unified) ── */}
+            <div className="mt-8 pt-8 border-t border-white/[0.04] space-y-2">
+              {isLoggedIn ? (
+                <>
+                  {role !== "recruiter" && (
                     <Link
-                      key={cat.slug}
-                      href={`/categories/${cat.slug}`}
+                      href={getDashboardPath()}
                       onClick={() => setIsMenuOpen(false)}
-                      className="flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-[13px] font-medium text-white/50 hover:text-white hover:bg-white/5 transition-all"
+                      className="flex items-center gap-4 py-5 text-[14px] font-normal uppercase tracking-[0.2em] text-white/50 hover:text-white transition-all group"
                     >
-                      <Compass size={13} className="text-[var(--pv-accent)]/60 shrink-0" />
-                      {cat.title}
+                      <LayoutDashboard size={20} className="text-[var(--pv-accent)] opacity-60 group-hover:opacity-100" />
+                      My Dashboard
                     </Link>
-                  ))}
-                </div>
+                  )}
+
+                  <button
+                    onClick={handleLogout}
+                    className="flex items-center gap-4 py-5 text-[14px] font-normal uppercase tracking-[0.2em] text-red-400 opacity-60 hover:opacity-100 transition-all w-full text-left group"
+                  >
+                    <LogOut size={20} className="group-hover:scale-110 transition-transform" />
+                    Logout
+                  </button>
+                </>
+              ) : (
+                <>
+                  <Link
+                    href="/login"
+                    onClick={() => setIsMenuOpen(false)}
+                    className="flex items-center py-5 text-[13px] font-normal uppercase tracking-[0.2em] text-white/50 hover:text-white transition-all"
+                  >
+                    Sign In
+                  </Link>
+                  <Link
+                    href="/register"
+                    onClick={() => setIsMenuOpen(false)}
+                    className="flex items-center justify-center w-full py-4 mt-4 rounded-xl text-[12px] font-normal uppercase tracking-[0.2em] text-black transition-all hover:brightness-110 active:scale-[0.98]"
+                    style={{
+                      background: "linear-gradient(90deg, var(--pv-accent), var(--pv-accent-2))"
+                    }}
+                  >
+                    Get Started Free
+                  </Link>
+                </>
               )}
             </div>
-          </div>
-
-          {/* Drawer footer — auth actions */}
-          <div className="px-4 pb-8 pt-4 border-t border-white/[0.06] space-y-3">
-            {isLoggedIn ? (
-              <>
-                {/* User info card */}
-                <div
-                  className="flex items-center gap-3 px-4 py-3 rounded-xl border border-white/[0.08]"
-                  style={{ background: "rgba(255,255,255,0.03)" }}
-                >
-                  <div
-                    className="w-10 h-10 rounded-xl flex items-center justify-center text-black font-black text-sm shrink-0"
-                    style={{ background: "linear-gradient(135deg, var(--pv-accent), var(--pv-accent-2))" }}
-                  >
-                    {initials}
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-white text-sm font-semibold truncate">{userName}</p>
-                    <p className="text-white/40 text-[11px] capitalize">{role}</p>
-                  </div>
-                </div>
-
-                <Link
-                  href={getDashboardPath()}
-                  onClick={() => setIsMenuOpen(false)}
-                  className="flex items-center justify-center gap-2 w-full py-3.5 rounded-xl text-[15px] font-bold text-white border border-white/10 hover:border-white/20 hover:bg-white/5 transition-all"
-                >
-                  <LayoutDashboard size={15} className="text-[var(--pv-accent)]" />
-                  My Dashboard
-                </Link>
-
-                <button
-                  onClick={handleLogout}
-                  className="w-full py-3.5 rounded-xl text-[15px] font-bold text-red-400 border border-red-500/20 bg-red-500/[0.07] hover:bg-red-500/15 transition-all flex items-center justify-center gap-2"
-                >
-                  <LogOut size={15} />
-                  Logout
-                </button>
-              </>
-            ) : (
-              <>
-                <Link
-                  href="/login"
-                  onClick={() => setIsMenuOpen(false)}
-                  className="flex items-center justify-center w-full py-3.5 rounded-xl text-[15px] font-bold text-white border border-white/10 hover:bg-white/5 transition-all"
-                >
-                  Sign In
-                </Link>
-                <Link
-                  href="/register"
-                  onClick={() => setIsMenuOpen(false)}
-                  className="flex items-center justify-center w-full py-4 rounded-xl text-[15px] font-black text-black transition-all hover:-translate-y-0.5 active:scale-[0.98]"
-                  style={{
-                    background: "linear-gradient(90deg, var(--pv-accent), var(--pv-accent-2))",
-                    boxShadow: "0 6px 24px color-mix(in srgb, var(--pv-accent) 30%, transparent)"
-                  }}
-                >
-                  Get Started Free
-                </Link>
-              </>
-            )}
           </div>
         </div>
       </div>

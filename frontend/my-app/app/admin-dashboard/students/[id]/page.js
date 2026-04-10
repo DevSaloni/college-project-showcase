@@ -272,9 +272,9 @@ function StatCard({ icon: Icon, label, value, color }) {
       <div className={`p-3.5 rounded-2xl bg-white/5 border border-white/10 shadow-inner z-10 ${color} group-hover:scale-110 transition-transform duration-300`}>
         <Icon size={24} />
       </div>
-      <div className="z-10 w-full px-2">
-        <h4 className="text-xl md:text-2xl font-extrabold text-white mb-1 truncate" title={value || "0"}>{value || "0"}</h4>
-        <p className="text-white/50 text-[10px] md:text-xs font-bold uppercase tracking-widest truncate" title={label}>{label}</p>
+      <div className="z-10">
+        <h4 className="text-2xl md:text-3xl font-extrabold text-white mb-1">{value || "0"}</h4>
+        <p className="text-white/50 text-[10px] md:text-xs font-bold uppercase tracking-widest">{label}</p>
       </div>
     </div>
   );

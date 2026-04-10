@@ -65,55 +65,22 @@ const LoginPage = () => {
   };
 
   return (
-    <div className="flex min-h-screen w-full bg-[#020712] overflow-hidden font-['Poppins',_sans-serif]">
-      {/* Left Side: Image & Branding (Hidden on mobile) */}
-      <div className="hidden lg:flex lg:w-1/2 relative bg-[#050A16] items-center justify-center p-12 overflow-hidden border-r border-white/5">
-        {/* Background Image with Overlay */}
-        <div
-          className="absolute inset-0 bg-cover bg-center bg-no-repeat transition-transform duration-1000 hover:scale-105"
-          style={{ backgroundImage: "url('/login-bg.png')" }}
-        />
-        <div className="absolute inset-0 bg-gradient-to-tr from-[#020712] via-[#020712]/70 to-[var(--pv-accent)]/20 shadow-inner" />
-
-        {/* Subtle dynamic background elements */}
-        <div className="absolute top-1/4 left-1/4 w-64 h-64 bg-[var(--pv-accent)]/20 rounded-full blur-[100px] animate-pulse" />
-        <div className="absolute bottom-1/4 right-1/4 w-80 h-80 bg-blue-500/10 rounded-full blur-[120px] animate-pulse delay-700" />
-
-        {/* Content Overlay */}
-        <div className="relative z-10 w-full max-w-lg">
-          <div className="mb-8 inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/5 border border-white/10 backdrop-blur-md">
-            <ShieldCheck size={14} className="text-[var(--pv-accent)]" />
-            <span className="text-white/60 text-[10px] uppercase tracking-widest font-bold">Secure Access Terminal</span>
-          </div>
-
-          <h1 className="text-4xl xl:text-5xl font-black text-white mb-6 leading-[1.1]">
-            Continue Your  <br />
-            <span className="text-transparent bg-clip-text bg-[linear-gradient(135deg,var(--pv-accent),var(--pv-accent-2))]">
-              Project Journey
-            </span>
-          </h1>
-
-          <p className="text-white/60 text-base leading-relaxed mb-10 max-w-md">
-            Access your college workspace to manage semester projects, work with your team and teachers, and keep track of your progress in one place.          </p>
-        </div>
-      </div>
-
-      {/* Right Side: Login Form */}
-      <div className="w-full lg:w-1/2 flex items-center justify-center p-6 sm:p-12 md:p-16 relative">
-        <div className="w-full max-w-sm">
+    <div className="flex min-h-screen w-full bg-[#000000] overflow-hidden font-['Poppins',_sans-serif]">
+      {/* Left Side: Login Form */}
+      <div className="w-full lg:w-1/2 flex items-center justify-center px-6 sm:px-10 lg:px-12 relative pt-[72px] lg:border-r lg:border-white/5">
+        <div className="w-full max-w-lg py-4">
           {/* Mobile Logo (visible only on lg:hidden) */}
-          <div className="lg:hidden flex items-center gap-3 mb-8">
-            <div className="w-10 h-10 rounded-xl flex items-center justify-center shadow-lg" style={{ background: 'linear-gradient(135deg,var(--pv-accent),var(--pv-accent-2))' }}>
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M12 2L2 7l10 5 10-5-10-5z" fill="white" opacity="0.95" /></svg>
-            </div>
-            <h2 className="text-xl font-bold text-white tracking-tight">Project<span className="text-[var(--pv-accent)]">Vault</span></h2>
+          <div className="lg:hidden flex items-center justify-center mb-8">
+            <Link href="/">
+              <img src="/logo.jpg" alt="Logo" className="h-14 w-auto object-contain mix-blend-screen brightness-110" />
+            </Link>
           </div>
-
+ 
           <div className="mb-8">
             <h2 className="text-4xl font-bold text-white mb-2">Welcome Back</h2>
             <p className="text-white/50 text-xs">Enter your credentials to access your dashboard</p>
           </div>
-
+ 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-1.5">
               <label htmlFor="email" className="text-[11px] font-bold text-white/40 uppercase tracking-wider ml-1">University Email</label>
@@ -133,7 +100,7 @@ const LoginPage = () => {
                 />
               </div>
             </div>
-
+ 
             <div className="space-y-1.5">
               <div className="flex justify-between items-center px-1">
                 <label htmlFor="password" className="text-[11px] font-bold text-white/40 uppercase tracking-wider">Secure Password</label>
@@ -162,7 +129,7 @@ const LoginPage = () => {
                 </button>
               </div>
             </div>
-
+ 
             <div className="flex items-center space-x-2 px-1">
               <div className="relative flex items-center">
                 <input
@@ -174,7 +141,7 @@ const LoginPage = () => {
               </div>
               <label htmlFor="remember" className="text-[11px] text-white/40 cursor-pointer hover:text-white/60 transition-colors">Keep me signed in on this device</label>
             </div>
-
+ 
             <button
               type="submit"
               disabled={loading}
@@ -190,7 +157,7 @@ const LoginPage = () => {
               )}
             </button>
           </form>
-
+ 
           <div className="mt-8 text-center">
             <p className="text-white/40 text-[11px] mb-2 font-medium uppercase tracking-[0.2em]">New here?</p>
             <Link
@@ -201,6 +168,38 @@ const LoginPage = () => {
               <ArrowRight size={14} className="group-hover:translate-x-1 transition-transform" />
             </Link>
           </div>
+        </div>
+      </div>
+ 
+      {/* Right Side: Image & Branding (Hidden on mobile) */}
+      <div className="hidden lg:flex lg:w-1/2 relative bg-[#000000] items-center justify-start px-8 sm:px-12 lg:px-16 xl:px-20 overflow-hidden">
+        {/* Background Image with Overlay */}
+        <div
+          className="absolute inset-0 bg-cover bg-center bg-no-repeat transition-transform duration-1000 hover:scale-105"
+          style={{ backgroundImage: "url('/login-bg.png')" }}
+        />
+        <div className="absolute inset-0 bg-gradient-to-tr from-[#000000] via-[#000000]/70 to-[var(--pv-accent)]/20 shadow-inner" />
+ 
+        {/* Subtle dynamic background elements */}
+        <div className="absolute top-1/4 left-1/4 w-64 h-64 bg-[var(--pv-accent)]/20 rounded-full blur-[100px] animate-pulse" />
+        <div className="absolute bottom-1/4 right-1/4 w-80 h-80 bg-blue-500/10 rounded-full blur-[120px] animate-pulse delay-700" />
+ 
+        {/* Content Overlay */}
+        <div className="relative z-10 w-full max-w-lg">
+          <div className="mb-8 inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/5 border border-white/10 backdrop-blur-md">
+            <ShieldCheck size={14} className="text-[var(--pv-accent)]" />
+            <span className="text-white/60 text-[10px] uppercase tracking-widest font-bold">Secure Access Terminal</span>
+          </div>
+ 
+          <h1 className="text-4xl xl:text-5xl font-black text-white mb-6 leading-[1.1]">
+            Continue Your  <br />
+            <span className="text-transparent bg-clip-text bg-[linear-gradient(135deg,var(--pv-accent),var(--pv-accent-2))]">
+              Project Journey
+            </span>
+          </h1>
+ 
+          <p className="text-white/60 text-base leading-relaxed mb-10 max-w-md">
+            Access your college workspace to manage semester projects, work with your team and teachers, and keep track of your progress in one place.          </p>
         </div>
       </div>
     </div>

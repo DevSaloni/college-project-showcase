@@ -108,9 +108,9 @@ export default function AdminOverview() {
           </p>
         </div>
 
-        <Link href="/admin-dashboard/groups/create-groups">
+        <Link href="/admin-dashboard/groups/create-groups" className="w-full md:w-auto">
           <button
-            className="flex items-center gap-2 px-6 py-3 rounded-2xl font-black text-xs uppercase tracking-widest text-black shadow-lg hover:scale-105 transition-all duration-300"
+            className="w-full md:w-auto flex items-center justify-center gap-2 px-6 py-3 rounded-2xl font-black text-xs uppercase tracking-widest text-black shadow-lg hover:scale-105 transition-all duration-300"
             style={{
               background:
                 "linear-gradient(90deg,var(--pv-accent),var(--pv-accent-2))",

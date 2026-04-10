@@ -148,7 +148,7 @@ export default function ReviewProjectsPage() {
       </div>
 
       {/* ── QUEUE LIST ── */}
-      <div className="bg-white/[0.02] border border-white/10 rounded-[2rem] overflow-hidden shadow-2xl relative min-h-[400px]">
+      <div className="bg-white/[0.02] border border-white/10 rounded-[2rem] overflow-hidden shadow-2xl relative">
         {loading ? (
           <div className="flex flex-col items-center justify-center p-20 gap-4 animate-pulse">
             <div className="w-12 h-12 rounded-full bg-white/5" />
@@ -156,15 +156,15 @@ export default function ReviewProjectsPage() {
           </div>
         ) : (
           <div className="overflow-x-auto">
-            <table className="w-full text-left border-collapse">
+            <table className="w-full text-sm text-left">
               <thead>
                 <tr className="bg-white/[0.03] text-white/30 text-[10px] uppercase tracking-[0.2em] font-black border-b border-white/10">
-                  <th className="p-8">Cohort & Initiative</th>
-                  <th className="p-8">Contributor</th>
-                  <th className="p-8 text-center">Sprint</th>
-                  <th className="p-8">Submission Date</th>
-                  <th className="p-8 text-center">Status</th>
-                  <th className="p-8 text-right">Workspace</th>
+                  <th className="px-6 py-4 whitespace-nowrap">Cohort & Initiative</th>
+                  <th className="px-6 py-4 whitespace-nowrap">Contributor</th>
+                  <th className="px-6 py-4 whitespace-nowrap text-center">Sprint</th>
+                  <th className="px-6 py-4 whitespace-nowrap">Submission Date</th>
+                  <th className="px-6 py-4 whitespace-nowrap text-center">Status</th>
+                  <th className="px-6 py-4 whitespace-nowrap text-right">Workspace</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-white/5">
@@ -189,13 +189,13 @@ export default function ReviewProjectsPage() {
                 ) : (
                   filteredSubmissions.map((item) => (
                     <tr key={item.milestoneId} className="group hover:bg-white/[0.04] transition-all duration-300">
-                      <td className="p-8">
+                      <td className="px-6 py-4">
                         <div className="flex flex-col">
                           <span className="font-black text-white text-lg tracking-tight group-hover:text-[var(--pv-accent)] transition-colors line-clamp-1">{item.groupName}</span>
                           <span className="text-[10px] font-black text-white/30 uppercase tracking-widest mt-1 line-clamp-1">{item.projectTitle}</span>
                         </div>
                       </td>
-                      <td className="p-8">
+                      <td className="px-6 py-4">
                         <div className="flex items-center gap-3">
                           <div className="w-9 h-9 rounded-xl bg-[var(--pv-accent)]/10 border border-[var(--pv-accent)]/20 flex items-center justify-center text-xs font-black text-[var(--pv-accent)] shadow-inner">
                             {item.studentName?.charAt(0) || "S"}
@@ -203,21 +203,21 @@ export default function ReviewProjectsPage() {
                           <span className="text-sm text-white font-black opacity-80 uppercase tracking-tight">{item.studentName}</span>
                         </div>
                       </td>
-                      <td className="p-8 text-center">
+                      <td className="px-6 py-4 text-center">
                         <span className="inline-flex items-center px-4 py-1.5 rounded-full bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 text-[10px] font-black uppercase tracking-widest shadow-lg">
                           Week {item.week}
                         </span>
                       </td>
-                      <td className="p-8">
+                      <td className="px-6 py-4 whitespace-nowrap">
                         <div className="flex items-center gap-2 text-white/40 font-black text-xs uppercase tracking-tighter">
                           <Clock size={14} className="opacity-50" />
                           {new Date(item.submittedAt).toLocaleDateString("en-US", { month: 'short', day: 'numeric', year: 'numeric' })}
                         </div>
                       </td>
-                      <td className="p-8 text-center">
+                      <td className="px-6 py-4 text-center">
                         <StatusBadge status={item.status} />
                       </td>
-                      <td className="p-8 text-right">
+                      <td className="px-6 py-4 text-right">
                         <Link
                           href={`/teacher-dashboard/reviews/${item.progressId}/${item.milestoneId}`}
                           className={`inline-flex items-center justify-center gap-2 px-6 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-[0.1em] transition-all duration-300 hover:scale-105 active:scale-95 whitespace-nowrap ${item.status === "pending"

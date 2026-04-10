@@ -40,7 +40,7 @@ export default function GroupsPage() {
     <div className="space-y-6 max-w-6xl">
 
       {/* HEADER */}
-      <div className="flex justify-between items-center">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
         <div>
           <h1 className="text-3xl md:text-4xl font-extrabold text-white tracking-tight">
             Groups & Projects
@@ -52,7 +52,7 @@ export default function GroupsPage() {
 
         <Link
           href="/admin-dashboard/groups/create-groups"
-          className="flex items-center gap-2 px-5 py-2 rounded-xl font-semibold text-black"
+          className="w-full md:w-auto flex items-center justify-center gap-2 px-6 py-3 rounded-xl font-bold uppercase text-[10px] tracking-widest text-black shadow-lg hover:scale-105 transition-all duration-300"
           style={{
             background:
               "linear-gradient(90deg,var(--pv-accent),var(--pv-accent-2))",
@@ -91,12 +91,12 @@ export default function GroupsPage() {
               {/* HEADER */}
               <div className="flex justify-between items-start">
                 <div>
-                      <p className="text-white font-semibold text-sm">
-                        {group?.groupName}
-                      </p>
-                      <p className="text-xs text-white/50">
-                        Mentor: {group?.mentor?.userId?.name || "N/A"}
-                      </p>
+                  <p className="text-white font-semibold text-sm">
+                    {group?.groupName}
+                  </p>
+                  <p className="text-xs text-white/50">
+                    Mentor: {group?.mentor?.userId?.name || "N/A"}
+                  </p>
                 </div>
 
                 <span

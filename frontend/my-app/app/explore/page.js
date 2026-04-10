@@ -63,21 +63,21 @@ export default function ExploreProjects() {
 
   // ✅ MAIN RETURN
   return (
-    <section className="min-h-screen bg-[#050A16] pt-24 pb-20 relative selection:bg-[var(--pv-accent)] selection:text-black" style={{ fontFamily: "Poppins, sans-serif" }}>
+    <section className="min-h-screen bg-[#000000] pt-24 pb-20 relative selection:bg-[var(--pv-accent)] selection:text-black" style={{ fontFamily: "Poppins, sans-serif" }}>
 
       {/* Deep Background Glows */}
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[400px] blur-[180px] opacity-10 pointer-events-none" style={{ background: "radial-gradient(circle, var(--pv-accent) 0%, transparent 70%)" }} />
       <div className="absolute bottom-0 right-0 w-[500px] h-[500px] blur-[150px] opacity-10 pointer-events-none" style={{ background: "radial-gradient(circle, #4A90E2 0%, transparent 70%)" }} />
 
-      <div className="container mx-auto px-6 relative z-10">
+      <div className="max-w-[1440px] mx-auto px-6 sm:px-10 lg:px-12 relative z-10">
 
         {/* Premium Header Layout */}
         <div className="flex flex-col xl:flex-row items-start xl:items-center justify-between gap-8 mb-12">
           <div className="space-y-3 shrink-0">
-            <h1 className="text-3xl md:text-4xl font-black text-white tracking-tight">
+            <h1 className="section-title mb-4">
               Explore Innovations
             </h1>
-            <p className="text-white/40 text-sm">
+            <p className="section-text">
               Discover cutting-edge student projects, filter by modern tech stacks, and connect with brilliant creators directly.
             </p>
           </div>
@@ -128,7 +128,7 @@ export default function ExploreProjects() {
                   alt={p.title}
                   className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-1000"
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-[#050A16] via-[#050A16]/20 to-transparent opacity-60" />
+                <div className="absolute inset-0 bg-gradient-to-t from-[#000000] via-[#000000]/20 to-transparent opacity-60" />
 
                 {/* Category Floater */}
                 <div className="absolute top-4 right-4 bg-white/5 backdrop-blur-xl border border-white/10 px-3 py-1.5 rounded-full text-[9px] font-black uppercase tracking-widest text-white shadow-2xl">
@@ -201,7 +201,7 @@ export default function ExploreProjects() {
                       return (
                         <div
                           key={i}
-                          className={`w-9 h-9 rounded-full ring-2 ring-[#050A16] flex items-center justify-center text-white text-[10px] font-bold shadow-2xl relative hover:z-20 transition-all hover:scale-110 hover:-translate-y-1 overflow-hidden ${!image ? bgColors[i % bgColors.length] : "bg-zinc-800"}`}
+                          className={`w-9 h-9 rounded-full ring-2 ring-[#000000] flex items-center justify-center text-white text-[10px] font-bold shadow-2xl relative hover:z-20 transition-all hover:scale-110 hover:-translate-y-1 overflow-hidden ${!image ? bgColors[i % bgColors.length] : "bg-zinc-800"}`}
                           title={name}
                         >
                           {imgSrc ? (
@@ -213,7 +213,7 @@ export default function ExploreProjects() {
                       )
                     })}
                     {(p.creatorProfiles?.length > 3 || p.teamMembers?.length > 3) && (
-                      <div className="w-9 h-9 rounded-full bg-white/5 ring-2 ring-[#050A16] flex items-center justify-center text-white text-[11px] font-black shadow-2xl relative backdrop-blur-xl border border-white/10">
+                      <div className="w-9 h-9 rounded-full bg-white/5 ring-2 ring-[#000000] flex items-center justify-center text-white text-[11px] font-black shadow-2xl relative backdrop-blur-xl border border-white/10">
                         +{(p.creatorProfiles?.length || p.teamMembers?.length) - 3}
                       </div>
                     )}
