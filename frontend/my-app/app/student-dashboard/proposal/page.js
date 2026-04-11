@@ -28,6 +28,7 @@ import {
   ListChecks,
   ClipboardList,
   Star,
+  Plus,
 } from "lucide-react";
 import { useApi } from "@/context/ApiContext";
 import { io } from "socket.io-client";
@@ -52,7 +53,7 @@ export default function StudentProposalWorkspace() {
     title: "",
     problemStatement: "",
     description: "",
-    features: "",
+    features: [""], // Changed to array
     techStack: "",
     expectedOutcome: "",
   });
@@ -103,7 +104,7 @@ export default function StudentProposalWorkspace() {
               title: data.proposal.title,
               problemStatement: data.proposal.problemStatement,
               description: data.proposal.description,
-              features: data.proposal.features,
+              features: data.proposal.features ? data.proposal.features.split('\n').filter(f => f.trim()) : [""],
               techStack: data.proposal.techStack,
               expectedOutcome: data.proposal.expectedOutcome,
             });
@@ -247,12 +248,33 @@ export default function StudentProposalWorkspace() {
     setProposal({ ...proposal, [e.target.name]: e.target.value });
   };
 
+  const handleFeatureChange = (index, value) => {
+    const newFeatures = [...proposal.features];
+    newFeatures[index] = value;
+    setProposal({ ...proposal, features: newFeatures });
+  };
+
+  const addFeatureField = () => {
+    setProposal({ ...proposal, features: [...proposal.features, ""] });
+  };
+
+  const removeFeatureField = (index) => {
+    if (proposal.features.length === 1) {
+      const newFeatures = [""];
+      setProposal({ ...proposal, features: newFeatures });
+      return;
+    }
+    const newFeatures = proposal.features.filter((_, i) => i !== index);
+    setProposal({ ...proposal, features: newFeatures });
+  };
+
   /* ===== SUBMIT PROPOSAL ===== */
   const submitProposal = async () => {
     setSubmitting(true);
     try {
       const payload = {
         ...proposal,
+        features: proposal.features.filter(f => f.trim()).join('\n'), // Join for backend
         groupId: group._id,
         groupName: group.groupName,
         department: group.department,
@@ -291,7 +313,10 @@ export default function StudentProposalWorkspace() {
             "Content-Type": "application/json",
             Authorization: `Bearer ${localStorage.getItem("token")}`,
           },
-          body: JSON.stringify(proposal),
+          body: JSON.stringify({
+            ...proposal,
+            features: proposal.features.filter(f => f.trim()).join('\n'),
+          }),
         }
       );
       const data = await res.json();
@@ -611,15 +636,48 @@ export default function StudentProposalWorkspace() {
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <ProposalTextarea
-                icon={ListChecks}
-                label="Key Features"
-                name="features"
-                value={proposal.features}
-                onChange={handleChange}
-                placeholder="List the main features (one per line)&#10;• Feature A&#10;• Feature B"
-                disabled={existingProposal?.status === "Approved"}
-              />
+              <div className="space-y-4">
+                <label className="flex items-center gap-2 text-xs font-bold text-white/50 uppercase tracking-wider">
+                  <ListChecks size={12} className="text-white/40" />
+                  Key Features
+                </label>
+                <div className="space-y-3">
+                  {proposal.features.map((feature, index) => (
+                    <div key={index} className="flex gap-2">
+                      <div className="flex-1 relative">
+                        <input
+                          type="text"
+                          value={feature}
+                          onChange={(e) => handleFeatureChange(index, e.target.value)}
+                          placeholder={`Feature ${index + 1}...`}
+                          disabled={existingProposal?.status === "Approved"}
+                          className={`w-full bg-black/30 border rounded-xl px-4 py-3 text-white text-sm outline-none transition-all duration-200 ${
+                            existingProposal?.status === "Approved"
+                              ? "border-white/5 text-white/40 cursor-not-allowed"
+                              : "border-white/10 focus:border-[var(--pv-accent)]/50"
+                          }`}
+                        />
+                      </div>
+                      {existingProposal?.status !== "Approved" && (
+                        <button
+                          onClick={() => removeFeatureField(index)}
+                          className="p-3 rounded-xl bg-red-500/10 text-red-400 border border-red-500/20 hover:bg-red-500/20 transition-all shrink-0"
+                        >
+                          <Trash2 size={16} />
+                        </button>
+                      )}
+                    </div>
+                  ))}
+                  {existingProposal?.status !== "Approved" && (
+                    <button
+                      onClick={addFeatureField}
+                      className="w-full py-3 rounded-xl border border-dashed border-white/20 text-white/40 hover:text-[var(--pv-accent)] hover:border-[var(--pv-accent)]/50 hover:bg-[var(--pv-accent)]/5 transition-all text-sm font-bold flex items-center justify-center gap-2"
+                    >
+                      <Plus size={16} /> Add Another Feature
+                    </button>
+                  )}
+                </div>
+              </div>
               <ProposalTextarea
                 icon={Target}
                 label="Expected Outcome"

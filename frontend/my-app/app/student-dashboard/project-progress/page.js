@@ -40,6 +40,7 @@ import {
 import axios from "axios";
 import { useApi } from "@/context/ApiContext";
 import { io } from "socket.io-client";
+import { toast } from "react-hot-toast";
 
 // Placeholder components for StatCard
 const StatCard = ({ icon: Icon, label, value, color, bg, border }) => (
@@ -192,7 +193,7 @@ export default function ProjectProgressPage() {
   const handleFileChange = (e) => {
     const file = e.target.files[0];
     if (!file) return;
-    if (file.size > 5 * 1024 * 1024) return alert("File size exceeds 5MB limit.");
+    if (file.size > 5 * 1024 * 1024) return toast.error("File size exceeds 5MB limit.");
     setAttachment(file);
     if (file.type.startsWith("image/")) {
       const url = URL.createObjectURL(file);
@@ -248,7 +249,8 @@ export default function ProjectProgressPage() {
       await axios.delete(`${BASE_URL}/api/discussions/${msgId}/delete`,
         { headers: { Authorization: `Bearer ${localStorage.getItem("token")}` } }
       );
-    } catch (err) { console.error(err); }
+      toast.success("Message deleted");
+    } catch (err) { console.error(err); toast.error("Failed to delete message"); }
   };
 
   const formatMessageDate = (dateString) => {
@@ -279,10 +281,10 @@ export default function ProjectProgressPage() {
 
   /* ================= SUBMIT ================= */
   const submitProgress = async () => {
-    if (!project?._id) return alert("Project not assigned");
+    if (!project?._id) return toast.error("Project not assigned");
 
     if (!form.repoLink && !form.description && form.files.length === 0) {
-      return alert("Add something to submit");
+      return toast.error("Add something to submit");
     }
 
     setSubmitting(true);
@@ -310,11 +312,11 @@ export default function ProjectProgressPage() {
         }
       );
 
-      alert(res.data.message);
+      toast.success(res.data.message);
       setForm({ repoLink: "", description: "", files: [] });
       fetchData();
     } catch (err) {
-      alert(err.response?.data?.message || "Submission failed");
+      toast.error(err.response?.data?.message || "Submission failed");
     } finally {
       setSubmitting(false);
     }

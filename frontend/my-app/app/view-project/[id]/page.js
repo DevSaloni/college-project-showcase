@@ -229,7 +229,10 @@ export default function ViewProjectPage() {
                 <h2 className="section-title">What This Project Offers</h2>
 
                 <ul className="space-y-3">
-                  {project?.featureList?.map((f, i) => (
+                  {(Array.isArray(project?.featureList) 
+                    ? project.featureList.flatMap(f => typeof f === 'string' ? f.split(/[,\n]/) : f)
+                    : (typeof project?.featureList === 'string' ? project.featureList.split(/[,\n]/) : [])
+                  ).map((f, i) => (
                     <li key={i} className="flex gap-3 section-text">
                       <span className="text-[var(--pv-accent)] font-semibold">
                         {i + 1}.

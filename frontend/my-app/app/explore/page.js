@@ -10,41 +10,61 @@ export default function ExploreProjects() {
   const { BASE_URL } = useApi();
 
   const [projects, setProjects] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [activeTag, setActiveTag] = useState("All");
+  const [page, setPage] = useState(1);
+  const [pagination, setPagination] = useState({ totalPages: 1, totalProjects: 0 });
 
   const tags = ["All", "AI", "Web", "Blockchain", "IoT", "Data"];
 
-  // 🔹 GET ALL PROJECTS FROM BACKEND
-  const getAllProjects = async () => {
+  // 🔹 FETCH PROJECTS FROM BACKEND (With Server-Side Filter/Search/Pagination)
+  const fetchProjects = async (pageNum = 1, searchQuery = "", category = "All") => {
+    setLoading(true);
     try {
-      const res = await axios.get(`${BASE_URL}/api/projects/all`);
-      setProjects(res.data.data);
+      const res = await axios.get(`${BASE_URL}/api/projects/all`, {
+        params: {
+          page: pageNum,
+          search: searchQuery,
+          category: category,
+          limit: 9
+        }
+      });
+      
+      if (pageNum === 1) {
+        setProjects(res.data.data);
+      } else {
+        setProjects(prev => [...prev, ...res.data.data]);
+      }
+      setPagination(res.data.pagination);
     } catch (err) {
-      console.error(err.message);
+      console.error("Fetch error:", err.message);
+    } finally {
+      setLoading(false);
     }
   };
 
+  // Immediate fetch on mount or tag change
   useEffect(() => {
-    getAllProjects();
-  }, []);
+    setPage(1);
+    fetchProjects(1, search, activeTag);
+  }, [activeTag]);
 
-  // 🔹 FILTER LOGIC
-  const filteredProjects = projects.filter((p) => {
-    const q = search.toLowerCase();
+  // Debounced search logic
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setPage(1);
+      fetchProjects(1, search, activeTag);
+    }, 500); // Wait 500ms after typing stops
 
-    const matchTag =
-      activeTag === "All" ||
-      p.tech?.toLowerCase().includes(activeTag.toLowerCase()) ||
-      p.category?.toLowerCase().includes(activeTag.toLowerCase());
+    return () => clearTimeout(timer);
+  }, [search]);
 
-    const matchSearch =
-      p.title?.toLowerCase().includes(q) ||
-      p.description?.toLowerCase().includes(q) ||
-      p.tech?.toLowerCase().includes(q);
-
-    return matchTag && matchSearch;
-  });
+  const loadMore = () => {
+    const nextPage = page + 1;
+    setPage(nextPage);
+    fetchProjects(nextPage, search, activeTag);
+  };
 
   // 🔹 HELPER: GET PROJECT AGE
   const getProjectAge = (date) => {
@@ -116,7 +136,7 @@ export default function ExploreProjects() {
 
         {/* Project Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8">
-          {filteredProjects.map((p) => (
+          {projects.map((p) => (
             <article
               key={p._id}
               className="flex flex-col rounded-[2rem] bg-[#0A0F1B]/60 border border-white/[0.08] backdrop-blur-xl overflow-hidden hover:-translate-y-2 transition-all duration-700 hover:border-[var(--pv-accent)]/20 hover:shadow-[0_20px_50px_rgba(0,0,0,0.5)] group relative h-full"
@@ -231,6 +251,33 @@ export default function ExploreProjects() {
             </article>
           ))}
         </div>
+
+        {/* Load More Section */}
+        {page < pagination.totalPages && (
+          <div className="mt-20 flex justify-center">
+            <button
+              onClick={loadMore}
+              disabled={loading}
+              className="group flex items-center gap-3 px-10 py-4 rounded-2xl bg-white/[0.03] border border-white/10 text-white font-black text-xs uppercase tracking-[0.2em] hover:bg-[var(--pv-accent)] hover:text-black transition-all duration-500 hover:scale-105 active:scale-95 disabled:opacity-50"
+            >
+              {loading ? "Discovering..." : "Discover More Innovations"}
+              <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform" />
+            </button>
+          </div>
+        )}
+
+        {/* Empty State */}
+        {!loading && projects.length === 0 && (
+          <div className="mt-32 flex flex-col items-center justify-center text-center space-y-6">
+            <div className="w-24 h-24 rounded-full bg-white/5 flex items-center justify-center border border-white/10">
+              <Layers size={40} className="text-white/20" />
+            </div>
+            <div className="space-y-2">
+              <h3 className="text-2xl font-black text-white">No innovations found</h3>
+              <p className="text-white/40 text-sm max-w-xs">We couldn't find any projects matching your search or filters. Try adjusting them!</p>
+            </div>
+          </div>
+        )}
       </div>
 
       <style>{`

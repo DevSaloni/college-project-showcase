@@ -41,16 +41,16 @@ export default function StudentProfilePage() {
   const [errorMsg, setErrorMsg] = useState("");
   const [activeTab, setActiveTab] = useState("about");
 
-  // Load publicView from session storage on mount
+  // Save active tab to session storage when it changes
   useEffect(() => {
-    const savedView = sessionStorage.getItem("recruiterPreviewActive");
-    if (savedView === "true") setPublicView(true);
-  }, []);
+    sessionStorage.setItem("studentActiveTab", activeTab);
+  }, [activeTab]);
 
-  // Save publicView to session storage when it changes
+  // Load active tab on mount
   useEffect(() => {
-    sessionStorage.setItem("recruiterPreviewActive", publicView);
-  }, [publicView]);
+    const savedTab = sessionStorage.getItem("studentActiveTab");
+    if (savedTab) setActiveTab(savedTab);
+  }, []);
 
   const [profile, setProfile] = useState(null);
   const [studentId, setStudentId] = useState("");
@@ -267,13 +267,37 @@ export default function StudentProfilePage() {
             Because your Recruiter Visibility is currently turned off, recruiters and external viewers see this private screen instead of your active profile layout.
           </p>
           <button 
-            onClick={() => {
-              setForm({ ...form, openToWork: true });
-              setEditMode(true); // Automatically let them save it
+            onClick={async () => {
+              setSaving(true);
+              try {
+                const token = localStorage.getItem("token");
+                const formData = new FormData();
+                // We only want to update openToWork
+                formData.append("openToWork", "true");
+                
+                const res = await fetch(`${BASE_URL}/api/student/update/${studentId}`, {
+                  method: "PUT",
+                  headers: { Authorization: `Bearer ${token}` },
+                  body: formData,
+                });
+                const data = await res.json();
+                if (res.ok) {
+                  toast.success("Visibility turned on!");
+                  setProfile(data.student);
+                  setForm(prev => ({ ...prev, openToWork: true }));
+                } else {
+                  toast.error(data.message || "Failed to update visibility.");
+                }
+              } catch (err) {
+                toast.error("Network error.");
+              } finally {
+                setSaving(false);
+              }
             }} 
-            className="px-6 py-3 bg-green-500 hover:bg-green-600 text-black font-bold rounded-xl shadow-lg shadow-green-500/20 transition-all flex items-center gap-2"
+            disabled={saving}
+            className="px-6 py-3 bg-green-500 hover:bg-green-600 text-black font-bold rounded-xl shadow-lg shadow-green-500/20 transition-all flex items-center gap-2 disabled:opacity-50"
           >
-            <Rocket size={16} /> Turn On Visibility
+            <Rocket size={16} /> {saving ? "Updating..." : "Turn On Visibility"}
           </button>
         </div>
       ) : (

@@ -76,7 +76,7 @@ export default function SubmitProjectPage() {
         ]);
 
         const allSems = academicRes.data.data || [];
-        const completed = allSems.flatMap(sem => sem.projects).filter(p => p.status === "Completed" || p.status === "Active");
+        const completed = allSems.flatMap(sem => sem.projects).filter(p => p.status === "Completed");
         setCompletedProjects(completed);
 
         const pubData = publishedRes.data.data || { Approved: [], Pending: [], Rejected: [] };
@@ -125,7 +125,7 @@ export default function SubmitProjectPage() {
             github: publishedMatch.github || "",
             demoVideo: publishedMatch.demoVideo || "",
             teamMembers: publishedMatch.teamMembers ? (Array.isArray(publishedMatch.teamMembers) ? publishedMatch.teamMembers.join(", ") : publishedMatch.teamMembers) : "",
-            featureList: publishedMatch.featureList ? (Array.isArray(publishedMatch.featureList) ? publishedMatch.featureList.join(", ") : publishedMatch.featureList) : (Array.isArray(data.features) ? data.features.join(", ") : (data.features || "")),
+            featureList: publishedMatch.featureList ? (Array.isArray(publishedMatch.featureList) ? publishedMatch.featureList.join("\n") : publishedMatch.featureList) : (Array.isArray(data.features) ? data.features.join("\n") : (data.features || "")),
             department: publishedMatch.department || data.department || "",
             year: publishedMatch.year || data.year || "",
             groupName: publishedMatch.groupName || data.groupName || "",
@@ -146,7 +146,7 @@ export default function SubmitProjectPage() {
             github: "",
             demoVideo: "",
             teamMembers: "",
-            featureList: Array.isArray(data.features) ? data.features.join(", ") : (data.features || ""),
+            featureList: Array.isArray(data.features) ? data.features.join("\n") : (data.features || ""),
             department: data.department || "",
             year: data.year || "",
             groupName: data.groupName || "",
@@ -326,7 +326,7 @@ export default function SubmitProjectPage() {
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <TextareaField icon={ListChecks} label="Key Features" name="featureList" value={formData.featureList} onChange={handleChange} placeholder="Comma-separated features e.g. Auth, Real-time Chat..." />
+              <TextareaField icon={ListChecks} label="Key Features" name="featureList" value={formData.featureList} onChange={handleChange} placeholder="List features (one per line) e.g.&#10;• Real-time Chat&#10;• Auth System" />
               <TextareaField icon={Target} label="Project Outcome" name="projectOutcome" value={formData.projectOutcome} onChange={handleChange} placeholder="What was achieved?" />
             </div>
 

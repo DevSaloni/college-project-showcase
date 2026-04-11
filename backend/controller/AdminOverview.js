@@ -123,7 +123,7 @@ export const getStudentAcademicAndProject = async (req, res) => {
           endDate: project.endDate,
           status: project.status,
           proposalStatus: proposal?.status || "N/A",
-          progressPercent: (await (await import("../models/ProjectProgress.js")).default.findOne({ projectId: project._id }))?.progressPercent || 0
+          progressPercent: (await ProjectProgress.findOne({ projectId: project._id }))?.progressPercent || 0
         }
         : null,
     });

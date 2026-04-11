@@ -149,6 +149,7 @@ export const updateProposalStatus = async (req, res) => {
         status === "Approved"
           ? "Proposal approved & project created"
           : "Proposal rejected",
+      proposal,
       project,
     });
 

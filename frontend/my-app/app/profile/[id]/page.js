@@ -38,10 +38,37 @@ export default function PublicInnovatorProfile() {
   const [viewerRole, setViewerRole] = useState(null);
   const [viewerId, setViewerId] = useState(null);
 
+  const [viewerProfileDetails, setViewerProfileDetails] = useState(null);
+
   useEffect(() => {
-    setViewerRole(localStorage.getItem("role"));
-    setViewerId(localStorage.getItem("userId"));
-  }, []);
+    const role = localStorage.getItem("role");
+    const uid = localStorage.getItem("userId");
+    const token = localStorage.getItem("token");
+    setViewerRole(role);
+    setViewerId(uid);
+
+    const fetchViewerInfo = async () => {
+      if (!token) return;
+      try {
+        let endpoint = "";
+        if (role === "teacher") endpoint = `${BASE_URL}/api/teacher/profile`;
+        else if (role === "student") endpoint = `${BASE_URL}/api/student/profile`;
+        
+        if (endpoint) {
+          const res = await fetch(endpoint, {
+            headers: { Authorization: `Bearer ${token}` }
+          });
+          const data = await res.json();
+          if (data.success) {
+            setViewerProfileDetails(data.teacher || data.student);
+          }
+        }
+      } catch (err) {
+        console.error("Error fetching viewer info", err);
+      }
+    };
+    fetchViewerInfo();
+  }, [BASE_URL]);
 
   useEffect(() => {
     const fetchProfile = async () => {
@@ -64,7 +91,10 @@ export default function PublicInnovatorProfile() {
     if (id) fetchProfile();
   }, [id, BASE_URL]);
 
-  if (loading) {
+  // Loading state for Viewer Details (if role is teacher/student)
+  const isFetchingViewer = (viewerRole === "teacher" || viewerRole === "student") && !viewerProfileDetails && !loading;
+
+  if (loading || isFetchingViewer) {
     return (
       <div className="min-h-screen bg-black flex items-center justify-center">
         <div className="w-8 h-8 rounded-full border-2 border-t-transparent border-[#FF6B6B] animate-spin" />
@@ -91,15 +121,33 @@ export default function PublicInnovatorProfile() {
     );
   }
 
-  // Enforce Recruiter Visibility (Privacy)
-  // Logic: Allow access if:
-  // 1. You are the owner (viewerId === profile.userId._id)
-  // 2. You are a teacher, admin, or fellow student (authorized academic roles)
-  // 3. You are a recruiter AND openToWork is true
-  const isOwner = viewerId === profile?.userId?._id;
-  const isAuthorizedRole = ["teacher", "admin", "student", "recruiter"].includes(viewerRole);
+  // Enforce Recruiter/Teacher Visibility (Privacy)
+  // Logic: 
+  // 1. Owner & Admin always have access
+  // 2. Recruiter: Must have openToWork === true
+  // 3. Teacher: Must be same department OR openToWork === true (internal academic access)
+  // 4. Student: Must be same department OR openToWork === true
 
-  if (profile && !profile.openToWork && !isOwner && !isAuthorizedRole) {
+  const isOwner = viewerId === profile?.userId?._id;
+  const isAdmin = viewerRole === "admin";
+  
+  let hasAccess = false;
+  if (isOwner || isAdmin) {
+    hasAccess = true;
+  } else if (viewerRole === "recruiter") {
+    // Recruiters ONLY see if openToWork is ON
+    hasAccess = profile?.openToWork === true;
+  } else if (viewerRole === "teacher") {
+    // Teachers see if student is same department OR profile is public
+    const isSameDept = viewerProfileDetails?.department === profile?.department;
+    hasAccess = isSameDept || profile?.openToWork === true;
+  } else if (viewerRole === "student") {
+    // Fellow students see if same department OR profile is public
+    const isSameDept = viewerProfileDetails?.department === profile?.department;
+    hasAccess = isSameDept || profile?.openToWork === true;
+  }
+
+  if (!hasAccess) {
     return (
       <div className="min-h-screen bg-black flex flex-col items-center justify-center text-center p-6 selection:bg-[#FF6B6B] selection:text-black">
         <div className="w-20 h-20 bg-white/5 rounded-full flex items-center justify-center mb-6">
@@ -107,9 +155,12 @@ export default function PublicInnovatorProfile() {
         </div>
         <h1 className="text-3xl font-black text-white mb-2">Profile is Private</h1>
         <p className="text-white/50 text-sm max-w-md mx-auto mb-8 leading-relaxed">
-          This innovator has chosen to keep their profile private for recruiters. They are currently not visible to external hiring partners.
+          {viewerRole === "recruiter" 
+            ? "This innovator has chosen to keep their profile private for recruiters. They are currently not visible to external hiring partners."
+            : "This profile is currently restricted. You can only view innovators within your own department unless they have enabled public visibility."
+          }
         </p>
-        <button onClick={() => window.history.back()} className="flex items-center gap-2 text-sm font-bold text-[#FF6B6B] hover:text-[#FF9A8B] transition-colors">
+        <button onClick={() => router.back()} className="flex items-center gap-2 text-sm font-bold text-[#FF6B6B] hover:text-[#FF9A8B] transition-colors">
           <ArrowLeft size={16} /> Go Back
         </button>
       </div>

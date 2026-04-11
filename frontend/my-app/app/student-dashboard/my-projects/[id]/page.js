@@ -97,8 +97,8 @@ export default function ProjectDetailsPage() {
     );
   }
 
-  const featuresList = project.features ? project.features.split(",").map(f => f.trim()) : [];
-  const techStackList = project.techStack ? project.techStack.split(",").map(t => t.trim()) : [];
+  const featuresList = project.features ? project.features.split(/[,\n]/).map(f => f.trim()).filter(Boolean) : [];
+  const techStackList = project.techStack ? project.techStack.split(",").map(t => t.trim()).filter(Boolean) : [];
 
   const statusConfig = {
     Approved: {

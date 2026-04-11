@@ -168,6 +168,22 @@ export const updateStudent = async (req, res) => {
       phone,
     } = req.body;
 
+    const studentIdToUpdate = id;
+    const currentUser = req.user;
+
+    // 🔐 SECURITY CHECK: Only Admin or the Student themselves can update this profile
+    const existingStudent = await Student.findById(studentIdToUpdate);
+    if (!existingStudent) {
+      return res.status(404).json({ success: false, message: "Student profile not found" });
+    }
+
+    const isOwner = existingStudent.userId.toString() === currentUser._id.toString();
+    const isAdmin = currentUser.role === "admin";
+
+    if (!isOwner && !isAdmin) {
+      return res.status(403).json({ success: false, message: "Unauthorized: You can only update your own profile." });
+    }
+
     const updatedData = {
       rollNo,
       department,
@@ -176,12 +192,12 @@ export const updateStudent = async (req, res) => {
       status,
       bio,
       location,
-      technicalSkills: technicalSkills ? (Array.isArray(technicalSkills) ? technicalSkills : technicalSkills.split(",").map(s => s.trim())) : [],
-      softSkills: softSkills ? (Array.isArray(softSkills) ? softSkills : softSkills.split(",").map(s => s.trim())) : [],
+      technicalSkills: technicalSkills ? (Array.isArray(technicalSkills) ? technicalSkills : technicalSkills.split(",").map(s => s.trim()).filter(Boolean)) : [],
+      softSkills: softSkills ? (Array.isArray(softSkills) ? softSkills : softSkills.split(",").map(s => s.trim()).filter(Boolean)) : [],
       openToWork: openToWork === "true" || openToWork === true,
-      interestedRoles: interestedRoles ? (Array.isArray(interestedRoles) ? interestedRoles : interestedRoles.split(",").map(s => s.trim())) : [],
-      achievements: achievements ? (Array.isArray(achievements) ? achievements : achievements.split(",").map(s => s.trim())) : [],
-      certifications: certifications ? (Array.isArray(certifications) ? certifications : certifications.split(",").map(s => s.trim())) : [],
+      interestedRoles: interestedRoles ? (Array.isArray(interestedRoles) ? interestedRoles : interestedRoles.split(",").map(s => s.trim()).filter(Boolean)) : [],
+      achievements: achievements ? (Array.isArray(achievements) ? achievements : achievements.split(",").map(s => s.trim()).filter(Boolean)) : [],
+      certifications: certifications ? (Array.isArray(certifications) ? certifications : certifications.split(",").map(s => s.trim()).filter(Boolean)) : [],
       linkedin,
       github,
       portfolio,
@@ -189,24 +205,17 @@ export const updateStudent = async (req, res) => {
       phone,
     };
 
-    // 👇 IMAGE UPDATE LOGIC
     if (req.file) {
       updatedData.image = `/uploads/students/${req.file.filename}`;
     }
 
     const student = await Student.findByIdAndUpdate(
-      id,
+      studentIdToUpdate,
       updatedData,
       { new: true }
     ).populate("userId", "name email");
 
-    if (!student) {
-      return res
-        .status(404)
-        .json({ message: "Student not found" });
-    }
-
-    // Update User name/email if provided
+    // Update User name/email if provided (only if they are the owner or admin)
     if (name || email) {
       await User.findByIdAndUpdate(student.userId._id, { name, email });
     }
@@ -371,7 +380,6 @@ export const getMyAcademicProjects = async (req, res) => {
         if (project) {
           const progress = await ProjectProgress.findOne({
             projectId: project._id,
-            studentId: userId,
           });
 
           projectData = {

@@ -137,12 +137,12 @@ if (!socketRef.current) {
 
   const updateStatus = async (status) => {
     if (!feedback.trim()) {
-      alert("Please provide feedback before making a decision.");
+      toast.error("Please provide feedback before making a decision.");
       return;
     }
 
     if (status === "Approved" && !duration) {
-      alert("Please select a project duration for approval.");
+      toast.error("Please select a project duration for approval.");
       return;
     }
 
@@ -164,11 +164,11 @@ if (!socketRef.current) {
       const data = await res.json();
       if (!res.ok) throw new Error(data.message || "Error updating status");
 
-      setProposal(data);
-      alert(`Proposal successfully ${status.toLowerCase()}!`);
+      setProposal(data.proposal);
+      toast.success(data.message || `Proposal successfully ${status.toLowerCase()}!`);
     } catch (error) {
       console.error(error);
-      alert(error.message);
+      toast.error(error.message);
     } finally {
       setIsSubmitting(false);
     }
@@ -399,25 +399,23 @@ const deleteMessage = async (msgId) => {
                         <label className="text-xs font-bold text-white/50 uppercase tracking-widest flex items-center gap-2">
                           <Clock size={12} /> Project Duration
                         </label>
-                        <select
+                        <CustomSelect
                           disabled={proposal.status !== "Pending"}
-                          value={duration}
-                          onChange={(e) => setDuration(e.target.value)}
-                          className="w-full bg-black/40 p-4 rounded-2xl border border-white/10 text-white outline-none focus:border-[var(--pv-accent)] focus:ring-1 focus:ring-[var(--pv-accent)] transition-all cursor-pointer appearance-none"
-                          style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E")`, backgroundRepeat: 'no-repeat', backgroundPosition: 'right 1rem center', backgroundSize: '1.2rem' }}
-                        >
-                          <option value="">Select Duration</option>
-                          <optgroup label="Mini Projects">
-                            <option value="4">4 Weeks</option>
-                            <option value="6">6 Weeks</option>
-                            <option value="8">8 Weeks</option>
-                          </optgroup>
-                          <optgroup label="Major Projects">
-                            <option value="12">12 Weeks</option>
-                            <option value="16">16 Weeks</option>
-                            <option value="24">24 Weeks</option>
-                          </optgroup>
-                        </select>
+                          placeholder="Select Duration"
+                          value={duration ? `${duration} Weeks` : ""}
+                          onChange={(val) => {
+                            const numericValue = val.split(" ")[0];
+                            setDuration(numericValue);
+                          }}
+                          options={[
+                            "4 Weeks",
+                            "6 Weeks",
+                            "8 Weeks",
+                            "12 Weeks",
+                            "16 Weeks",
+                            "24 Weeks"
+                          ]}
+                        />
                       </div>
 
                       <div className="space-y-2">
@@ -704,14 +702,27 @@ function TabItem({ active, onClick, icon: Icon, label, count }) {
 }
 
 function ProposalSection({ icon: Icon, title, content }) {
+  const isFeatures = title === "Key Features";
+  
   return (
     <div className="space-y-3">
       <div className="flex items-center gap-2.5 text-white/40">
         <Icon size={16} className="text-[var(--pv-accent)]" />
         <h3 className="text-[10px] font-black uppercase tracking-widest">{title}</h3>
       </div>
-      <div className="p-4 rounded-2xl bg-black/30 border border-white/5 text-white/80 text-sm leading-relaxed min-h-[80px]">
-        {content || "No information provided."}
+      <div className="p-5 rounded-2xl bg-black/30 border border-white/5 text-white/80 text-sm leading-relaxed min-h-[80px]">
+        {isFeatures && content ? (
+          <ul className="space-y-2">
+            {content.split(/[,\n]/).filter(item => item.trim()).map((item, idx) => (
+              <li key={idx} className="flex gap-2.5">
+                <span className="text-[var(--pv-accent)] font-bold opacity-50 shrink-0">•</span>
+                <span>{item.trim()}</span>
+              </li>
+            ))}
+          </ul>
+        ) : (
+          content || "No information provided."
+        )}
       </div>
     </div>
   );
@@ -727,6 +738,70 @@ function SidebarItem({ icon: Icon, label, value }) {
         <p className="text-[10px] font-black text-white/20 uppercase tracking-widest">{label}</p>
         <p className="text-sm text-white font-bold">{value || "N/A"}</p>
       </div>
+    </div>
+  );
+}
+
+function CustomSelect({ placeholder, options, onChange, value, disabled }) {
+  const [open, setOpen] = useState(false);
+  const containerRef = useRef(null);
+
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (containerRef.current && !containerRef.current.contains(e.target)) {
+        setOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  const handleOptionClick = (opt) => {
+    if (disabled) return;
+    onChange(opt);
+    setOpen(false);
+  };
+
+  return (
+    <div ref={containerRef} className="relative w-full">
+      <div
+        onClick={() => !disabled && setOpen((o) => !o)}
+        className={`w-full h-14 px-5 rounded-2xl bg-black/40 border border-white/10 text-white flex items-center justify-between transition-all ${
+          disabled ? "opacity-50 cursor-not-allowed" : "cursor-pointer hover:border-white/20"
+        } ${open ? "border-[var(--pv-accent)] ring-1 ring-[var(--pv-accent)]" : ""}`}
+      >
+        <span className={`text-sm font-medium ${value ? "text-white" : "text-white/40"}`}>
+          {value || placeholder}
+        </span>
+        <span className={`text-white/30 transition-transform duration-300 ${open ? "rotate-180 text-[var(--pv-accent)]" : ""}`}>
+          <ChevronRight size={16} className="rotate-90" />
+        </span>
+      </div>
+
+      {open && (
+        <div className="absolute w-full mt-2 bg-[#0f172a] border border-white/10 rounded-2xl z-50 overflow-hidden shadow-2xl animate-in fade-in zoom-in-95 duration-200">
+          <div className="max-h-60 overflow-y-auto custom-scrollbar">
+            {options.map((opt) => (
+              <div
+                key={opt}
+                onClick={() => handleOptionClick(opt)}
+                className={`h-12 px-5 flex items-center cursor-pointer text-sm font-medium transition-all ${
+                  value === opt 
+                    ? "bg-[var(--pv-accent)] text-black" 
+                    : "text-white/70 hover:bg-white/5 hover:text-white"
+                }`}
+              >
+                {opt}
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+      <style jsx>{`
+        .custom-scrollbar::-webkit-scrollbar { width: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.1); border-radius: 10px; }
+      `}</style>
     </div>
   );
 }

@@ -151,19 +151,18 @@ export const updateTeacher = async (req, res) => {
   try {
     const { id } = req.params;
 
-    const {
-      department,
-      designation,
-      phone,
-      status,
-    } = req.body;
+    const fields = [
+      "department", "designation", "phone", "status", "bio",
+      "experience", "qualification", "subjects", "expertise",
+      "linkedin", "github", "location"
+    ];
 
-    const updatedData = {
-      department,
-      designation,
-      phone,
-      status,
-    };
+    const updatedData = {};
+    fields.forEach(field => {
+      if (req.body[field] !== undefined) {
+        updatedData[field] = req.body[field];
+      }
+    });
 
     if (req.file) {
       updatedData.image = `/uploads/teachers/${req.file.filename}`;
@@ -171,9 +170,9 @@ export const updateTeacher = async (req, res) => {
 
     const teacher = await Teacher.findByIdAndUpdate(
       id,
-      updatedData,
-      { new: true }
-    );
+      { $set: updatedData },
+      { new: true, runValidators: true }
+    ).populate("userId", "name email");
 
     if (!teacher) {
       return res.status(404).json({ message: "Teacher not found" });
