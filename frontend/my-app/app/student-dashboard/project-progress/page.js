@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, Suspense } from "react";
 import {
   CheckCircle2,
   Clock,
@@ -39,8 +39,9 @@ import {
 } from "lucide-react";
 import axios from "axios";
 import { useApi } from "@/context/ApiContext";
-import { io } from "socket.io-client";
+import { useSocket } from "@/context/SocketContext";
 import { toast } from "react-hot-toast";
+import { useSearchParams } from "next/navigation";
 
 // Placeholder components for StatCard
 const StatCard = ({ icon: Icon, label, value, color, bg, border }) => (
@@ -57,8 +58,9 @@ const StatCard = ({ icon: Icon, label, value, color, bg, border }) => (
   </div>
 );
 
-export default function ProjectProgressPage() {
+function ProjectProgressContent() {
   const { BASE_URL } = useApi();
+  const searchParams = useSearchParams();
 
   const [loading, setLoading] = useState(true);
   const [project, setProject] = useState(null);
@@ -67,9 +69,17 @@ export default function ProjectProgressPage() {
   const [submitting, setSubmitting] = useState(false);
 
   const [activeTab, setActiveTab] = useState("milestones"); // "milestones", "discussion"
+
+  // Sync tab with URL
+  useEffect(() => {
+    const tab = searchParams.get("tab");
+    if (tab && (tab === "milestones" || tab === "discussion")) {
+      setActiveTab(tab);
+    }
+  }, [searchParams]);
   const [messages, setMessages] = useState([]);
   const [chatText, setChatText] = useState("");
-  const socketRef = useRef(null);
+  const socket = useSocket();
   const chatEndRef = useRef(null);
   const typingTimeoutRef = useRef(null);
   const fileInputRef = useRef(null);
@@ -126,14 +136,15 @@ export default function ProjectProgressPage() {
     };
     fetchMessages();
 
-    if (!socketRef.current) {
-      socketRef.current = io(BASE_URL, { transports: ["websocket"], withCredentials: true });
-    }
-    const socket = socketRef.current;
+    if (!socket || !project?.groupId) return;
+
     socket.emit("joinGroup", project.groupId);
 
     socket.on("receiveMessage", (message) => {
       if (message.context !== "progress") return;
+      const msgGroupId = typeof message.group === 'object' ? message.group._id : message.group;
+      if (msgGroupId !== project.groupId) return;
+
       setMessages((prev) => {
         if (prev.find((m) => m._id === message._id)) return prev;
         return [...prev, message];
@@ -164,18 +175,22 @@ export default function ProjectProgressPage() {
       socket.off("userTyping");
       socket.off("userStopTyping");
     };
-  }, [project?.groupId, BASE_URL, activeTab]);
+  }, [project?.groupId, BASE_URL, activeTab, socket]);
 
   useEffect(() => {
     // Auto-scroll chat to bottom
     if (activeTab === "discussion") {
       chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
       const token = localStorage.getItem("token");
-      if (token && messages.length > 0) {
-        const payload = JSON.parse(atob(token.split(".")[1]));
-        const myId = payload.id;
-        if (!messages[messages.length - 1].readBy?.includes(myId)) {
-          if (project?.groupId) markAsRead(project.groupId);
+      if (token && messages.length > 0 && project?.groupId) {
+        try {
+          const payload = JSON.parse(atob(token.split(".")[1]));
+          const myId = payload.id || payload._id;
+          if (!messages[messages.length - 1].readBy?.includes(myId)) {
+            markAsRead(project.groupId);
+          }
+        } catch (e) {
+          console.error("Token parse error", e);
         }
       }
     }
@@ -211,6 +226,7 @@ export default function ProjectProgressPage() {
   };
 
   const sendMessage = async () => {
+    if (!project?.groupId) return toast.error("Project workspace synchronizing...");
     if (!chatText.trim() && !attachment) return;
     try {
       const formData = new FormData();
@@ -222,13 +238,18 @@ export default function ProjectProgressPage() {
         formData,
         { headers: { Authorization: `Bearer ${localStorage.getItem("token")}` } }
       );
-      socketRef.current?.emit("sendMessage", {
-        groupId: project.groupId,
-        message: res.data.message,
-      });
-      setChatText("");
-      removeAttachment();
-    } catch (err) { console.error(err); }
+      if (res.data) {
+        socket?.emit("sendMessage", {
+          groupId: project.groupId,
+          message: res.data.message,
+        });
+        setChatText("");
+        removeAttachment();
+      }
+    } catch (err) {
+      console.error(err);
+      toast.error("Network error sending message");
+    }
   };
 
   const submitEdit = async () => {
@@ -737,9 +758,9 @@ export default function ProjectProgressPage() {
                     value={chatText}
                     onChange={(e) => {
                       setChatText(e.target.value);
-                      socketRef.current?.emit("typing", { groupId: project.groupId, name: "Student" });
+                      socket?.emit("typing", { groupId: project.groupId, name: "Student" });
                       if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current);
-                      typingTimeoutRef.current = setTimeout(() => socketRef.current?.emit("stopTyping", project.groupId), 2000);
+                      typingTimeoutRef.current = setTimeout(() => socket?.emit("stopTyping", project.groupId), 2000);
                     }}
                     onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); sendMessage(); } }}
                     placeholder="Type a message to your mentor..."
@@ -797,5 +818,17 @@ export default function ProjectProgressPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function ProjectProgressPage() {
+  return (
+    <Suspense fallback={
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="w-8 h-8 border-4 border-[var(--pv-accent)] border-t-transparent rounded-full animate-spin"></div>
+      </div>
+    }>
+      <ProjectProgressContent />
+    </Suspense>
   );
 }

@@ -2,6 +2,7 @@
 import "./globals.css";
 
 import { ApiProvider } from "@/context/ApiContext";
+import { SocketProvider } from "@/context/SocketContext";
 import LayoutWrapper from "@/components/LayoutWrapper";
 import { Toaster } from "react-hot-toast";
 
@@ -23,20 +24,22 @@ export default function RootLayout({ children }) {
       </head>
       <body className="bg-black text-white">
         <ApiProvider>
-          <LayoutWrapper>
-            <main>{children}
-              <Toaster
-                position="top-right"
-                toastOptions={{
-                  style: {
-                    background: "#1f2937",
-                    color: "#fff",
-                    border: "1px solid rgba(255,255,255,0.1)",
-                  },
-                }}
-              />
-            </main>
-          </LayoutWrapper>
+          <SocketProvider>
+            <LayoutWrapper>
+              <main>{children}
+                <Toaster
+                  position="top-right"
+                  toastOptions={{
+                    style: {
+                      background: "#1f2937",
+                      color: "#fff",
+                      border: "1px solid rgba(255,255,255,0.1)",
+                    },
+                  }}
+                />
+              </main>
+            </LayoutWrapper>
+          </SocketProvider>
         </ApiProvider>
       </body>
     </html>

@@ -53,6 +53,7 @@ const LoginPage = () => {
       localStorage.setItem("role", res.data?.user?.role || res.data?.role || "student");
       localStorage.setItem("userName", res.data?.user?.name || res.data?.name || "");
       localStorage.setItem("userEmail", res.data?.user?.email || res.data?.email || "");
+      localStorage.setItem("userId", res.data?._id || res.data?.user?._id || "");
 
       window.dispatchEvent(new Event("login-status"));
       router.push("/");

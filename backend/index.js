@@ -25,10 +25,16 @@ const io = new Server(server, {
 io.on("connection", (socket) => {
   console.log("User connected:", socket.id);
 
-  // join room
+  // join room (group/project)
   socket.on("joinGroup", (groupId) => {
     socket.join(groupId);
     console.log("User joined group:", groupId);
+  });
+
+  // join private room for personal notifications
+  socket.on("joinUser", (userId) => {
+    socket.join(userId);
+    console.log("User joined private room:", userId);
   });
 
   // send message (flexible to include context/isDeleted/etc)
@@ -69,6 +75,7 @@ import AdminRoute from "./routes/AdminRoute.js";
 import ProposalRoute from "./routes/ProposalRoute.js";
 import DiscussionRoute from "./routes/DisscussionRoute.js";
 import ProjectProgressRoute from "./routes/ProjectProgressRoute.js";
+import NotificationRoute from "./routes/NotificationRoute.js";
 
 app.use(express.json());
 
@@ -102,6 +109,7 @@ app.use("/api/admin", AdminRoute);
 app.use("/api/proposal", ProposalRoute);
 app.use("/api/discussions", DiscussionRoute);
 app.use("/api/progress", ProjectProgressRoute);
+app.use("/api/notifications", NotificationRoute);
 
 // start server
 server.listen(PORT, () => {

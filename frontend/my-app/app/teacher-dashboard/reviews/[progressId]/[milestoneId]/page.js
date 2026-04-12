@@ -26,7 +26,7 @@ import {
   Monitor
 } from "lucide-react";
 import { useApi } from "@/context/ApiContext";
-import { io } from "socket.io-client";
+import { useSocket } from "@/context/SocketContext";
 import Link from "next/link";
 import { toast } from "react-hot-toast";
 
@@ -49,10 +49,20 @@ export default function ReviewDetailsPage() {
   const [typingUser, setTypingUser] = useState(null);
   const [editingMessageId, setEditingMessageId] = useState(null);
   const [editMessageText, setEditMessageText] = useState("");
-  const socketRef = useRef(null);
+  const socket = useSocket();
   const chatEndRef = useRef(null);
   const typingTimeoutRef = useRef(null);
   const fileInputRef = useRef(null);
+
+  useEffect(() => {
+    // Allows deep linking straight to the live chat tab
+    if (typeof window !== "undefined") {
+      const params = new URLSearchParams(window.location.search);
+      if (params.get("tab") === "discussion") {
+        setActiveTab("discussion");
+      }
+    }
+  }, []);
 
   useEffect(() => {
     if (progressId && milestoneId) {
@@ -103,14 +113,15 @@ export default function ReviewDetailsPage() {
     };
     fetchMessages();
 
-    if (!socketRef.current) {
-      socketRef.current = io(BASE_URL, { transports: ["websocket"], withCredentials: true });
-    }
-    const socket = socketRef.current;
+    if (!groupId || !socket) return;
+
     socket.emit("joinGroup", groupId);
 
     socket.on("receiveMessage", (message) => {
       if (message.context !== "progress") return;
+      const msgGroupId = typeof message.group === 'object' ? message.group._id : message.group;
+      if (msgGroupId !== groupId) return;
+      
       setMessages((prev) => {
         if (prev.find((m) => m._id === message._id)) return prev;
         return [...prev, message];
@@ -141,7 +152,7 @@ export default function ReviewDetailsPage() {
       socket.off("userTyping");
       socket.off("userStopTyping");
     };
-  }, [groupId, BASE_URL, activeTab]);
+  }, [groupId, BASE_URL, activeTab, socket]);
 
   useEffect(() => {
     if (activeTab === "discussion") {
@@ -189,12 +200,16 @@ export default function ReviewDetailsPage() {
         body: formData,
       });
       const d = await res.json();
-      socketRef.current?.emit("sendMessage", {
-        groupId,
-        message: d.message,
-      });
-      setChatText("");
-      removeAttachment();
+      if (res.ok) {
+        socket?.emit("sendMessage", {
+          groupId,
+          message: d.message,
+        });
+        setChatText("");
+        removeAttachment();
+      } else {
+        toast.error(d.message || "Failed to send message");
+      }
     } catch (err) { console.error(err); }
   };
 
@@ -485,7 +500,7 @@ export default function ReviewDetailsPage() {
                     <input type="file" className="hidden" onChange={handleFileChange} ref={fileInputRef} />
                     <Paperclip size={20} className="transform rotate-45 group-hover:scale-110 transition-transform" />
                   </label>
-                  <textarea value={chatText} onChange={(e) => { setChatText(e.target.value); socketRef.current?.emit("typing", { groupId, name: "Mentor" }); if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current); typingTimeoutRef.current = setTimeout(() => socketRef.current?.emit("stopTyping", groupId), 2000); }} onKeyDown={(e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); } }} placeholder="Direct message to group..." rows={1} className="flex-1 bg-black/40 border border-white/5 rounded-2xl px-5 py-3.5 text-sm font-bold text-white focus:outline-none focus:border-[var(--pv-accent)]/50 transition-all resize-none max-h-[160px] overflow-y-auto shadow-inner" />
+                  <textarea value={chatText} onChange={(e) => { setChatText(e.target.value); socket?.emit("typing", { groupId, name: "Mentor" }); if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current); typingTimeoutRef.current = setTimeout(() => socket?.emit("stopTyping", groupId), 2000); }} onKeyDown={(e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); } }} placeholder="Direct message to group..." rows={1} className="flex-1 bg-black/40 border border-white/5 rounded-2xl px-5 py-3.5 text-sm font-bold text-white focus:outline-none focus:border-[var(--pv-accent)]/50 transition-all resize-none max-h-[160px] overflow-y-auto shadow-inner" />
                   <button onClick={sendMessage} className="w-12 h-12 shrink-0 rounded-2xl bg-[var(--pv-accent)] text-black flex items-center justify-center hover:scale-105 active:scale-95 transition-all shadow-xl shadow-[var(--pv-accent)]/20"><Send size={18} /></button>
                 </div>
               </div>

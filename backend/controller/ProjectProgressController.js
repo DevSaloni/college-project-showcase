@@ -3,6 +3,7 @@ import ProjectInitial from "../models/ProjectCreate.js";
 import Group from "../models/Groups.js";
 import Student from "../models/Student.js";
 import Teacher from "../models/Teacher.js";
+import { createNotification } from "./NotificationController.js";
 
 import mongoose from "mongoose";
 
@@ -335,8 +336,28 @@ export const reviewMilestone = async (req, res) => {
         : 0;
 
     await progress.save();
-
     res.json({ message: "Review updated successfully" });
+
+    // --- NOTIFICATION LOGIC ---
+    try {
+      const group = await Group.findById(progress.groupId);
+      if (group) {
+        const studentIds = await Student.find({ _id: { $in: group.students } });
+        for (const student of studentIds) {
+          await createNotification({
+            recipient: student.userId,
+            sender: req.user._id,
+            type: "milestone",
+            title: `Milestone ${status === 'approved' ? 'Approved' : 'Rejected'}`,
+            message: `Your Week ${milestone.week} submission has been ${status}. Feedback: ${mentorFeedback ? (mentorFeedback.substring(0, 50) + '...') : 'Check details.'}`,
+            link: "/student-dashboard/project-progress",
+            metadata: { progressId, milestoneId, status }
+          });
+        }
+      }
+    } catch (notifErr) {
+      console.error("Milestone notification error:", notifErr);
+    }
 
   } catch (err) {
     console.error(err);

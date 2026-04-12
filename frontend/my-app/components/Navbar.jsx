@@ -3,11 +3,14 @@ import Link from "next/link";
 import { useState, useEffect, useRef } from "react";
 import {
   ChevronDown, Menu, X, LogOut, LayoutDashboard,
-  Compass, Home, Search, Info, Phone, Layers
+  Compass, Home, Search, Info, Phone, Layers, Bell, Trash2, Check
 } from "lucide-react";
 import { usePathname, useRouter } from "next/navigation";
 import { CATEGORIES } from "@/app/data/categoryData";
 import { toast } from "react-hot-toast";
+import { useSocket } from "@/context/SocketContext";
+import axios from "axios";
+import { useApi } from "@/context/ApiContext";
 
 const navLinks = [
   { name: "Home", path: "/", icon: Home },
@@ -27,6 +30,13 @@ export default function Navbar() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [role, setRole] = useState(null);
   const [userName, setUserName] = useState("");
+  const [notifications, setNotifications] = useState([]);
+  const [showNotifications, setShowNotifications] = useState(false);
+  const [unreadCount, setUnreadCount] = useState(0);
+
+  const socket = useSocket();
+  const { BASE_URL } = useApi();
+  const notifRef = useRef(null);
 
   const catRef = useRef(null);
 
@@ -64,11 +74,95 @@ export default function Navbar() {
     return () => { document.body.style.overflow = ""; };
   }, [isMenuOpen]);
 
+  /* 🔔 Notification logic */
+  const fetchNotifications = async () => {
+    const token = localStorage.getItem("token");
+    if (!token) return;
+    try {
+      const res = await axios.get(`${BASE_URL}/api/notifications`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      setNotifications(res.data.notifications);
+      setUnreadCount(res.data.notifications.filter(n => !n.isRead).length);
+    } catch (err) {
+      console.error("Fetch notifications failed", err);
+    }
+  };
+
+  useEffect(() => {
+    if (isLoggedIn) {
+      fetchNotifications();
+    }
+  }, [isLoggedIn]);
+
+  useEffect(() => {
+    if (socket) {
+      const handleNewNotification = (notification) => {
+        setNotifications(prev => [notification, ...prev]);
+        setUnreadCount(v => v + 1);
+        toast.success(`New notification: ${notification.title}`, {
+          icon: '🔔',
+          duration: 4000
+        });
+      };
+
+      socket.on("newNotification", handleNewNotification);
+      return () => socket.off("newNotification", handleNewNotification);
+    }
+  }, [socket]);
+
+  useEffect(() => {
+    const handler = (e) => {
+      if (notifRef.current && !notifRef.current.contains(e.target)) setShowNotifications(false);
+    };
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, []);
+
+  const markAllAsRead = async () => {
+    try {
+      await axios.put(`${BASE_URL}/api/notifications/mark-all-read`, {}, {
+        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` }
+      });
+      setNotifications(prev => prev.map(n => ({ ...n, isRead: true })));
+      setUnreadCount(0);
+    } catch (err) {
+      toast.error("Failed to mark all as read");
+    }
+  };
+
+  const markOneAsRead = async (id) => {
+    try {
+      await axios.put(`${BASE_URL}/api/notifications/${id}/read`, {}, {
+        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` }
+      });
+      setNotifications(prev => prev.map(n => n._id === id ? { ...n, isRead: true } : n));
+      setUnreadCount(v => Math.max(0, v - 1));
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  const deleteNotif = async (id, e) => {
+    e.stopPropagation();
+    try {
+      await axios.delete(`${BASE_URL}/api/notifications/${id}`, {
+        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` }
+      });
+      setNotifications(prev => prev.filter(n => n._id !== id));
+      const wasUnread = notifications.find(n => n._id === id && !n.isRead);
+      if (wasUnread) setUnreadCount(v => Math.max(0, v - 1));
+    } catch (err) {
+      toast.error("Failed to delete notification");
+    }
+  };
+
   const handleLogout = () => {
     localStorage.removeItem("token");
     localStorage.removeItem("role");
     localStorage.removeItem("userName");
     localStorage.removeItem("userEmail");
+    localStorage.removeItem("userId");
     setIsLoggedIn(false);
     setRole(null);
     toast.success("Successfully logged out");
@@ -131,92 +225,164 @@ export default function Navbar() {
 
           </div>
 
-          {/* ── Desktop Auth ── */}
-          <div className="hidden lg:flex items-center gap-3">
-            {isLoggedIn ? (
-              <>
-                {/* Avatar pill */}
-                {role === "recruiter" ? (
-                  <div
-                    className="flex items-center gap-2.5 px-3 py-1.5 rounded-xl border border-white/10"
-                  >
-                    <div
-                      className="w-7 h-7 rounded-lg flex items-center justify-center text-black text-xs font-black shrink-0"
-                      style={{ background: "linear-gradient(135deg, var(--pv-accent), var(--pv-accent-2))" }}
-                    >
-                      {initials}
+          {/* ── Right Section ── */}
+          <div className="flex items-center gap-3">
+            {isLoggedIn && (
+              <div className="relative lg:mr-2" ref={notifRef}>
+                <button
+                  onClick={() => setShowNotifications(!showNotifications)}
+                  className="p-2 rounded-xl text-white/40 hover:text-white hover:bg-white/5 border border-white/10 transition-all relative"
+                >
+                  <Bell size={18} />
+                  {unreadCount > 0 && (
+                    <span className="absolute -top-1 -right-1 w-4 h-4 bg-red-500 text-white text-[10px] flex items-center justify-center rounded-full animate-bounce">
+                      {unreadCount > 9 ? "9+" : unreadCount}
+                    </span>
+                  )}
+                </button>
+
+                {/* Dropdown */}
+                {showNotifications && (
+                  <div className="absolute right-0 mt-3 w-80 bg-[#0d1525] border border-white/10 rounded-2xl shadow-2xl overflow-hidden z-[110] backdrop-blur-xl">
+                    <div className="p-4 border-b border-white/5 flex items-center justify-between">
+                      <h3 className="text-white font-bold text-sm">Notifications</h3>
+                      {unreadCount > 0 && (
+                        <button
+                          onClick={markAllAsRead}
+                          className="text-[10px] text-[var(--pv-accent)] hover:underline uppercase tracking-widest font-bold"
+                        >
+                          Mark all read
+                        </button>
+                      )}
                     </div>
-                    <div className="leading-none">
-                      <p className="text-white text-[13px] font-bold">{userName}</p>
-                      <p className="text-white/40 text-[11px] capitalize mt-0.5">{role}</p>
+                    <div className="max-h-[400px] overflow-y-auto no-scrollbar">
+                      {notifications.length === 0 ? (
+                        <div className="py-10 text-center text-white/20 text-xs">
+                          No notifications yet
+                        </div>
+                      ) : (
+                        notifications.map((n) => (
+                          <div
+                            key={n._id}
+                            onClick={() => {
+                              markOneAsRead(n._id);
+                              if (n.link) router.push(n.link);
+                              setShowNotifications(false);
+                            }}
+                            className={`p-4 border-b border-white/[0.03] hover:bg-white/5 cursor-pointer transition-colors relative group ${!n.isRead ? "bg-white/[0.02]" : ""}`}
+                          >
+                            {!n.isRead && (
+                              <div className="absolute left-1.5 top-5 w-1.5 h-1.5 bg-[var(--pv-accent)] rounded-full" />
+                            )}
+                            <div className="flex justify-between items-start gap-2">
+                              <div>
+                                <p className="text-white text-xs font-bold leading-tight mb-1">{n.title}</p>
+                                <p className="text-white/50 text-[11px] leading-relaxed line-clamp-2">{n.message}</p>
+                                <p className="text-white/20 text-[9px] mt-2 font-medium">
+                                  {new Date(n.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                </p>
+                              </div>
+                              <button
+                                onClick={(e) => deleteNotif(n._id, e)}
+                                className="text-white/10 hover:text-red-400 p-1 opacity-0 group-hover:opacity-100 transition-all"
+                              >
+                                <Trash2 size={12} />
+                              </button>
+                            </div>
+                          </div>
+                        ))
+                      )}
                     </div>
                   </div>
-                ) : (
-                  <Link
-                    href={getDashboardPath()}
-                    className="flex items-center gap-2.5 px-3 py-1.5 rounded-xl border border-white/10 hover:border-white/20 hover:bg-white/5 transition-all group"
-                  >
-                    <div
-                      className="w-7 h-7 rounded-lg flex items-center justify-center text-black text-xs font-black shrink-0"
-                      style={{ background: "linear-gradient(135deg, var(--pv-accent), var(--pv-accent-2))" }}
-                    >
-                      {initials}
-                    </div>
-                    <div className="leading-none">
-                      <p className="text-white text-[13px] font-bold">{userName}</p>
-                      <p className="text-white/40 text-[11px] capitalize mt-0.5">{role}</p>
-                    </div>
-                    <LayoutDashboard size={13} className="text-white/30 group-hover:text-[var(--pv-accent)] transition-colors ml-1" />
-                  </Link>
                 )}
-
-                <button
-                  onClick={handleLogout}
-                  title="Logout"
-                  className="p-2 rounded-lg text-white/30 hover:text-red-400 hover:bg-red-500/10 border border-transparent hover:border-red-500/20 transition-all"
-                >
-                  <LogOut size={15} />
-                </button>
-              </>
-            ) : (
-              <>
-                <Link
-                  href="/login"
-                  className="px-4 py-2 text-[13px] font-normal uppercase tracking-widest text-white/70 hover:text-white rounded-xl border border-transparent hover:border-white/10 hover:bg-white/5 transition-all"
-                >
-                  Sign In
-                </Link>
-                <Link
-                  href="/register"
-                  className="px-5 py-2 text-[13px] font-normal uppercase tracking-widest text-black rounded-xl shadow-lg hover:-translate-y-0.5 active:scale-[0.97] transition-all"
-                  style={{
-                    background: "linear-gradient(90deg, var(--pv-accent), var(--pv-accent-2))",
-                    boxShadow: "0 4px 20px color-mix(in srgb, var(--pv-accent) 35%, transparent)"
-                  }}
-                >
-                  Get Started
-                </Link>
-              </>
+              </div>
             )}
-          </div>
 
-          {/* ── Mobile Hamburger ── */}
-          <button
-            className="lg:hidden relative w-9 h-9 flex items-center justify-center rounded-xl border border-white/10 text-white/70 hover:text-white hover:bg-white/5 transition-all"
-            onClick={() => setIsMenuOpen(v => !v)}
-            aria-label="Toggle menu"
-          >
-            <span
-              className={`absolute transition-all duration-300 ${isMenuOpen ? "opacity-100 rotate-0" : "opacity-0 rotate-90"}`}
+            {/* ── Desktop Auth ── */}
+            <div className="hidden lg:flex items-center gap-3">
+              {isLoggedIn ? (
+                <>
+                  {/* Avatar pill */}
+                  {role === "recruiter" ? (
+                    <div className="flex items-center gap-2.5 px-3 py-1.5 rounded-xl border border-white/10">
+                      <div
+                        className="w-7 h-7 rounded-lg flex items-center justify-center text-black text-xs font-black shrink-0"
+                        style={{ background: "linear-gradient(135deg, var(--pv-accent), var(--pv-accent-2))" }}
+                      >
+                        {initials}
+                      </div>
+                      <div className="leading-none">
+                        <p className="text-white text-[13px] font-bold">{userName}</p>
+                        <p className="text-white/40 text-[11px] capitalize mt-0.5">{role}</p>
+                      </div>
+                    </div>
+                  ) : (
+                    <Link
+                      href={getDashboardPath()}
+                      className="flex items-center gap-2.5 px-3 py-1.5 rounded-xl border border-white/10 hover:border-white/20 hover:bg-white/5 transition-all group"
+                    >
+                      <div
+                        className="w-7 h-7 rounded-lg flex items-center justify-center text-black text-xs font-black shrink-0"
+                        style={{ background: "linear-gradient(135deg, var(--pv-accent), var(--pv-accent-2))" }}
+                      >
+                        {initials}
+                      </div>
+                      <div className="leading-none">
+                        <p className="text-white text-[13px] font-bold">{userName}</p>
+                        <p className="text-white/40 text-[11px] capitalize mt-0.5">{role}</p>
+                      </div>
+                      <LayoutDashboard size={13} className="text-white/30 group-hover:text-[var(--pv-accent)] transition-colors ml-1" />
+                    </Link>
+                  )}
+
+                  <button
+                    onClick={handleLogout}
+                    title="Logout"
+                    className="p-2 rounded-lg text-white/30 hover:text-red-400 hover:bg-red-500/10 border border-transparent hover:border-red-500/20 transition-all"
+                  >
+                    <LogOut size={15} />
+                  </button>
+                </>
+              ) : (
+                <>
+                  <Link
+                    href="/login"
+                    className="px-4 py-2 text-[13px] font-normal uppercase tracking-widest text-white/70 hover:text-white rounded-xl border border-transparent hover:border-white/10 hover:bg-white/5 transition-all"
+                  >
+                    Sign In
+                  </Link>
+                  <Link
+                    href="/register"
+                    className="px-5 py-2 text-[13px] font-normal uppercase tracking-widest text-black rounded-xl shadow-lg hover:-translate-y-0.5 active:scale-[0.97] transition-all"
+                    style={{
+                      background: "linear-gradient(90deg, var(--pv-accent), var(--pv-accent-2))",
+                      boxShadow: "0 4px 20px color-mix(in srgb, var(--pv-accent) 35%, transparent)"
+                    }}
+                  >
+                    Get Started
+                  </Link>
+                </>
+              )}
+            </div>
+
+            {/* ── Mobile Hamburger ── */}
+            <button
+              className="lg:hidden relative w-9 h-9 flex items-center justify-center rounded-xl border border-white/10 text-white/70 hover:text-white hover:bg-white/5 transition-all"
+              onClick={() => setIsMenuOpen(v => !v)}
+              aria-label="Toggle menu"
             >
-              <X size={18} />
-            </span>
-            <span
-              className={`absolute transition-all duration-300 ${isMenuOpen ? "opacity-0 -rotate-90" : "opacity-100 rotate-0"}`}
-            >
-              <Menu size={18} />
-            </span>
-          </button>
+              <span
+                className={`absolute transition-all duration-300 ${isMenuOpen ? "opacity-100 rotate-0" : "opacity-0 rotate-90"}`}
+              >
+                <X size={18} />
+              </span>
+              <span
+                className={`absolute transition-all duration-300 ${isMenuOpen ? "opacity-0 -rotate-90" : "opacity-100 rotate-0"}`}
+              >
+                <Menu size={18} />
+              </span>
+            </button>
+          </div>
         </div>
       </nav>
 

@@ -1,6 +1,6 @@
 "use client";
 import Link from "next/link";
-import { Github, Linkedin, Instagram, Mail, ArrowRight, ShieldCheck, Globe, Zap } from "lucide-react";
+import { Github, Linkedin, Mail, Phone, ArrowRight, ShieldCheck, Globe, Zap } from "lucide-react";
 
 const footerLinks = {
   platform: [
@@ -20,10 +20,9 @@ const footerLinks = {
 };
 
 const socialLinks = [
-  { icon: Linkedin, label: "LinkedIn", href: "#" },
-  { icon: Github, label: "GitHub", href: "#" },
-  { icon: Instagram, label: "Instagram", href: "#" },
-  { icon: Mail, label: "Email", href: "mailto:support@projectvault.com" },
+  { icon: Linkedin, label: "LinkedIn", href: "https://linkedin.com/in/saloni-pawar-630b23270" },
+  { icon: Github, label: "GitHub", href: "https://github.com/DevSaloni" },
+  { icon: Mail, label: "Email", href: "mailto:salonipawar294@gmail.com" },
 ];
 
 export default function Footer() {
@@ -126,13 +125,8 @@ export default function Footer() {
             <p className="text-[13px] text-white/30 font-['Inter']">
               &copy; {new Date().getFullYear()} ProjectVault Ecosystem. All rights reserved.
             </p>
-            <div className="flex items-center gap-6">
-              <Link href="#" className="text-[11px] uppercase tracking-[0.15em] font-bold text-white/30 hover:text-white transition-colors font-['Outfit']">Privacy Policy</Link>
-              <Link href="#" className="text-[11px] uppercase tracking-[0.15em] font-bold text-white/30 hover:text-white transition-colors font-['Outfit']">Terms of Service</Link>
-              <Link href="#" className="text-[11px] uppercase tracking-[0.15em] font-bold text-white/30 hover:text-white transition-colors font-['Outfit']">Cookie Settings</Link>
-            </div>
-          </div>
 
+          </div>
           <div className="text-[12px] text-white/20 font-medium font-['Inter']">
             Crafted for Institutional Excellence
           </div>

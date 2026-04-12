@@ -1,7 +1,8 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, Suspense } from "react";
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import {
   FileText,
   MessageSquare,
@@ -31,17 +32,27 @@ import {
   Plus,
 } from "lucide-react";
 import { useApi } from "@/context/ApiContext";
-import { io } from "socket.io-client";
+import { useSocket } from "@/context/SocketContext";
 import { toast } from "react-hot-toast";
 
-export default function StudentProposalWorkspace() {
+function StudentProposalContent() {
   const { BASE_URL } = useApi();
-  const socketRef = useRef(null);
+  const searchParams = useSearchParams();
+  const socket = useSocket();
   const chatEndRef = useRef(null);
   const typingTimeoutRef = useRef(null);
   const fileInputRef = useRef(null);
 
   const [activeTab, setActiveTab] = useState("proposal");
+
+  // Sync tab with URL
+  useEffect(() => {
+    const tab = searchParams.get("tab");
+    if (tab && (tab === "proposal" || tab === "discussion")) {
+      setActiveTab(tab);
+    }
+  }, [searchParams]);
+
   const [chatText, setChatText] = useState("");
   const [messages, setMessages] = useState([]);
   const [attachment, setAttachment] = useState(null);
@@ -137,17 +148,14 @@ export default function StudentProposalWorkspace() {
 
   /* ===== SOCKET CONNECTION ===== */
   useEffect(() => {
-    if (!group || group._id === "loading") return;
-    if (!socketRef.current) {
-      socketRef.current = io(BASE_URL, {
-        transports: ["websocket"],
-        withCredentials: true,
-      });
-    }
-    const socket = socketRef.current;
+    if (!group || group._id === "loading" || !socket) return;
+    
     socket.emit("joinGroup", group._id);
 
     socket.on("receiveMessage", (message) => {
+      const msgGroupId = typeof message.group === 'object' ? message.group._id : message.group;
+      if (msgGroupId !== group._id) return;
+
       setMessages((prev) => {
         if (prev.find((m) => m._id === message._id)) return prev;
         return [...prev, message];
@@ -181,18 +189,21 @@ export default function StudentProposalWorkspace() {
       socket.off("userTyping");
       socket.off("userStopTyping");
     };
-  }, [BASE_URL, group, activeTab]);
+  }, [BASE_URL, group, activeTab, socket]);
 
   /* ===== SCROLL & READ ===== */
   useEffect(() => {
     if (activeTab === "discussion") {
       chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
       const token = localStorage.getItem("token");
-      if (token && messages.length > 0) {
-        const myId = JSON.parse(atob(token.split(".")[1])).id;
-        if (!messages[messages.length - 1].readBy?.includes(myId)) {
-          if (group) markAsRead(group._id);
-        }
+      if (token && messages.length > 0 && group?._id && group?._id !== "loading") {
+        try {
+          const payload = JSON.parse(atob(token.split(".")[1]));
+          const myId = payload.id || payload._id;
+          if (!messages[messages.length - 1].readBy?.includes(myId)) {
+            markAsRead(group._id);
+          }
+        } catch (e) { console.error("Token parse error", e); }
       }
     }
   }, [messages, activeTab, group]);
@@ -332,6 +343,7 @@ export default function StudentProposalWorkspace() {
 
   /* ===== SEND MESSAGE ===== */
   const sendMessage = async () => {
+    if (!group?._id || group?._id === "loading") return toast.error("Workspace synchronizing...");
     if (!chatText.trim() && !attachment) return;
     try {
       const formData = new FormData();
@@ -345,7 +357,7 @@ export default function StudentProposalWorkspace() {
       });
       const data = await res.json();
       if (res.ok) {
-        socketRef.current?.emit("sendMessage", {
+        socket?.emit("sendMessage", {
           groupId: group._id,
           message: data.message,
         });
@@ -356,6 +368,7 @@ export default function StudentProposalWorkspace() {
       }
     } catch (err) {
       console.error(err);
+      toast.error("Network error sending message");
     }
   };
 
@@ -1004,15 +1017,15 @@ export default function StudentProposalWorkspace() {
                 value={chatText}
                 onChange={(e) => {
                   setChatText(e.target.value);
-                  if (!socketRef.current) return;
-                  socketRef.current.emit("typing", {
+                  if (!socket) return;
+                  socket.emit("typing", {
                     groupId: group._id,
                     name: "Student Group",
                   });
                   if (typingTimeoutRef.current)
                     clearTimeout(typingTimeoutRef.current);
                   typingTimeoutRef.current = setTimeout(() => {
-                    socketRef.current.emit("stopTyping", group._id);
+                    socket.emit("stopTyping", group._id);
                   }, 1500);
                 }}
                 onKeyDown={(e) => {
@@ -1080,5 +1093,17 @@ function ProposalTextarea({ icon: Icon, label, disabled, ...props }) {
           }`}
       />
     </div>
+  );
+}
+
+export default function StudentProposalWorkspace() {
+  return (
+    <Suspense fallback={
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="w-8 h-8 border-4 border-[var(--pv-accent)] border-t-transparent rounded-full animate-spin"></div>
+      </div>
+    }>
+      <StudentProposalContent />
+    </Suspense>
   );
 }

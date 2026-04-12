@@ -2,6 +2,10 @@ import mongoose from "mongoose";
 import Group from "../models/Groups.js";
 import Discussion from "../models/Discussion.js";
 import { io } from "../index.js";
+import { createNotification } from "./NotificationController.js";
+import Student from "../models/Student.js";
+import Teacher from "../models/Teacher.js";
+import ProjectProgress from "../models/ProjectProgress.js";
 
 /* ================= SEND MESSAGE ================= */
 export const sendMessage = async (req, res) => {
@@ -58,6 +62,60 @@ export const sendMessage = async (req, res) => {
     res.status(201).json({
       message: populatedMessage,
     });
+
+    // --- NOTIFICATION LOGIC ---
+    const senderName = req.user.name || "A member";
+    const studentLink = discussion.context === "progress" 
+      ? "/student-dashboard/project-progress?tab=discussion" 
+      : "/student-dashboard/proposal?tab=discussion";
+
+    // 1. Notify Mentor
+    const mentor = await Teacher.findById(group.mentor);
+    if (mentor && mentor.userId.toString() !== req.user._id.toString()) {
+      let mentorLink = `/teacher-dashboard/groups/${groupId}?tab=discussion`;
+      
+      if (discussion.context === "progress") {
+        try {
+          const progressInfo = await ProjectProgress.findOne({ groupId }).sort({ createdAt: -1 });
+          if (progressInfo && progressInfo.milestones && progressInfo.milestones.length > 0) {
+            // Focus on the most recently added milestone
+            const latestMilestone = progressInfo.milestones[progressInfo.milestones.length - 1];
+            mentorLink = `/teacher-dashboard/reviews/${progressInfo._id}/${latestMilestone._id}?tab=discussion`;
+          } else {
+            mentorLink = `/teacher-dashboard/reviews`;
+          }
+        } catch (linkErr) {
+          console.error("Error generating mentor link:", linkErr);
+          mentorLink = `/teacher-dashboard/reviews`;
+        }
+      }
+
+      await createNotification({
+        recipient: mentor.userId,
+        sender: req.user._id,
+        type: "message",
+        title: `New Message in ${group.groupName}`,
+        message: `${senderName}: ${message ? (message.length > 50 ? message.substring(0, 47) + "..." : message) : "Sent an attachment"}`,
+        link: mentorLink,
+        metadata: { groupId, context: discussion.context }
+      });
+    }
+
+    // 2. Notify Students
+    const students = await Student.find({ _id: { $in: group.students } });
+    for (const student of students) {
+      if (student.userId.toString() !== req.user._id.toString()) {
+        await createNotification({
+          recipient: student.userId,
+          sender: req.user._id,
+          type: "message",
+          title: `New Message in ${group.groupName}`,
+          message: `${senderName}: ${message ? (message.length > 50 ? message.substring(0, 47) + "..." : message) : "Sent an attachment"}`,
+          link: studentLink,
+          metadata: { groupId, context: discussion.context }
+        });
+      }
+    }
 
   } catch (error) {
     console.error("Send message error:", error);

@@ -1,9 +1,8 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
-import { useParams, useRouter } from "next/navigation";
+import { useState, useEffect, useRef, Suspense } from "react";
+import { useParams, useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
-import { io } from "socket.io-client";
 
 import {
   CheckCircle,
@@ -26,21 +25,37 @@ import {
   Sparkles,
   AlertCircle,
   Edit2,
-  Trash2
+  Trash2,
+  Activity,
+  Check,
+  CheckCheck
 } from "lucide-react";
 import { useApi } from "@/context/ApiContext";
+import { useSocket } from "@/context/SocketContext";
 import { toast } from "react-hot-toast";
 
-export default function GroupWorkspacePage() {
+function GroupWorkspaceContent() {
   const { BASE_URL } = useApi();
   const { groupId } = useParams();
   const router = useRouter();
-  const socketRef = useRef(null);
+  const searchParams = useSearchParams();
+  const socket = useSocket();
   const chatEndRef = useRef(null);
+  const typingTimeoutRef = useRef(null);
 
   const [activeTab, setActiveTab] = useState("proposal");
+  const chatContext = "proposal"; // Hardcoded to proposal for this page
   const [chatText, setChatText] = useState("");
   const [loading, setLoading] = useState(true);
+
+  // Sync tab with URL
+  useEffect(() => {
+    const tab = searchParams.get("tab");
+
+    if (tab && (tab === "proposal" || tab === "discussion")) {
+      setActiveTab(tab);
+    }
+  }, [searchParams]);
 
   const [group, setGroup] = useState(null);
   const [proposal, setProposal] = useState(null);
@@ -48,9 +63,10 @@ export default function GroupWorkspacePage() {
   const [messages, setMessages] = useState([]);
   const [duration, setDuration] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
-const [file, setFile] = useState(null);
+  const [file, setFile] = useState(null);
   const [editingMessageId, setEditingMessageId] = useState(null);
   const [editMessageText, setEditMessageText] = useState("");
+  const [typingUser, setTypingUser] = useState(null);
 
   /* ================= FETCH DATA ================= */
 
@@ -74,8 +90,8 @@ const [file, setFile] = useState(null);
           setFeedback(data.proposal?.teacherFeedback || "");
           setDuration(data.proposal?.totalWeeks || "");
         }
-        // Fetch messages
-        const msgRes = await fetch(`${BASE_URL}/api/discussions/${groupId}`, {
+        // Fetch messages with context
+        const msgRes = await fetch(`${BASE_URL}/api/discussions/${groupId}?context=${chatContext}`, {
           headers: { Authorization: `Bearer ${token}` },
         });
         const msgData = await msgRes.json();
@@ -89,49 +105,80 @@ const [file, setFile] = useState(null);
     };
 
     fetchData();
-  }, [BASE_URL, groupId]);
+  }, [BASE_URL, groupId, chatContext]);
 
 /* ================= SOCKET CONNECTION ================= */
-useEffect(() => {
-  if (!groupId) return;
+  useEffect(() => {
+    if (!groupId || !socket) return;
 
-if (!socketRef.current) {
-    socketRef.current = io(BASE_URL, {
-      transports: ["websocket"],
-      withCredentials: true
-    });
-  }
-
-  const socket = socketRef.current;
-
-  socket.emit("joinGroup", groupId);
+    socket.emit("joinGroup", groupId);
 
   socket.on("receiveMessage", (message) => {
+    if (message.context !== chatContext) return;
+    const msgGroupId = typeof message.group === 'object' ? message.group._id : message.group;
+    if (msgGroupId !== groupId) return;
+
     setMessages((prev) => {
       if (prev.find((m) => m._id === message._id)) return prev;
       return [...prev, message];
     });
+    if (activeTab === "discussion") markAsRead(groupId);
   });
 
   socket.on("messageUpdated", (updatedMsg) => {
     setMessages((prev) => prev.map((m) => m._id === updatedMsg._id ? updatedMsg : m));
   });
 
+  socket.on("messagesRead", ({ userId }) => {
+    setMessages(prev => prev.map(m => {
+      if (!m.readBy?.includes(userId)) {
+        return { ...m, readBy: [...(m.readBy || []), userId] };
+      }
+      return m;
+    }));
+  });
+
+  socket.on("userTyping", (name) => setTypingUser(name));
+  socket.on("userStopTyping", () => setTypingUser(null));
+
   return () => {
     socket.off("receiveMessage");
     socket.off("messageUpdated");
-    
+    socket.off("messagesRead");
+    socket.off("userTyping");
+    socket.off("userStopTyping");
   };
 
-}, [BASE_URL, groupId]);
+}, [BASE_URL, groupId, chatContext, activeTab]);
 
-  /* ================= SCROLL CHAT ================= */
+  /* ================= MARK AS READ & SCROLL ================= */
+
+  const markAsRead = async (id) => {
+    try {
+      await fetch(`${BASE_URL}/api/discussions/${id}/read?context=${chatContext}`, {
+        method: "POST",
+        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+      });
+    } catch (err) { console.error(err); }
+  };
 
   useEffect(() => {
     if (activeTab === "discussion") {
       chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
+      const token = localStorage.getItem("token");
+      if (token && messages.length > 0 && groupId) {
+        try {
+          const payload = JSON.parse(atob(token.split(".")[1]));
+          const myId = payload.id || payload._id;
+          if (!messages[messages.length - 1].readBy?.includes(myId)) {
+            markAsRead(groupId);
+          }
+        } catch (e) {
+          console.error("Token parse error", e);
+        }
+      }
     }
-  }, [messages, activeTab]);
+  }, [messages, activeTab, groupId, chatContext]);
 
   /* ================= UPDATE STATUS ================= */
 
@@ -183,6 +230,7 @@ const sendMessage = async () => {
 
     const formData = new FormData();
     formData.append("message", chatText);
+    formData.append("context", chatContext);
     if (file) {
       formData.append("file", file);
     }
@@ -197,7 +245,7 @@ const sendMessage = async () => {
 
     const data = await res.json();
 
-    socketRef.current.emit("sendMessage", {
+    socket?.emit("sendMessage", {
       groupId,
       message: data.message,
     });
@@ -322,7 +370,6 @@ const deleteMessage = async (msgId) => {
         {/* ── MAIN CONTENT (LEFT 8/12) ── */}
         <div className="lg:col-span-8 space-y-6">
 
-          {/* TABS */}
           <div className="flex p-1.5 bg-white/[0.04] border border-white/10 rounded-2xl w-fit">
             <TabItem
               active={activeTab === "proposal"}
@@ -552,9 +599,10 @@ const deleteMessage = async (msgId) => {
                             </div>
                           )}
 
-                          <p className={`text-[9px] text-white/20 font-medium ${isMe ? 'text-right mr-1' : 'ml-1'}`}>
-                            {new Date(msg.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                          </p>
+                          <div className={`flex items-center gap-1.5 ${isMe ? "justify-end mr-1" : "ml-1"}`}>
+                            <span className="text-[9px] text-white/20 font-black uppercase tracking-widest">{new Date(msg.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+                            {isMe && !msg.isDeleted && <span className="text-white/30">{msg.readBy && msg.readBy.some(id => id !== msg.sender?._id) ? <CheckCheck size={10} className="text-blue-400" /> : <Check size={10} />}</span>}
+                          </div>
                         </div>
                         {isMe && (
                           <div className="w-8 h-8 rounded-lg bg-[var(--pv-accent)]/20 flex items-center justify-center text-[10px] font-black text-[var(--pv-accent)] shrink-0 border border-[var(--pv-accent)]/20">
@@ -564,6 +612,21 @@ const deleteMessage = async (msgId) => {
                       </div>
                     );
                   })
+                )}
+                {typingUser && (
+                  <div className="flex items-end gap-2 animate-in fade-in slide-in-from-bottom-2 duration-300">
+                    <div className="w-8 h-8 rounded-lg bg-white/10 flex items-center justify-center text-[10px] font-black text-white/40 shrink-0 border border-white/10">
+                      {typingUser.charAt(0) || "S"}
+                    </div>
+                    <div className="bg-white/5 border border-white/10 px-4 py-3 rounded-2xl rounded-bl-none flex items-center gap-1 shadow-md">
+                      <div className="flex items-center gap-1.5 opacity-60">
+                        <span className="w-1.5 h-1.5 rounded-full bg-white/60 animate-bounce" style={{ animationDelay: '0ms' }} />
+                        <span className="w-1.5 h-1.5 rounded-full bg-white/60 animate-bounce" style={{ animationDelay: '150ms' }} />
+                        <span className="w-1.5 h-1.5 rounded-full bg-white/60 animate-bounce" style={{ animationDelay: '300ms' }} />
+                      </div>
+                      <span className="ml-2 text-[10px] font-black uppercase tracking-widest text-white/40">{typingUser} is typing...</span>
+                    </div>
+                  </div>
                 )}
                 <div ref={chatEndRef} />
               </div>
@@ -576,7 +639,12 @@ const deleteMessage = async (msgId) => {
                   
                   <input
                     value={chatText}
-              onChange={(e) => setChatText(e.target.value)}
+              onChange={(e) => {
+                setChatText(e.target.value);
+                socket?.emit("typing", { groupId, name: "Mentor" });
+                if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current);
+                typingTimeoutRef.current = setTimeout(() => socket?.emit("stopTyping", groupId), 2000);
+              }}
            onKeyDown={(e) => {
                       if (e.key === "Enter") {
                         e.preventDefault();
@@ -675,6 +743,18 @@ const deleteMessage = async (msgId) => {
 
       </div>
     </div>
+  );
+}
+
+export default function GroupWorkspacePage() {
+  return (
+    <Suspense fallback={
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="w-8 h-8 border-4 border-[var(--pv-accent)] border-t-transparent rounded-full animate-spin"></div>
+      </div>
+    }>
+      <GroupWorkspaceContent />
+    </Suspense>
   );
 }
 

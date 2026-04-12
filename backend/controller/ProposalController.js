@@ -5,6 +5,9 @@ import Proposal from "../models/Proposal.js";
 import Group from "../models/Groups.js";
 import Discussion from "../models/Discussion.js";
 import ProjectInitial from "../models/ProjectCreate.js";
+import Student from "../models/Student.js";
+import Teacher from "../models/Teacher.js";
+import { createNotification } from "./NotificationController.js";
 
 /* ================= CREATE PROPOSAL (STUDENT) ================= */
 export const createProposal = async (req, res) => {
@@ -19,6 +22,22 @@ export const createProposal = async (req, res) => {
       message: "Proposal submitted successfully",
       proposal,
     });
+
+    // --- NOTIFICATION LOGIC ---
+    try {
+      const mentor = await Teacher.findById(proposal.mentorId);
+      if (mentor) {
+        await createNotification({
+          recipient: mentor.userId,
+          sender: req.user._id,
+          type: "proposal",
+          title: "New Proposal Submitted",
+          message: `A new project proposal "${proposal.title}" has been submitted for your review.`,
+          link: `/teacher-dashboard/groups/${proposal.groupId}`,
+          metadata: { groupId: proposal.groupId, proposalId: proposal._id }
+        });
+      }
+    } catch (err) { console.error("Notification error:", err); }
   } catch (error) {
     console.error("Create proposal error:", error);
     res.status(500).json({
@@ -153,6 +172,25 @@ export const updateProposalStatus = async (req, res) => {
       project,
     });
 
+    // --- NOTIFICATION LOGIC ---
+    try {
+      const group = await Group.findById(proposal.groupId);
+      if (group) {
+        const students = await Student.find({ _id: { $in: group.students } });
+        for (const student of students) {
+          await createNotification({
+            recipient: student.userId,
+            sender: req.user._id,
+            type: "proposal",
+            title: `Proposal ${status}`,
+            message: `Your project proposal "${proposal.title}" has been ${status.toLowerCase()}. ${teacherFeedback ? 'Click to see feedback.' : ''}`,
+            link: "/student-dashboard/proposal",
+            metadata: { proposalId: proposal._id, status }
+          });
+        }
+      }
+    } catch (err) { console.error("Notification error:", err); }
+
   } catch (error) {
     console.error("Update proposal error:", error);
     res.status(500).json({ message: "Server error" });
@@ -222,6 +260,22 @@ export const updateProposal = async (req, res) => {
       message: "Proposal updated successfully",
       proposal: updatedProposal,
     });
+
+    // --- NOTIFICATION LOGIC ---
+    try {
+      const mentor = await Teacher.findById(updatedProposal.mentorId);
+      if (mentor) {
+        await createNotification({
+          recipient: mentor.userId,
+          sender: req.user._id,
+          type: "proposal",
+          title: "Proposal Updated",
+          message: `The proposal "${updatedProposal.title}" has been resubmitted after changes.`,
+          link: `/teacher-dashboard/groups/${updatedProposal.groupId}`,
+          metadata: { groupId: updatedProposal.groupId, proposalId: updatedProposal._id }
+        });
+      }
+    } catch (err) { console.error("Notification error:", err); }
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: "Server error" });
