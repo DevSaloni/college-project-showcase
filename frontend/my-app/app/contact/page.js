@@ -17,33 +17,24 @@ export default function ContactPage() {
   });
 
   const [loading, setLoading] = useState(false);
-  const [creators, setCreators] = useState([]);
-  const [mentors, setMentors] = useState([]);
+  const [stats, setStats] = useState({ count: 0, profiles: [] });
+  const [loadingStats, setLoadingStats] = useState(true);
 
   useEffect(() => {
-    const fetchTeam = async () => {
+    const fetchStats = async () => {
       try {
-        const res = await axios.get(`${BASE_URL}/api/projects/all`);
-        // Get unique creators from projects
-        const allCreators = res.data.data.flatMap(p => p.creatorProfiles || []).slice(0, 3);
-        setCreators(allCreators);
-
-        // For mentors/teachers, we'll try to fetch all or use placeholders if auth is needed
-        try {
-          const tRes = await axios.get(`${BASE_URL}/api/teachers/all`); // This might fail if protected
-          setMentors(tRes.data.data.slice(0, 2));
-        } catch (e) {
-          // Fallback to stylized mock if backend is protected
-          setMentors([
-            { userId: { name: "Dr. Sarah Mitchell" }, department: "AI & Neural Systems" },
-            { userId: { name: "Prof. James Chen" }, department: "Blockchain Architect" }
-          ]);
-        }
+        const res = await axios.get(`${BASE_URL}/api/auth/public-stats`);
+        setStats({
+          count: res.data.totalCount,
+          profiles: res.data.profiles
+        });
       } catch (err) {
-        console.error(err);
+        console.error("Failed to fetch public stats", err);
+      } finally {
+        setLoadingStats(false);
       }
     };
-    fetchTeam();
+    fetchStats();
   }, [BASE_URL]);
 
   const handleChange = (e) => {
@@ -217,25 +208,7 @@ export default function ContactPage() {
             Have questions about ProjectVista? Reach out to us for collaborations, support, or general project inquiries. Join the community of innovators and start your journey today.
           </p>
 
-          <div className="flex gap-4">
-            <div className="flex -space-x-3">
-              {creators.concat(mentors).slice(0, 4).map((person, i) => {
-                const user = person.userId || {};
-                const img = person.image ? (person.image.startsWith("http") ? person.image : `${BASE_URL}${person.image.startsWith("/") ? "" : "/"}${person.image}`) : `https://api.dicebear.com/7.x/avataaars/svg?seed=${user.name || i}`;
-                return (
-                  <div key={i} title={user.name} className="w-10 h-10 rounded-full border-2 border-[#000000] bg-white/10 overflow-hidden backdrop-blur-md">
-                    <img src={img} alt={user.name} className="w-full h-full object-cover" />
-                  </div>
-                );
-              })}
-              <div className="w-10 h-10 rounded-full border-2 border-[#000000] bg-[var(--pv-accent)] flex items-center justify-center text-black font-black text-[10px]">
-                +2k
-              </div>
-            </div>
-            <div className="text-white/40 text-xs font-semibold self-center ml-2">
-              Join <span className="text-white">{creators.length > 0 ? "2,000+" : "Loading..."} creators</span> <br /> sharing their vision.
-            </div>
-          </div>
+
         </div>
       </div>
 

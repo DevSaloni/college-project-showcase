@@ -53,7 +53,7 @@ export default function AboutPage() {
               </div>
               <h2 className="text-3xl md:text-4xl font-black text-white mb-6 tracking-tight">Our Mission</h2>
               <p className="section-text text-white/50">
-                To provide students with a professional stage where their technical journey can be documented, validated, and celebrated. We aim to break the traditional barriers of "just another college project" and turn them into recruiter-ready portfolios.
+                To provide students with a professional stage where their technical journey—from initial digital proposals to weekly milestones—can be documented, validated, and celebrated. We aim to transform academic efforts into industry-ready, recruiter-verified portfolios.
               </p>
               <div className="mt-8 flex items-center gap-2 text-white/30 font-black uppercase tracking-widest text-[10px]">
                 <Zap size={14} className="text-[var(--pv-accent)]" /> Purpose Driven Innovation
@@ -69,7 +69,7 @@ export default function AboutPage() {
               </div>
               <h2 className="text-3xl md:text-4xl font-black text-white mb-6 tracking-tight">Our Vision</h2>
               <p className="section-text text-white/50">
-                To become the global standard for academic project discovery. We envision a world where a student's potential is measured by the quality of their work and their ability to solve real-world problems, creating a transparent ecosystem for innovation.
+                To become the global standard for academic project discovery and verification. We envision an ecosystem where student potential is measured by real technical milestones, expert validations, and the ability to solve complex problems through iterative development.
               </p>
               <div className="mt-8 flex items-center gap-2 text-white/30 font-black uppercase tracking-widest text-[10px]">
                 <Zap size={14} className="text-blue-400" /> Shaping The Future
@@ -91,18 +91,18 @@ export default function AboutPage() {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 text-left">
             {[
               {
-                title: "Excellence",
-                desc: "We prioritize quality over quantity. Every project featured is a testament to student dedication and technical rigour.",
+                title: "Structural Rigour",
+                desc: "We enforce development integrity through mandatory digital abstracts and milestone checks, ensuring projects meet professional standards.",
                 color: "var(--pv-accent)"
               },
               {
-                title: "Transparency",
-                desc: "Real feedback, real metrics, and real people. We believe in an honest showcase of skills and achievements.",
+                title: "Verified Credibility",
+                desc: "Every project is backed by a technical audit trail and faculty-verified ratings, providing recruiters with an authentic showcase of talent.",
                 color: "#4A90E2"
               },
               {
-                title: "Impact",
-                desc: "We focus on projects that solve real problems, bridging the gap between theory and real-world application.",
+                title: "Collaborative Synergy",
+                desc: "We bridge the gap between students and mentors through real-time discussion hubs, fostering a culture of continuous feedback and growth.",
                 color: "#10B981"
               }
             ].map((v, i) => (

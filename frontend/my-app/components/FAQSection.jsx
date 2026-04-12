@@ -23,12 +23,12 @@ export default function FAQSection() {
       answer: "Yes! The Explore Portal allows recruiters to search and filter projects precisely by department, technology stack (e.g., React, AI, Blockchain), and specific category. This makes technical talent sourcing highly targeted and brutally efficient."
     },
     {
-      question: "Can a project be created by a team?",
-      answer: "Absolutely. Students can collaborate seamlessly. When submitting a project, the creator can tag multiple team members from their class or department. The project will automatically link to and showcase all associated contributor profiles."
+      question: "How does the milestone system work?",
+      answer: "Students can break their development process into weekly milestones. This allows for incremental uploads of repository links and documentation, enabling mentors to track real-time progress through visual percentage bars and provide targeted feedback at every stage."
     },
     {
-      question: "Is this platform completely free to use?",
-      answer: "Yes. The platform is completely free for students to build their professional pipeline, for teachers to manage academic group validations, and for recruiters to source verified early-career tech talent."
+      question: "Can I communicate directly with my mentor or team?",
+      answer: "Yes! Every project group has a dedicated real-time discussion hub. Students and mentors can exchange messages, share technical files, and receive instant notifications, ensuring seamless collaboration from the initial proposal to the final showcase."
     }
   ];
 

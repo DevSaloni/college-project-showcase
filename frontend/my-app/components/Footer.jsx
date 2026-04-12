@@ -14,7 +14,7 @@ const footerLinks = {
     { name: "Institutional Admin", path: "/admin-dashboard" },
   ],
   company: [
-    { name: "About ProjectVault", path: "/about" },
+    { name: "About ProjectVista", path: "/about" },
     { name: "Contact Support", path: "/contact" },
   ],
 };
@@ -123,7 +123,7 @@ export default function Footer() {
         <div className="pt-10 border-t border-white/5 flex flex-col md:flex-row items-center justify-between gap-6">
           <div className="flex flex-col md:flex-row items-center gap-4 md:gap-8">
             <p className="text-[13px] text-white/30 font-['Inter']">
-              &copy; {new Date().getFullYear()} ProjectVault Ecosystem. All rights reserved.
+              &copy; {new Date().getFullYear()} ProjectVista Ecosystem. All rights reserved.
             </p>
 
           </div>

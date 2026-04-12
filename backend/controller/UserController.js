@@ -2,6 +2,8 @@ import User from "../models/User.js";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import nodemailer from "nodemailer";
+import Student from "../models/Student.js";
+import Teacher from "../models/Teacher.js";
 
 
 // Function to generate JWT
@@ -83,24 +85,24 @@ export const forgotPassword = async (req, res) => {
     const resetLink = `${process.env.CLIENT_URL}/reset-password/${token}`;
 
     const transporter = nodemailer.createTransport({
-  host: "smtp-relay.brevo.com",
-  port: 587,
-  secure: false,
-  auth: {
-    user: "94b204001@smtp-brevo.com",
-    pass: process.env.BREVO_SMTP_KEY,
-  },
-});
+      host: "smtp-relay.brevo.com",
+      port: 587,
+      secure: false,
+      auth: {
+        user: "94b204001@smtp-brevo.com",
+        pass: process.env.BREVO_SMTP_KEY,
+      },
+    });
 
-await transporter.sendMail({
-  from: `"Saloni" <${process.env.FROM_EMAIL}>`,
-  to: email,
-  subject: "Password Reset Link",
-  html: `
+    await transporter.sendMail({
+      from: `"Saloni" <${process.env.FROM_EMAIL}>`,
+      to: email,
+      subject: "Password Reset Link",
+      html: `
     <p>Click the link below to reset your password:</p>
     <a href="${resetLink}">${resetLink}</a>
   `,
-});
+    });
 
     res.json({ message: "Reset link sent to your email" });
 
@@ -127,5 +129,33 @@ export const resetPassword = async (req, res) => {
 
   } catch (err) {
     res.status(400).json({ message: "Invalid or expired token" });
+  }
+};
+
+// Public stats for contact/landing page
+export const getPublicStats = async (req, res) => {
+  try {
+    // Count ONLY students from User collection
+    const studentCount = await User.countDocuments({ role: 'student' });
+
+    // Fetch ONLY sample profiles from Student collection
+    const sampleStudents = await Student.find({}, 'image userId').limit(5).populate('userId', 'name');
+
+    let profiles = sampleStudents;
+    
+    // Fallback: If no profile documents exist yet, get student names from User collection
+    if (profiles.length === 0) {
+      const fallbackUsers = await User.find({ role: 'student' }, 'name').limit(5);
+      profiles = fallbackUsers.map(u => ({ userId: { name: u.name } }));
+    }
+
+    res.json({
+      success: true,
+      totalCount: studentCount,
+      profiles: profiles
+    });
+  } catch (error) {
+    console.error("Public stats error:", error);
+    res.status(500).json({ success: false, message: "Error fetching stats" });
   }
 };

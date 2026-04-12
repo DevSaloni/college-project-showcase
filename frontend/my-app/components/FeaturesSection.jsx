@@ -1,38 +1,38 @@
 "use client";
-import { Laptop, Layers, Users, Star, Search, Upload, ArrowRight } from "lucide-react";
+import { Laptop, Layers, Users, Star, Search, Upload, ArrowRight, MessageSquare } from "lucide-react";
 import Link from "next/link";
 
 export default function FeaturesSection() {
   const features = [
     {
       icon: <Upload className="w-5 h-5 group-hover:text-[var(--pv-accent)] text-white/70 transition-colors" />,
-      title: "Upload & Showcase",
-      desc: "Upload project details, images, and GitHub links to present your work professionally to recruiters.",
+      title: "Digital Proposals",
+      desc: "Submit structured abstracts with tech stacks and get instant digital approval from mentors to kickstart your creation.",
     },
     {
       icon: <Layers className="w-5 h-5 group-hover:text-[var(--pv-accent)] text-white/70 transition-colors" />,
-      title: "Explore Categories",
-      desc: "Browse through AI/ML, Blockchain, Web Dev, and IoT projects built with modern tech domains.",
+      title: "Milestone Tracking",
+      desc: "Break down projects into weekly tasks. Track completion with visual progress bars and automated status monitoring.",
     },
     {
       icon: <Users className="w-5 h-5 group-hover:text-[var(--pv-accent)] text-white/70 transition-colors" />,
-      title: "Team Collaboration",
-      desc: "Add team members, assign individual roles, and highlight the exact contributions of each student.",
+      title: "Unified Team Hubs",
+      desc: "Manage projects in dedicated workspaces with member roles, shared resources, and centralized contribution tracking.",
     },
     {
-      icon: <Star className="w-5 h-5 group-hover:text-[var(--pv-accent)] text-white/70 transition-colors" />,
-      title: "Mentor Reviews",
-      desc: "Teachers and domain experts can rate projects, give constructive feedback, and validate work.",
+      icon: <MessageSquare className="w-5 h-5 group-hover:text-[var(--pv-accent)] text-white/70 transition-colors" />,
+      title: "Live Discussions",
+      desc: "Engage in real-time threads with mentors. share technical files and receive contextual feedback as you build.",
     },
     {
       icon: <Search className="w-5 h-5 group-hover:text-[var(--pv-accent)] text-white/70 transition-colors" />,
-      title: "Smart Filters",
-      desc: "Find exactly what you're looking for with filters for domain, year, tech stack, and difficulty level.",
+      title: "Smart Discovery",
+      desc: "Browse high-quality projects filtered by domain, tech stack, and academic year to find inspiration and innovation.",
     },
     {
       icon: <Laptop className="w-5 h-5 group-hover:text-[var(--pv-accent)] text-white/70 transition-colors" />,
       title: "Recruiter Ready",
-      desc: "Get discovered through detailed, data-rich project cards that help companies evaluate your skills.",
+      desc: "Transform your work into professional project cards that highlight your technical skills and verified mentor ratings.",
     },
   ];
 
