@@ -5,5 +5,11 @@
       "src": "frontend/my-app/package.json",
       "use": "@vercel/next"
     }
+  ],
+  "rewrites": [
+    {
+      "source": "/(.*)",
+      "destination": "/frontend/my-app/$1"
+    }
   ]
 }
