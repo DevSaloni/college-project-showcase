@@ -14,11 +14,17 @@ const app = express();
 const server = http.createServer(app);
 
 // create socket server
+const CLIENT_URLS = [
+  "http://localhost:3000",
+  "https://college-project-showcase.vercel.app"
+];
+
 const io = new Server(server, {
   cors: {
-    origin: process.env.CLIENT_URL,
+    origin: CLIENT_URLS,
     credentials: true,
-  },
+    methods: ["GET", "POST"]
+  }
 });
 
 // socket connection
@@ -81,7 +87,7 @@ app.use(express.json());
 
 app.use(
   cors({
-    origin:process.env.CLIENT_URL,
+    origin: CLIENT_URLS,
     credentials: true,
   })
 );
