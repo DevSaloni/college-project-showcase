@@ -48,7 +48,8 @@ const LoginPage = () => {
     try {
       const res = await axios.post(`${BASE_URL}/api/auth/login`, formData);
       toast.success("Login successful!", { id: loadId });
-
+  console.log("base url:",BASE_URL );
+  
       localStorage.setItem("token", res.data.token);
       localStorage.setItem("role", res.data?.user?.role || res.data?.role || "student");
       localStorage.setItem("userName", res.data?.user?.name || res.data?.name || "");
