@@ -127,6 +127,7 @@ export default function RegisterPage() {
               </div>
  
               {/* Email */}
+              
               <div className="space-y-1.5">
                 <label htmlFor="email" className="text-[11px] font-bold text-white/40 uppercase tracking-wider ml-1">University Email</label>
                 <div className="relative group">

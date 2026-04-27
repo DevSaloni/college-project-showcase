@@ -273,7 +273,7 @@ function StatCard({ icon: Icon, label, value, color }) {
         <Icon size={24} />
       </div>
       <div className="z-10">
-        <h4 className="text-2xl md:text-3xl font-extrabold text-white mb-1">{value || "0"}</h4>
+        <h4 className="text-1xl md:text-2xl font-extrabold text-white mb-1">{value || "0"}</h4>
         <p className="text-white/50 text-[10px] md:text-xs font-bold uppercase tracking-widest">{label}</p>
       </div>
     </div>
