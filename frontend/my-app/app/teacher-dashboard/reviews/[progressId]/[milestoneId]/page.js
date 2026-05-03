@@ -389,7 +389,7 @@ export default function ReviewDetailsPage() {
                     <label className="text-[10px] font-black uppercase text-white/30 tracking-widest flex items-center gap-2"><FileText size={12} className="text-purple-400" /> Technical Artifacts</label>
                     <div className="grid sm:grid-cols-2 gap-3">
                       {data.milestone.files.map((file, i) => (
-                        <a key={i} href={`${BASE_URL}/${file.path}`} target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 p-4 rounded-xl bg-black/40 border border-white/5 hover:border-purple-500/30 transition-all group shadow-md">
+                        <a key={i} href={file.path.startsWith('http') ? file.path : `${BASE_URL}/${file.path}`} target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 p-4 rounded-xl bg-black/40 border border-white/5 hover:border-purple-500/30 transition-all group shadow-md">
                           <div className="p-2.5 rounded-lg bg-purple-500/10 text-purple-400 group-hover:scale-110 transition-transform"><FileText size={16} /></div>
                           <span className="text-[11px] font-black text-white/70 truncate uppercase tracking-tight">{file.filename}</span>
                         </a>
@@ -452,10 +452,10 @@ export default function ReviewDetailsPage() {
                                 <div className="mb-2">
                                   {msg.fileType?.startsWith("image/") ? (
                                     <div className="rounded-lg overflow-hidden border border-white/10 max-w-[240px] shadow-lg">
-                                      <img src={`${BASE_URL}${msg.fileUrl}`} alt="attachment" className="w-full object-cover" />
+                                      <img src={msg.fileUrl.startsWith('http') ? msg.fileUrl : `${BASE_URL}${msg.fileUrl}`} alt="attachment" className="w-full object-cover" />
                                     </div>
                                   ) : (
-                                    <a href={`${BASE_URL}${msg.fileUrl}`} target="_blank" rel="noopener noreferrer" className={`flex items-center gap-2 p-2.5 rounded-xl border transition-colors ${isMe ? 'bg-black/10 border-black/10 text-white font-black hover:bg-black/20' : 'bg-white/5 border-white/10 text-white/90 hover:bg-white/10'}`}>
+                                    <a href={msg.fileUrl.startsWith('http') ? msg.fileUrl : `${BASE_URL}${msg.fileUrl}`} target="_blank" rel="noopener noreferrer" className={`flex items-center gap-2 p-2.5 rounded-xl border transition-colors ${isMe ? 'bg-black/10 border-black/10 text-white font-black hover:bg-black/20' : 'bg-white/5 border-white/10 text-white/90 hover:bg-white/10'}`}>
                                       <File size={16} className={isMe ? "text-white opacity-60" : "text-[var(--pv-accent)]"} />
                                       <span className="text-[10px] font-black uppercase truncate max-w-[150px]">{msg.fileName || "View Attachment"}</span>
                                     </a>

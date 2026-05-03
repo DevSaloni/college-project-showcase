@@ -33,7 +33,7 @@ export const addStudentByAdmin = async (req, res) => {
       year,
       sem,
       status,
-      image: req.file ? `/uploads/students/${req.file.filename}` : null,
+      image: req.file ? req.file.path : null,
     });
 
     res.status(201).json({ success: true, student });
@@ -206,7 +206,7 @@ export const updateStudent = async (req, res) => {
     };
 
     if (req.file) {
-      updatedData.image = `/uploads/students/${req.file.filename}`;
+      updatedData.image = req.file.path;
     }
 
     const student = await Student.findByIdAndUpdate(

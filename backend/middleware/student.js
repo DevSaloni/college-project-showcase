@@ -1,10 +1,5 @@
 import multer from "multer";
 
-const storage = multer.diskStorage({
-  destination: "uploads/students",
-  filename: (req, file, cb) => {
-    cb(null, Date.now() + "-" + file.originalname);
-  },
-});
+import { genericStorage } from "../config/cloudinary.js";
 
-export const uploadStudentImage = multer({ storage });
+export const uploadStudentImage = multer({ storage: genericStorage });

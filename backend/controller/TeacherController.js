@@ -34,7 +34,7 @@ export const addTeacher = async (req, res) => {
       designation,
       phone,
       status,
-      image: req.file ? `/uploads/teachers/${req.file.filename}` : "",
+      image: req.file ? req.file.path : "",
     });
 
     res.status(201).json({
@@ -165,7 +165,7 @@ export const updateTeacher = async (req, res) => {
     });
 
     if (req.file) {
-      updatedData.image = `/uploads/teachers/${req.file.filename}`;
+      updatedData.image = req.file.path;
     }
 
     const teacher = await Teacher.findByIdAndUpdate(

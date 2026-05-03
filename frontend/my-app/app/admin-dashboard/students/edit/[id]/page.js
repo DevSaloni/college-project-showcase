@@ -92,6 +92,9 @@ export default function EditStudent() {
       `${BASE_URL}/api/student/update/${id}`,
       {
         method: "PUT",
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
         body: formData,
       }
     );

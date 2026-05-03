@@ -48,7 +48,7 @@ export default function EditTeacher() {
         status: teacher.status || "Active",
         image: null,
         imagePreview: teacher.image
-          ? `${BASE_URL}${teacher.image}`
+          ? (teacher.image.startsWith('http') ? teacher.image : `${BASE_URL}${teacher.image}`)
           : "",
       });
 
@@ -105,7 +105,7 @@ export default function EditTeacher() {
         formData.append("image", form.image);
       }
 
-      const res = await fetch(`${BASE_URL}/api/teacher/${id}`, {
+      const res = await fetch(`${BASE_URL}/api/teacher/update/${id}`, {
         method: "PUT",
         headers: {
           Authorization: `Bearer ${localStorage.getItem("token")}`,

@@ -44,8 +44,9 @@ coverage/
 *.seed
 *.pid.lock
 
-# Optional: uploads (if you store user files)
-uploads/
+# Ignore uploads content but keep directory structure
+backend/uploads/**/*
+!backend/uploads/**/.gitkeep
 
 # Optional: database files (IMPORTANT)
 *.sqlite

@@ -31,9 +31,7 @@ export const sendMessage = async (req, res) => {
     let fileType = null;
 
     if (file) {
-      // Assuming frontend can access /uploads/...
-      // the multer destination is "uploads/" 
-      fileUrl = `/uploads/${file.filename}`;
+      fileUrl = file.path;
       fileName = file.originalname;
       fileType = file.mimetype;
     }
