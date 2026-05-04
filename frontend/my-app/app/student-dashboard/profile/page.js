@@ -266,7 +266,7 @@ export default function StudentProfilePage() {
           <p className="text-white/50 text-sm max-w-md mx-auto mb-6 leading-relaxed">
             Because your Recruiter Visibility is currently turned off, recruiters and external viewers see this private screen instead of your active profile layout.
           </p>
-          <button 
+          <button
             onClick={async () => {
               setSaving(true);
               try {
@@ -274,7 +274,7 @@ export default function StudentProfilePage() {
                 const formData = new FormData();
                 // We only want to update openToWork
                 formData.append("openToWork", "true");
-                
+
                 const res = await fetch(`${BASE_URL}/api/student/update/${studentId}`, {
                   method: "PUT",
                   headers: { Authorization: `Bearer ${token}` },
@@ -293,7 +293,7 @@ export default function StudentProfilePage() {
               } finally {
                 setSaving(false);
               }
-            }} 
+            }}
             disabled={saving}
             className="px-6 py-3 bg-green-500 hover:bg-green-600 text-black font-bold rounded-xl shadow-lg shadow-green-500/20 transition-all flex items-center gap-2 disabled:opacity-50"
           >
@@ -303,251 +303,251 @@ export default function StudentProfilePage() {
       ) : (
         <div className="animate-in fade-in duration-500">
           {/* HERO BANNER */}
-      <div className="relative w-full rounded-3xl overflow-hidden mb-0 min-h-[240px] md:min-h-[220px]">
-        <div className="absolute inset-0" style={{ background: "linear-gradient(135deg, #0d1b35 0%, #12082a 40%, #1a0a10 70%, #0d1b35 100%)" }} />
-        <div className="absolute -top-16 -left-16 w-64 h-64 rounded-full blur-3xl opacity-30" style={{ background: "radial-gradient(circle, #FF6B6B 0%, transparent 70%)" }} />
-        <div className="absolute -bottom-10 right-10 w-48 h-48 rounded-full blur-3xl opacity-20" style={{ background: "radial-gradient(circle, #7c3aed 0%, transparent 70%)" }} />
-        <div className="absolute inset-0 opacity-5" style={{ backgroundImage: "linear-gradient(rgba(255,107,107,0.4) 1px, transparent 1px), linear-gradient(90deg, rgba(255,107,107,0.4) 1px, transparent 1px)", backgroundSize: "40px 40px" }} />
+          <div className="relative w-full rounded-3xl overflow-hidden mb-0 min-h-[240px] md:min-h-[220px]">
+            <div className="absolute inset-0" style={{ background: "linear-gradient(135deg, #0d1b35 0%, #12082a 40%, #1a0a10 70%, #0d1b35 100%)" }} />
+            <div className="absolute -top-16 -left-16 w-64 h-64 rounded-full blur-3xl opacity-30" style={{ background: "radial-gradient(circle, #FF6B6B 0%, transparent 70%)" }} />
+            <div className="absolute -bottom-10 right-10 w-48 h-48 rounded-full blur-3xl opacity-20" style={{ background: "radial-gradient(circle, #7c3aed 0%, transparent 70%)" }} />
+            <div className="absolute inset-0 opacity-5" style={{ backgroundImage: "linear-gradient(rgba(255,107,107,0.4) 1px, transparent 1px), linear-gradient(90deg, rgba(255,107,107,0.4) 1px, transparent 1px)", backgroundSize: "40px 40px" }} />
 
-        <div className="relative z-10 px-6 md:px-10 pt-8 md:pt-10 pb-0">
-          <div className="flex flex-col md:flex-row items-center md:items-end gap-6 md:gap-7">
-            {/* Avatar */}
-            <div className="relative shrink-0 md:translate-y-12">
-              <div className="w-24 h-24 md:w-28 md:h-28 rounded-2xl overflow-hidden shadow-2xl bg-[#1e293b] border-2 border-white/10" style={{ boxShadow: "0 0 40px rgba(255,107,107,0.15)" }}>
-                {imagePreview ? (
-                  <img src={imagePreview} alt={name} className="w-full h-full object-cover" />
-                ) : (
-                  <div className="w-full h-full flex items-center justify-center text-4xl font-black text-white" style={{ background: "linear-gradient(135deg, #FF6B6B 0%, #7c3aed 100%)" }}>
-                    {initials}
+            <div className="relative z-10 px-6 md:px-10 pt-8 md:pt-10 pb-0">
+              <div className="flex flex-col md:flex-row items-center md:items-end gap-6 md:gap-7">
+                {/* Avatar */}
+                <div className="relative shrink-0 md:translate-y-12">
+                  <div className="w-24 h-24 md:w-28 md:h-28 rounded-2xl overflow-hidden shadow-2xl bg-[#1e293b] border-2 border-white/10" style={{ boxShadow: "0 0 40px rgba(255,107,107,0.15)" }}>
+                    {imagePreview ? (
+                      <img src={imagePreview} alt={name} className="w-full h-full object-cover" />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center text-4xl font-black text-white" style={{ background: "linear-gradient(135deg, #FF6B6B 0%, #7c3aed 100%)" }}>
+                        {initials}
+                      </div>
+                    )}
                   </div>
-                )}
-              </div>
-              {editMode && (
-                <>
-                  <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={handleImageSelect} />
-                  <button onClick={() => fileInputRef.current?.click()} className="absolute -bottom-3 left-1/2 -translate-x-1/2 flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-semibold text-white whitespace-nowrap transition-all" style={{ background: "rgba(0,0,0,0.75)", border: "1px solid rgba(255,255,255,0.15)" }}>
-                    <Camera size={10} /> Change
-                  </button>
-                </>
-              )}
-            </div>
-
-            {/* Name + meta */}
-            <div className={`flex-1 pb-5 space-y-1 text-center md:text-left ${loading ? "animate-pulse" : ""}`}>
-              <div className="flex items-center justify-center md:justify-start gap-3 flex-wrap">
-                {loading ? (
-                  <div className="h-10 w-64 bg-white/10 rounded-xl" />
-                ) : (
-                  <h1 className="text-3xl md:text-4xl font-extrabold text-white tracking-tight leading-tight">{name}</h1>
-                )}
-                {!loading && form.openToWork && (
-                  <span className="px-3 py-0.5 text-[10px] font-bold rounded-full bg-green-500/20 text-green-400 border border-green-500/30 uppercase tracking-widest">Open to Work</span>
-                )}
-              </div>
-              {loading ? (
-                <div className="h-4 w-48 bg-white/10 rounded-md mt-2" />
-              ) : (
-                <p className="text-white/50 text-sm font-medium">
-                  {form.department || "No Department"}{form.department && form.year && " · "}{form.year} Year
-                </p>
-              )}
-              <div className="flex flex-wrap items-center justify-center md:justify-start gap-3 pt-1">
-                {loading ? (
-                  <div className="h-3 w-80 bg-white/5 rounded-md mt-1" />
-                ) : (
-                  <>
-                    <span className="flex items-center gap-1.5 text-[11px] md:text-xs text-white/40"><Mail size={12} className="text-[#FF6B6B]" /> {email}</span>
-                    {form.location && <span className="flex items-center gap-1.5 text-[11px] md:text-xs text-white/40"><MapPin size={12} className="text-[#FF6B6B]" /> {form.location}</span>}
-                    <span className="flex items-center gap-1.5 text-[11px] md:text-xs text-white/40"><Rocket size={12} className="text-[#FF6B6B]" /> Roll No: {form.rollNo}</span>
-                  </>
-                )}
-              </div>
-            </div>
-
-            {/* Actions */}
-            <div className="pb-8 md:pb-6 flex items-center justify-center md:justify-end gap-2 shrink-0 w-full md:w-auto">
-              {publicView ? (
-                <button onClick={() => setPublicView(false)} className="flex items-center gap-2 px-5 py-2.5 rounded-xl font-bold text-sm text-white/90 hover:text-white transition-all hover:bg-white/10" style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)" }}>
-                  <X size={15} /> Exit Recruiter View
-                </button>
-              ) : !editMode ? (
-                <>
-                  <button onClick={() => setPublicView(true)} className="flex items-center gap-2 px-5 py-2.5 rounded-xl font-bold text-sm text-white/80 hover:text-white transition-all hover:bg-white/10 border border-white/10" style={{ background: "rgba(255,255,255,0.05)" }}>
-                    <Eye size={15} /> View as Recruiter
-                  </button>
-                  <button onClick={() => setEditMode(true)} className="flex items-center gap-2 px-5 py-2.5 rounded-xl font-bold text-sm text-black transition-all hover:scale-105 active:scale-95" style={{ background: "linear-gradient(135deg, #FF6B6B, #FF9A8B)", boxShadow: "0 4px 20px rgba(255,107,107,0.35)" }}>
-                    <Edit3 size={15} /> Edit Profile
-                  </button>
-                </>
-              ) : (
-                <>
-                  <button onClick={handleCancel} className="flex items-center gap-2 px-4 py-2.5 rounded-xl font-bold text-sm text-white/70 transition-all hover:bg-white/10" style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)" }}>
-                    <X size={15} /> Cancel
-                  </button>
-                  <button onClick={handleSave} disabled={saving} className="flex items-center gap-2 px-5 py-2.5 rounded-xl font-bold text-sm text-black transition-all hover:scale-105 active:scale-95 disabled:opacity-60" style={{ background: "linear-gradient(135deg, #FF6B6B, #FF9A8B)", boxShadow: "0 4px 20px rgba(255,107,107,0.35)" }}>
-                    <Save size={15} /> {saving ? "Saving…" : "Save Changes"}
-                  </button>
-                </>
-              )}
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* STATS BAR */}
-      <div className="w-full rounded-b-3xl px-6 md:px-10 py-6 md:py-5 flex flex-col md:flex-row items-center justify-between gap-6 md:gap-4 bg-white/[0.02] border-x border-b border-white/10">
-        <div className="w-28 hidden md:block" />
-        <div className="flex-1 flex items-center justify-center md:justify-start gap-5 md:gap-8 flex-wrap">
-          <StatItem icon={Layers} value={stats.totalProjects} label="Total Projects" accent="#FF6B6B" />
-          <div className="w-px h-8 bg-white/10 hidden sm:block" />
-          <StatItem icon={CheckCircle2} value={stats.approvedProjects} label="Approved" accent="#34d399" />
-          <div className="w-px h-8 bg-white/10 hidden sm:block" />
-          <StatItem icon={Award} value={form.certifications ? form.certifications.split(",").length : 0} label="Certifications" accent="#a78bfa" />
-        </div>
-      </div>
-
-      {/* TAB NAV */}
-      <div className="mt-8 mb-6 flex gap-1 p-1 rounded-2xl w-full md:w-fit bg-white/[0.04] border border-white/10 overflow-x-auto no-scrollbar">
-        {tabs.map((t) => (
-          <button key={t.id} onClick={() => setActiveTab(t.id)} className={`whitespace-nowrap px-5 py-2 rounded-xl text-sm font-semibold transition-all duration-200 ${activeTab === t.id ? 'bg-[#FF6B6B22] text-[#FF6B6B] border border-[#FF6B6B44]' : 'text-white/40 border border-transparent hover:text-white/60'}`}>
-            {t.label}
-          </button>
-        ))}
-      </div>
-
-      {/* TAB CONTENT: ABOUT */}
-      {activeTab === "about" && (
-        <div className="space-y-8 animate-in fade-in duration-500">
-          <div>
-            <SectionLabel>Professional Bio</SectionLabel>
-            {editMode ? (
-              <textarea rows={4} value={form.bio} onChange={(e) => setForm({ ...form, bio: e.target.value })} placeholder="Tell us about yourself, your passions, and your goals..." className="w-full px-5 py-4 rounded-2xl text-white/80 placeholder-white/25 text-sm leading-relaxed resize-none outline-none transition-all bg-white/[0.04] border border-[#FF6B6B44]" />
-            ) : (
-              <p className="text-white/60 text-sm leading-relaxed">{form.bio || <span className="italic text-white/20">Click Edit to add your bio.</span>}</p>
-            )}
-          </div>
-          <div className="h-px bg-white/5" />
-          <div className="grid md:grid-cols-2 gap-8">
-            <div>
-              <SectionLabel>Interested Roles</SectionLabel>
-              {editMode ? (
-                <input type="text" value={form.interestedRoles} onChange={(e) => setForm({ ...form, interestedRoles: e.target.value })} placeholder="e.g. Frontend Dev, UI/UX Designer" className="w-full px-5 py-3 rounded-2xl text-white/80 placeholder-white/25 text-sm outline-none transition-all bg-white/[0.04] border border-[#FF6B6B44]" />
-              ) : (
-                <div className="flex flex-wrap gap-2">
-                  {form.interestedRoles ? form.interestedRoles.split(",").map((r, i) => (
-                    <span key={i} className="px-3 py-1 rounded-lg text-[11px] font-bold bg-[#FF6B6B11] text-[#FF6B6B] border border-[#FF6B6B22] uppercase tracking-wider">{r.trim()}</span>
-                  )) : <EmptyHint>No roles specified.</EmptyHint>}
+                  {editMode && (
+                    <>
+                      <input ref={fileInputRef} type="file" accept="image/*, .jfif" className="hidden" onChange={handleImageSelect} />
+                      <button onClick={() => fileInputRef.current?.click()} className="absolute -bottom-3 left-1/2 -translate-x-1/2 flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-semibold text-white whitespace-nowrap transition-all" style={{ background: "rgba(0,0,0,0.75)", border: "1px solid rgba(255,255,255,0.15)" }}>
+                        <Camera size={10} /> Change
+                      </button>
+                    </>
+                  )}
                 </div>
-              )}
-            </div>
-            <div>
-              <SectionLabel>Personal Links</SectionLabel>
-              <div className="flex flex-wrap gap-3">
-                {form.portfolio && !editMode && (
-                  <a href={form.portfolio} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-xs text-[#FF6B6B] hover:underline"><Globe size={14} /> Portfolio</a>
-                )}
-                {form.resume && !editMode && (
-                  <a href={form.resume} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-xs text-white/40 hover:text-white/60"><FileText size={14} /> Resume</a>
-                )}
-                {editMode && (
-                  <div className="w-full space-y-3">
-                    <input type="text" value={form.portfolio} onChange={(e) => setForm({ ...form, portfolio: e.target.value })} placeholder="Portfolio Link" className="w-full px-4 py-2 rounded-xl text-white/70 text-xs bg-white/[0.04] border border-white/10 outline-none" />
-                    <input type="text" value={form.resume} onChange={(e) => setForm({ ...form, resume: e.target.value })} placeholder="Resume Drive/Public Link" className="w-full px-4 py-2 rounded-xl text-white/70 text-xs bg-white/[0.04] border border-white/10 outline-none" />
-                  </div>
-                )}
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
 
-      {/* TAB CONTENT: SKILLS & CAREER */}
-      {activeTab === "skills" && (
-        <div className="space-y-8 animate-in fade-in duration-500">
-          <div>
-            <SectionLabel>Technical Skills</SectionLabel>
-            {editMode ? (
-              <textarea rows={3} value={form.technicalSkills} onChange={(e) => setForm({ ...form, technicalSkills: e.target.value })} placeholder="React, Node.js, Python, AWS (comma separated)" className="w-full px-5 py-4 rounded-2xl text-white/80 placeholder-white/25 text-sm bg-white/[0.04] border border-[#FF6B6B44]" />
-            ) : (
-              <div className="flex flex-wrap gap-2">
-                {form.technicalSkills ? form.technicalSkills.split(",").map((s, i) => (
-                  <span key={i} className="px-4 py-1.5 rounded-xl text-xs font-semibold bg-white/[0.05] text-white/80 border border-white/10">{s.trim()}</span>
-                )) : <EmptyHint>No technical skills listed.</EmptyHint>}
+                {/* Name + meta */}
+                <div className={`flex-1 pb-5 space-y-1 text-center md:text-left ${loading ? "animate-pulse" : ""}`}>
+                  <div className="flex items-center justify-center md:justify-start gap-3 flex-wrap">
+                    {loading ? (
+                      <div className="h-10 w-64 bg-white/10 rounded-xl" />
+                    ) : (
+                      <h1 className="text-3xl md:text-4xl font-extrabold text-white tracking-tight leading-tight">{name}</h1>
+                    )}
+                    {!loading && form.openToWork && (
+                      <span className="px-3 py-0.5 text-[10px] font-bold rounded-full bg-green-500/20 text-green-400 border border-green-500/30 uppercase tracking-widest">Open to Work</span>
+                    )}
+                  </div>
+                  {loading ? (
+                    <div className="h-4 w-48 bg-white/10 rounded-md mt-2" />
+                  ) : (
+                    <p className="text-white/50 text-sm font-medium">
+                      {form.department || "No Department"}{form.department && form.year && " · "}{form.year} Year
+                    </p>
+                  )}
+                  <div className="flex flex-wrap items-center justify-center md:justify-start gap-3 pt-1">
+                    {loading ? (
+                      <div className="h-3 w-80 bg-white/5 rounded-md mt-1" />
+                    ) : (
+                      <>
+                        <span className="flex items-center gap-1.5 text-[11px] md:text-xs text-white/40"><Mail size={12} className="text-[#FF6B6B]" /> {email}</span>
+                        {form.location && <span className="flex items-center gap-1.5 text-[11px] md:text-xs text-white/40"><MapPin size={12} className="text-[#FF6B6B]" /> {form.location}</span>}
+                        <span className="flex items-center gap-1.5 text-[11px] md:text-xs text-white/40"><Rocket size={12} className="text-[#FF6B6B]" /> Roll No: {form.rollNo}</span>
+                      </>
+                    )}
+                  </div>
+                </div>
+
+                {/* Actions */}
+                <div className="pb-8 md:pb-6 flex items-center justify-center md:justify-end gap-2 shrink-0 w-full md:w-auto">
+                  {publicView ? (
+                    <button onClick={() => setPublicView(false)} className="flex items-center gap-2 px-5 py-2.5 rounded-xl font-bold text-sm text-white/90 hover:text-white transition-all hover:bg-white/10" style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)" }}>
+                      <X size={15} /> Exit Recruiter View
+                    </button>
+                  ) : !editMode ? (
+                    <>
+                      <button onClick={() => setPublicView(true)} className="flex items-center gap-2 px-5 py-2.5 rounded-xl font-bold text-sm text-white/80 hover:text-white transition-all hover:bg-white/10 border border-white/10" style={{ background: "rgba(255,255,255,0.05)" }}>
+                        <Eye size={15} /> View as Recruiter
+                      </button>
+                      <button onClick={() => setEditMode(true)} className="flex items-center gap-2 px-5 py-2.5 rounded-xl font-bold text-sm text-black transition-all hover:scale-105 active:scale-95" style={{ background: "linear-gradient(135deg, #FF6B6B, #FF9A8B)", boxShadow: "0 4px 20px rgba(255,107,107,0.35)" }}>
+                        <Edit3 size={15} /> Edit Profile
+                      </button>
+                    </>
+                  ) : (
+                    <>
+                      <button onClick={handleCancel} className="flex items-center gap-2 px-4 py-2.5 rounded-xl font-bold text-sm text-white/70 transition-all hover:bg-white/10" style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)" }}>
+                        <X size={15} /> Cancel
+                      </button>
+                      <button onClick={handleSave} disabled={saving} className="flex items-center gap-2 px-5 py-2.5 rounded-xl font-bold text-sm text-black transition-all hover:scale-105 active:scale-95 disabled:opacity-60" style={{ background: "linear-gradient(135deg, #FF6B6B, #FF9A8B)", boxShadow: "0 4px 20px rgba(255,107,107,0.35)" }}>
+                        <Save size={15} /> {saving ? "Saving…" : "Save Changes"}
+                      </button>
+                    </>
+                  )}
+                </div>
               </div>
-            )}
+            </div>
           </div>
-          <div>
-            <SectionLabel>Soft Skills</SectionLabel>
-            {editMode ? (
-              <input type="text" value={form.softSkills} onChange={(e) => setForm({ ...form, softSkills: e.target.value })} placeholder="Leadership, Communication (comma separated)" className="w-full px-5 py-3 rounded-2xl text-white/80 placeholder-white/25 text-sm bg-white/[0.04] border border-[#FF6B6B44]" />
-            ) : (
-              <div className="flex flex-wrap gap-2">
-                {form.softSkills ? form.softSkills.split(",").map((s, i) => (
-                  <span key={i} className="px-3 py-1 rounded-lg text-xs font-medium bg-white/[0.03] text-white/50 border border-white/5">{s.trim()}</span>
-                )) : <EmptyHint>No soft skills listed.</EmptyHint>}
+
+          {/* STATS BAR */}
+          <div className="w-full rounded-b-3xl px-6 md:px-10 py-6 md:py-5 flex flex-col md:flex-row items-center justify-between gap-6 md:gap-4 bg-white/[0.02] border-x border-b border-white/10">
+            <div className="w-28 hidden md:block" />
+            <div className="flex-1 flex items-center justify-center md:justify-start gap-5 md:gap-8 flex-wrap">
+              <StatItem icon={Layers} value={stats.totalProjects} label="Total Projects" accent="#FF6B6B" />
+              <div className="w-px h-8 bg-white/10 hidden sm:block" />
+              <StatItem icon={CheckCircle2} value={stats.approvedProjects} label="Approved" accent="#34d399" />
+              <div className="w-px h-8 bg-white/10 hidden sm:block" />
+              <StatItem icon={Award} value={form.certifications ? form.certifications.split(",").length : 0} label="Certifications" accent="#a78bfa" />
+            </div>
+          </div>
+
+          {/* TAB NAV */}
+          <div className="mt-8 mb-6 flex gap-1 p-1 rounded-2xl w-full md:w-fit bg-white/[0.04] border border-white/10 overflow-x-auto no-scrollbar">
+            {tabs.map((t) => (
+              <button key={t.id} onClick={() => setActiveTab(t.id)} className={`whitespace-nowrap px-5 py-2 rounded-xl text-sm font-semibold transition-all duration-200 ${activeTab === t.id ? 'bg-[#FF6B6B22] text-[#FF6B6B] border border-[#FF6B6B44]' : 'text-white/40 border border-transparent hover:text-white/60'}`}>
+                {t.label}
+              </button>
+            ))}
+          </div>
+
+          {/* TAB CONTENT: ABOUT */}
+          {activeTab === "about" && (
+            <div className="space-y-8 animate-in fade-in duration-500">
+              <div>
+                <SectionLabel>Professional Bio</SectionLabel>
+                {editMode ? (
+                  <textarea rows={4} value={form.bio} onChange={(e) => setForm({ ...form, bio: e.target.value })} placeholder="Tell us about yourself, your passions, and your goals..." className="w-full px-5 py-4 rounded-2xl text-white/80 placeholder-white/25 text-sm leading-relaxed resize-none outline-none transition-all bg-white/[0.04] border border-[#FF6B6B44]" />
+                ) : (
+                  <p className="text-white/60 text-sm leading-relaxed">{form.bio || <span className="italic text-white/20">Click Edit to add your bio.</span>}</p>
+                )}
               </div>
-            )}
-          </div>
-          <div className="h-px bg-white/5" />
-          <div className="flex items-center gap-4">
-            <div className={`p-4 rounded-2xl border transition-all ${form.openToWork ? 'bg-green-500/10 border-green-500/30' : 'bg-white/[0.04] border-white/10'}`}>
-              <div className="flex items-center gap-3">
-                <Rocket size={18} className={form.openToWork ? 'text-green-400' : 'text-white/20'} />
+              <div className="h-px bg-white/5" />
+              <div className="grid md:grid-cols-2 gap-8">
                 <div>
-                  <p className="text-sm font-bold text-white">Recruiter Visibility</p>
-                  <p className="text-[10px] text-white/40 uppercase tracking-widest mt-0.5">{form.openToWork ? 'Profile Visible to Recruiters' : 'Profile is Private'}</p>
+                  <SectionLabel>Interested Roles</SectionLabel>
+                  {editMode ? (
+                    <input type="text" value={form.interestedRoles} onChange={(e) => setForm({ ...form, interestedRoles: e.target.value })} placeholder="e.g. Frontend Dev, UI/UX Designer" className="w-full px-5 py-3 rounded-2xl text-white/80 placeholder-white/25 text-sm outline-none transition-all bg-white/[0.04] border border-[#FF6B6B44]" />
+                  ) : (
+                    <div className="flex flex-wrap gap-2">
+                      {form.interestedRoles ? form.interestedRoles.split(",").map((r, i) => (
+                        <span key={i} className="px-3 py-1 rounded-lg text-[11px] font-bold bg-[#FF6B6B11] text-[#FF6B6B] border border-[#FF6B6B22] uppercase tracking-wider">{r.trim()}</span>
+                      )) : <EmptyHint>No roles specified.</EmptyHint>}
+                    </div>
+                  )}
                 </div>
-                {editMode && (
-                  <button onClick={() => setForm({ ...form, openToWork: !form.openToWork })} className={`ml-4 w-12 h-6 rounded-full relative transition-all ${form.openToWork ? 'bg-green-500' : 'bg-white/10'}`}>
-                    <div className={`absolute top-1 w-4 h-4 rounded-full bg-white transition-all ${form.openToWork ? 'left-7' : 'left-1'}`} />
-                  </button>
-                )}
+                <div>
+                  <SectionLabel>Personal Links</SectionLabel>
+                  <div className="flex flex-wrap gap-3">
+                    {form.portfolio && !editMode && (
+                      <a href={form.portfolio} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-xs text-[#FF6B6B] hover:underline"><Globe size={14} /> Portfolio</a>
+                    )}
+                    {form.resume && !editMode && (
+                      <a href={form.resume} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-xs text-white/40 hover:text-white/60"><FileText size={14} /> Resume</a>
+                    )}
+                    {editMode && (
+                      <div className="w-full space-y-3">
+                        <input type="text" value={form.portfolio} onChange={(e) => setForm({ ...form, portfolio: e.target.value })} placeholder="Portfolio Link" className="w-full px-4 py-2 rounded-xl text-white/70 text-xs bg-white/[0.04] border border-white/10 outline-none" />
+                        <input type="text" value={form.resume} onChange={(e) => setForm({ ...form, resume: e.target.value })} placeholder="Resume Drive/Public Link" className="w-full px-4 py-2 rounded-xl text-white/70 text-xs bg-white/[0.04] border border-white/10 outline-none" />
+                      </div>
+                    )}
+                  </div>
+                </div>
               </div>
             </div>
-          </div>
-        </div>
-      )}
+          )}
 
-      {/* TAB CONTENT: ACADEMIC */}
-      {activeTab === "academic" && (
-        <div className="space-y-0 divide-y divide-white/5 animate-in fade-in duration-500">
-          <InfoRow icon={GraduationCap} label="Course / Department" value={form.department} editMode={editMode} onChange={(v) => setForm({ ...form, department: v })} />
-          <InfoRow icon={Globe} label="Year / Semester" value={`${form.year} Year, Sem ${form.sem}`} editMode={editMode} onChange={(v) => {
-            const parts = v.split(",");
-            setForm({ ...form, year: parts[0]?.trim(), sem: parts[1]?.trim() });
-          }} isDual={editMode} val1={form.year} val2={form.sem} label1="Year" label2="Sem" />
-          <InfoRow icon={Rocket} label="Roll Number" value={form.rollNo} editMode={editMode} onChange={(v) => setForm({ ...form, rollNo: v })} />
-          <InfoRow icon={Brain} label="Achievements" value={form.achievements} editMode={editMode} onChange={(v) => setForm({ ...form, achievements: v })} isWide={true} />
-        </div>
-      )}
-
-      {/* TAB CONTENT: CONTACT */}
-      {activeTab === "contact" && (
-        <div className="grid md:grid-cols-2 gap-8 animate-in fade-in duration-500">
-          <div className="space-y-0 divide-y divide-white/5">
-            <SectionLabel>Contact Details</SectionLabel>
-            <InfoRow icon={Mail} label="Email" value={email} />
-            <InfoRow icon={Phone} label="Phone" value={form.phone} editMode={editMode} onChange={(v) => setForm({ ...form, phone: v })} />
-            <InfoRow icon={MapPin} label="Location" value={form.location} editMode={editMode} onChange={(v) => setForm({ ...form, location: v })} />
-          </div>
-          <div>
-            <SectionLabel>Social Presence</SectionLabel>
-            <div className="space-y-3 mt-3">
-              {editMode ? (
-                <>
-                  <LinkEditRow icon={Linkedin} label="LinkedIn" value={form.linkedin} onChange={(v) => setForm({ ...form, linkedin: v })} placeholder="https://linkedin.com/..." />
-                  <LinkEditRow icon={Github} label="GitHub" value={form.github} onChange={(v) => setForm({ ...form, github: v })} placeholder="https://github.com/..." />
-                </>
-              ) : (
-                <>
-                  <SocialLink icon={Linkedin} label="LinkedIn" value={form.linkedin} color="rgba(59,130,246,0.08)" iconColor="text-blue-400" />
-                  <SocialLink icon={Github} label="GitHub" value={form.github} color="rgba(255,255,255,0.04)" iconColor="text-white/70" />
-                </>
-              )}
+          {/* TAB CONTENT: SKILLS & CAREER */}
+          {activeTab === "skills" && (
+            <div className="space-y-8 animate-in fade-in duration-500">
+              <div>
+                <SectionLabel>Technical Skills</SectionLabel>
+                {editMode ? (
+                  <textarea rows={3} value={form.technicalSkills} onChange={(e) => setForm({ ...form, technicalSkills: e.target.value })} placeholder="React, Node.js, Python, AWS (comma separated)" className="w-full px-5 py-4 rounded-2xl text-white/80 placeholder-white/25 text-sm bg-white/[0.04] border border-[#FF6B6B44]" />
+                ) : (
+                  <div className="flex flex-wrap gap-2">
+                    {form.technicalSkills ? form.technicalSkills.split(",").map((s, i) => (
+                      <span key={i} className="px-4 py-1.5 rounded-xl text-xs font-semibold bg-white/[0.05] text-white/80 border border-white/10">{s.trim()}</span>
+                    )) : <EmptyHint>No technical skills listed.</EmptyHint>}
+                  </div>
+                )}
+              </div>
+              <div>
+                <SectionLabel>Soft Skills</SectionLabel>
+                {editMode ? (
+                  <input type="text" value={form.softSkills} onChange={(e) => setForm({ ...form, softSkills: e.target.value })} placeholder="Leadership, Communication (comma separated)" className="w-full px-5 py-3 rounded-2xl text-white/80 placeholder-white/25 text-sm bg-white/[0.04] border border-[#FF6B6B44]" />
+                ) : (
+                  <div className="flex flex-wrap gap-2">
+                    {form.softSkills ? form.softSkills.split(",").map((s, i) => (
+                      <span key={i} className="px-3 py-1 rounded-lg text-xs font-medium bg-white/[0.03] text-white/50 border border-white/5">{s.trim()}</span>
+                    )) : <EmptyHint>No soft skills listed.</EmptyHint>}
+                  </div>
+                )}
+              </div>
+              <div className="h-px bg-white/5" />
+              <div className="flex items-center gap-4">
+                <div className={`p-4 rounded-2xl border transition-all ${form.openToWork ? 'bg-green-500/10 border-green-500/30' : 'bg-white/[0.04] border-white/10'}`}>
+                  <div className="flex items-center gap-3">
+                    <Rocket size={18} className={form.openToWork ? 'text-green-400' : 'text-white/20'} />
+                    <div>
+                      <p className="text-sm font-bold text-white">Recruiter Visibility</p>
+                      <p className="text-[10px] text-white/40 uppercase tracking-widest mt-0.5">{form.openToWork ? 'Profile Visible to Recruiters' : 'Profile is Private'}</p>
+                    </div>
+                    {editMode && (
+                      <button onClick={() => setForm({ ...form, openToWork: !form.openToWork })} className={`ml-4 w-12 h-6 rounded-full relative transition-all ${form.openToWork ? 'bg-green-500' : 'bg-white/10'}`}>
+                        <div className={`absolute top-1 w-4 h-4 rounded-full bg-white transition-all ${form.openToWork ? 'left-7' : 'left-1'}`} />
+                      </button>
+                    )}
+                  </div>
+                </div>
+              </div>
             </div>
-          </div>
-        </div>
-      )}
+          )}
+
+          {/* TAB CONTENT: ACADEMIC */}
+          {activeTab === "academic" && (
+            <div className="space-y-0 divide-y divide-white/5 animate-in fade-in duration-500">
+              <InfoRow icon={GraduationCap} label="Course / Department" value={form.department} editMode={editMode} onChange={(v) => setForm({ ...form, department: v })} />
+              <InfoRow icon={Globe} label="Year / Semester" value={`${form.year} Year, Sem ${form.sem}`} editMode={editMode} onChange={(v) => {
+                const parts = v.split(",");
+                setForm({ ...form, year: parts[0]?.trim(), sem: parts[1]?.trim() });
+              }} isDual={editMode} val1={form.year} val2={form.sem} label1="Year" label2="Sem" />
+              <InfoRow icon={Rocket} label="Roll Number" value={form.rollNo} editMode={editMode} onChange={(v) => setForm({ ...form, rollNo: v })} />
+              <InfoRow icon={Brain} label="Achievements" value={form.achievements} editMode={editMode} onChange={(v) => setForm({ ...form, achievements: v })} isWide={true} />
+            </div>
+          )}
+
+          {/* TAB CONTENT: CONTACT */}
+          {activeTab === "contact" && (
+            <div className="grid md:grid-cols-2 gap-8 animate-in fade-in duration-500">
+              <div className="space-y-0 divide-y divide-white/5">
+                <SectionLabel>Contact Details</SectionLabel>
+                <InfoRow icon={Mail} label="Email" value={email} />
+                <InfoRow icon={Phone} label="Phone" value={form.phone} editMode={editMode} onChange={(v) => setForm({ ...form, phone: v })} />
+                <InfoRow icon={MapPin} label="Location" value={form.location} editMode={editMode} onChange={(v) => setForm({ ...form, location: v })} />
+              </div>
+              <div>
+                <SectionLabel>Social Presence</SectionLabel>
+                <div className="space-y-3 mt-3">
+                  {editMode ? (
+                    <>
+                      <LinkEditRow icon={Linkedin} label="LinkedIn" value={form.linkedin} onChange={(v) => setForm({ ...form, linkedin: v })} placeholder="https://linkedin.com/..." />
+                      <LinkEditRow icon={Github} label="GitHub" value={form.github} onChange={(v) => setForm({ ...form, github: v })} placeholder="https://github.com/..." />
+                    </>
+                  ) : (
+                    <>
+                      <SocialLink icon={Linkedin} label="LinkedIn" value={form.linkedin} color="rgba(59,130,246,0.08)" iconColor="text-blue-400" />
+                      <SocialLink icon={Github} label="GitHub" value={form.github} color="rgba(255,255,255,0.04)" iconColor="text-white/70" />
+                    </>
+                  )}
+                </div>
+              </div>
+            </div>
+          )}
         </div>
       )}
     </div>

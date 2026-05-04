@@ -4,17 +4,17 @@ import { ArrowRight, Compass } from "lucide-react";
 
 export default function Herosection() {
   return (
-    <section className="relative min-h-[80vh] w-full overflow-hidden flex items-center pt-24 pb-16">
+    <section className="relative min-h-[85vh] w-full overflow-hidden flex items-center pt-24 pb-16">
       {/* Background Image with Overlay */}
       <div className="absolute inset-0 z-0 overflow-hidden">
         <img
           src="/hero-students.png"
           alt="Indian college students collaborating on laptop on campus"
-          className="w-full h-full object-cover object-bottom opacity-[0.9] animate-slow-zoom"
+          className="w-full h-full object-cover object-bottom opacity-[0.8] transition-transform duration-10000"
         />
-        <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/20 to-transparent z-0" />
-        <div className="absolute inset-0 bg-gradient-to-r from-black/90 via-black/30 to-transparent z-0" />
-        <div className="absolute inset-0 bg-black/20 z-0" />
+        <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/30 to-black z-0" />
+        <div className="absolute inset-0 bg-gradient-to-r from-black via-transparent to-transparent z-0" />
+        <div className="absolute inset-0 bg-black/10 z-0" />
       </div>
 
       {/* Dynamic Background Elements (Matched to About Page) */}
@@ -63,22 +63,6 @@ export default function Herosection() {
       <style jsx>{`
         .perspective-1000 {
           perspective: 1000px;
-        }
-
-        @keyframes slow-zoom {
-          0% {
-            transform: scale(1);
-          }
-          50% {
-            transform: scale(1.1);
-          }
-          100% {
-            transform: scale(1);
-          }
-        }
-
-        :global(.animate-slow-zoom) {
-          animation: slow-zoom 30s infinite ease-in-out;
         }
 
         @keyframes float {

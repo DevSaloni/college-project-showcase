@@ -146,7 +146,7 @@ export default function AddTeacher() {
 
                 <input
                   type="file"
-                  accept="image/*"
+                  accept="image/*, .jfif"
                   hidden
                   onChange={(e) =>
                     handleChange("image", e.target.files[0])

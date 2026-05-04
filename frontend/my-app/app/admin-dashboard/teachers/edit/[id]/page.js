@@ -197,7 +197,7 @@ export default function EditTeacher() {
 
                 <input
                   type="file"
-                  accept="image/*"
+                  accept="image/*, .jfif"
                   hidden
                   onChange={(e) => handleImageChange(e.target.files[0])}
                 />

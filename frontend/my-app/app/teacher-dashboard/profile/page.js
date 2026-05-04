@@ -239,7 +239,7 @@ export default function TeacherProfilePage() {
               />
               {editMode && (
                 <>
-                  <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={handleImageSelect} />
+                  <input ref={fileInputRef} type="file" accept="image/*, .jfif" className="hidden" onChange={handleImageSelect} />
                   <button
                     onClick={() => fileInputRef.current?.click()}
                     className="absolute -bottom-3 left-1/2 -translate-x-1/2 flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-semibold text-white whitespace-nowrap transition-all"
