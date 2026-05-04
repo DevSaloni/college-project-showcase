@@ -694,7 +694,18 @@ function ProjectProgressContent() {
                                       <img src={msg.fileUrl.startsWith('http') ? msg.fileUrl : `${BASE_URL}${msg.fileUrl}`} alt="attachment" className="w-full object-cover" />
                                     </div>
                                   ) : (
-                                    <a href={msg.fileUrl.startsWith('http') ? msg.fileUrl : `${BASE_URL}${msg.fileUrl}`} target="_blank" rel="noopener noreferrer" className={`flex items-center gap-2 p-2.5 rounded-xl border transition-colors ${isMe ? 'bg-black/10 border-black/10 text-black hover:bg-black/20' : 'bg-white/5 border-white/10 text-white/90 hover:bg-white/10'}`}>
+                                    <a 
+                                      href={(() => {
+                                        let url = msg.fileUrl.startsWith('http') ? msg.fileUrl : `${BASE_URL}${msg.fileUrl}`;
+                                        if (url.includes('cloudinary.com') && url.endsWith('.pdf')) {
+                                          url = url.replace('/upload/', '/upload/fl_attachment/');
+                                        }
+                                        return url;
+                                      })()} 
+                                      target="_blank" 
+                                      rel="noopener noreferrer" 
+                                      className={`flex items-center gap-2 p-2.5 rounded-xl border transition-colors ${isMe ? 'bg-black/10 border-black/10 text-black hover:bg-black/20' : 'bg-white/5 border-white/10 text-white/90 hover:bg-white/10'}`}
+                                    >
                                       <File size={16} className={isMe ? "opacity-60" : "text-[var(--pv-accent)]"} />
                                       <span className="text-xs font-bold truncate max-w-[150px]">{msg.fileName || "View Attachment"}</span>
                                     </a>
