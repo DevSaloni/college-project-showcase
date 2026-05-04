@@ -25,6 +25,7 @@ export const createProject = async (req, res) => {
       status: "Approved", // Auto-approve for immediate visibility on Explore page
       bannerImage: req.files?.bannerImage?.[0]?.path?.replace(/\\/g, "/"),
       documentation: req.files?.documentation?.[0]?.path?.replace(/\\/g, "/"),
+      demoVideo: req.files?.demoVideo?.[0]?.path?.replace(/\\/g, "/"),
     });
 
     await project.save();
@@ -309,6 +310,18 @@ export const updateProject = async (req, res) => {
 
     if (updates.category) {
       updates.categorySlug = updates.category.toLowerCase().trim().replace(/[^a-z0-9]+/g, "-");
+    }
+
+    if (req.files) {
+      if (req.files.bannerImage) {
+        updates.bannerImage = req.files.bannerImage[0].path.replace(/\\/g, "/");
+      }
+      if (req.files.documentation) {
+        updates.documentation = req.files.documentation[0].path.replace(/\\/g, "/");
+      }
+      if (req.files.demoVideo) {
+        updates.demoVideo = req.files.demoVideo[0].path.replace(/\\/g, "/");
+      }
     }
 
     const project = await Project.findOneAndUpdate(

@@ -133,7 +133,7 @@ export default function ViewStudent() {
             <div className="relative h-28 w-28 md:h-32 md:w-32 rounded-full overflow-hidden bg-white/5 border-4 border-white/10 flex-shrink-0 flex items-center justify-center shadow-[0_0_30px_rgba(255,255,255,0.05)]">
               {student?.image ? (
                 <img
-                  src={`${BASE_URL}${student.image}`}
+                  src={student?.image?.startsWith("http") ? student.image : `${BASE_URL}${student?.image}`}
                   alt="student"
                   className="h-full w-full object-cover"
                 />

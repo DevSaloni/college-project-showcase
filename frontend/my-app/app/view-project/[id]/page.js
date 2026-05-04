@@ -191,7 +191,7 @@ export default function ViewProjectPage() {
               </a>
             )}
             {project?.demoVideo && (
-              <a href={project.demoVideo} target="_blank" className="p-3 rounded-full bg-black/60 backdrop-blur-md border border-white/10 text-white hover:bg-red-500 transition-all shadow-xl">
+              <a href={project.demoVideo.startsWith("http") ? project.demoVideo : `${BASE_URL}/${project.demoVideo.startsWith("/") ? project.demoVideo.substring(1) : project.demoVideo}`} target="_blank" className="p-3 rounded-full bg-black/60 backdrop-blur-md border border-white/10 text-white hover:bg-red-500 transition-all shadow-xl">
                 <Youtube size={20} />
               </a>
             )}

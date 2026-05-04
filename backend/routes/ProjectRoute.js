@@ -11,6 +11,7 @@ router.post(
   upload.fields([
     { name: "bannerImage", maxCount: 1 },
     { name: "documentation", maxCount: 1 },
+    { name: "demoVideo", maxCount: 1 },
   ]),
   createProject
 );
@@ -25,7 +26,16 @@ router.get("/category/:slug", getProjectsByCategory);
 
 router.get("/:id", optionalAuth, getProjectById);
 
-router.put("/update/:id", protect, updateProject);
+router.put(
+  "/update/:id",
+  protect,
+  upload.fields([
+    { name: "bannerImage", maxCount: 1 },
+    { name: "documentation", maxCount: 1 },
+    { name: "demoVideo", maxCount: 1 },
+  ]),
+  updateProject
+);
 
 router.post("/:id/rating", protect, addRating);
 router.post("/:id/comment", protect, addComment);

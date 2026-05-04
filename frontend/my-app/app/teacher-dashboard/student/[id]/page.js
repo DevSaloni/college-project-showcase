@@ -86,6 +86,37 @@ export default function StudentProfilePage() {
 
 
   
+   if (loading) {
+      return (
+         <div className="flex items-center justify-center min-h-[60vh]">
+            <div className="relative w-16 h-16">
+               <div className="absolute inset-0 rounded-full border-2 border-white/5" />
+               <div className="absolute inset-0 rounded-full border-t-2 border-[var(--pv-accent)] animate-spin" />
+            </div>
+         </div>
+      );
+   }
+
+   if (!student) {
+      return (
+         <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4">
+            <div className="p-6 bg-white/5 rounded-3xl border border-white/10">
+               <AlertCircle size={48} className="text-white/20" />
+            </div>
+            <div className="text-center">
+               <h3 className="text-xl font-bold text-white">Student not found</h3>
+               <p className="text-white/40 text-sm mt-1">The requested student profile could not be retrieved.</p>
+            </div>
+            <Link
+               href="/teacher-dashboard/student"
+               className="mt-4 px-6 py-2 rounded-xl bg-white/5 border border-white/10 text-white text-sm hover:bg-white/10 transition-all"
+            >
+               Back to Students
+            </Link>
+         </div>
+      );
+   }
+
    /* ── Derived values ── */
 
    const isActive = student.status === "Active" || !student.status;
@@ -167,8 +198,16 @@ export default function StudentProfilePage() {
             <div className="relative flex flex-col sm:flex-row items-start gap-6 p-6 md:p-8">
                {/* Avatar */}
                <div className="relative shrink-0">
-                  <div className="w-24 h-24 rounded-3xl bg-gradient-to-br from-[var(--pv-accent)]/30 to-blue-600/20 border border-white/10 flex items-center justify-center text-4xl font-black text-white shadow-inner">
-                     {student.name?.charAt(0)?.toUpperCase() || "S"}
+                  <div className="w-24 h-24 rounded-3xl bg-gradient-to-br from-[var(--pv-accent)]/30 to-blue-600/20 border border-white/10 flex items-center justify-center text-4xl font-black text-white shadow-inner overflow-hidden">
+                     {student.image ? (
+                        <img 
+                           src={student.image.startsWith("http") ? student.image : `${BASE_URL}${student.image.startsWith("/") ? "" : "/"}${student.image}`} 
+                           alt={student.name} 
+                           className="w-full h-full object-cover"
+                        />
+                     ) : (
+                        student.name?.charAt(0)?.toUpperCase() || "S"
+                     )}
                   </div>
                   <span className={`absolute -bottom-1 -right-1 w-5 h-5 rounded-full border-4 border-[#0f0f0f] ${isActive ? "bg-green-400" : "bg-red-400"}`} />
                </div>

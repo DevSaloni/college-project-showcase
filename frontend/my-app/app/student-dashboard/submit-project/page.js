@@ -62,6 +62,7 @@ export default function SubmitProjectPage() {
 
   const [bannerImage, setBannerImage] = useState(null);
   const [documentation, setDocumentation] = useState(null);
+  const [demoVideoFile, setDemoVideoFile] = useState(null);
 
   // 1. Fetch academic projects and published projects
   useEffect(() => {
@@ -177,6 +178,11 @@ export default function SubmitProjectPage() {
     if (file) setDocumentation(file);
   };
 
+  const handleVideoChange = (e) => {
+    const file = e.target.files[0];
+    if (file) setDemoVideoFile(file);
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!formData.title || !formData.category) {
@@ -190,21 +196,24 @@ export default function SubmitProjectPage() {
 
     setSubmitting(true);
     try {
+      const payload = new FormData();
+      Object.keys(formData).forEach((key) => {
+        payload.append(key, formData[key]);
+      });
+
+      if (bannerImage) payload.append("bannerImage", bannerImage);
+      if (documentation) payload.append("documentation", documentation);
+      if (demoVideoFile) payload.append("demoVideo", demoVideoFile);
+
       if (existingExploreProjectId) {
-        const payload = { ...formData };
         await axios.put(`${BASE_URL}/api/projects/update/${existingExploreProjectId}`, payload, {
-          headers: { Authorization: `Bearer ${localStorage.getItem("token")}` }
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+            "Content-Type": "multipart/form-data"
+          }
         });
         toast.success("Project updated successfully on Explore Page!");
       } else {
-        const payload = new FormData();
-        Object.keys(formData).forEach((key) => {
-          payload.append(key, formData[key]);
-        });
-
-        if (bannerImage) payload.append("bannerImage", bannerImage);
-        if (documentation) payload.append("documentation", documentation);
-
         await axios.post(`${BASE_URL}/api/projects/create`, payload, {
           headers: {
             Authorization: `Bearer ${localStorage.getItem("token")}`,
@@ -345,31 +354,40 @@ export default function SubmitProjectPage() {
               <InputField icon={Layers} label="Group Name" name="groupName" value={formData.groupName} onChange={handleChange} placeholder="Group 12" disabled={!!existingExploreProjectId} />
             </div>
 
-            {!existingExploreProjectId && (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6 p-6 rounded-2xl bg-black/20 border border-white/5">
-                <div>
-                  <label className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-white/50 mb-3">
-                    <ImageIcon size={14} className="text-[var(--pv-accent)]" />
-                    Banner Image *
-                  </label>
-                  <div className="relative">
-                    <input type="file" required accept="image/*" onChange={handleBannerChange} className="w-full text-sm text-white/50 file:mr-4 file:py-2.5 file:px-5 file:rounded-xl file:border-0 file:text-sm file:font-semibold file:bg-white/5 file:text-white hover:file:bg-white/10 file:transition-colors file:cursor-pointer cursor-pointer border border-dashed border-white/10 rounded-xl p-2 pb-2 bg-white/[0.01] hover:bg-white/[0.02]" />
-                    {bannerImage && <div className="absolute top-1/2 -translate-y-1/2 right-4 text-emerald-400 bg-emerald-500/10 p-1 rounded-full"><Check size={14} /></div>}
-                  </div>
-                </div>
-
-                <div>
-                  <label className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-white/50 mb-3">
-                    <FileText size={14} className="text-[var(--pv-accent)]" />
-                    Documentation (Optional)
-                  </label>
-                  <div className="relative">
-                    <input type="file" accept=".pdf,.doc,.docx" onChange={handleDocChange} className="w-full text-sm text-white/50 file:mr-4 file:py-2.5 file:px-5 file:rounded-xl file:border-0 file:text-sm file:font-semibold file:bg-white/5 file:text-white hover:file:bg-white/10 file:transition-colors file:cursor-pointer cursor-pointer border border-dashed border-white/10 rounded-xl p-2 pb-2 bg-white/[0.01] hover:bg-white/[0.02]" />
-                    {documentation && <div className="absolute top-1/2 -translate-y-1/2 right-4 text-emerald-400 bg-emerald-500/10 p-1 rounded-full"><Check size={14} /></div>}
-                  </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-6 p-6 rounded-2xl bg-black/20 border border-white/5">
+              <div>
+                <label className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-white/50 mb-3">
+                  <ImageIcon size={14} className="text-[var(--pv-accent)]" />
+                  Banner Image {!existingExploreProjectId && "*"}
+                </label>
+                <div className="relative">
+                  <input type="file" required={!existingExploreProjectId} accept="image/*" onChange={handleBannerChange} className="w-full text-sm text-white/50 file:mr-4 file:py-2.5 file:px-5 file:rounded-xl file:border-0 file:text-sm file:font-semibold file:bg-white/5 file:text-white hover:file:bg-white/10 file:transition-colors file:cursor-pointer cursor-pointer border border-dashed border-white/10 rounded-xl p-2 pb-2 bg-white/[0.01] hover:bg-white/[0.02]" />
+                  {bannerImage && <div className="absolute top-1/2 -translate-y-1/2 right-4 text-emerald-400 bg-emerald-500/10 p-1 rounded-full"><Check size={14} /></div>}
                 </div>
               </div>
-            )}
+
+              <div>
+                <label className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-white/50 mb-3">
+                  <FileText size={14} className="text-[var(--pv-accent)]" />
+                  Documentation (Optional)
+                </label>
+                <div className="relative">
+                  <input type="file" accept=".pdf,.doc,.docx" onChange={handleDocChange} className="w-full text-sm text-white/50 file:mr-4 file:py-2.5 file:px-5 file:rounded-xl file:border-0 file:text-sm file:font-semibold file:bg-white/5 file:text-white hover:file:bg-white/10 file:transition-colors file:cursor-pointer cursor-pointer border border-dashed border-white/10 rounded-xl p-2 pb-2 bg-white/[0.01] hover:bg-white/[0.02]" />
+                  {documentation && <div className="absolute top-1/2 -translate-y-1/2 right-4 text-emerald-400 bg-emerald-500/10 p-1 rounded-full"><Check size={14} /></div>}
+                </div>
+              </div>
+
+              <div>
+                <label className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-white/50 mb-3">
+                  <Video size={14} className="text-[var(--pv-accent)]" />
+                  Demo Video (Optional)
+                </label>
+                <div className="relative">
+                  <input type="file" accept="video/*" onChange={handleVideoChange} className="w-full text-sm text-white/50 file:mr-4 file:py-2.5 file:px-5 file:rounded-xl file:border-0 file:text-sm file:font-semibold file:bg-white/5 file:text-white hover:file:bg-white/10 file:transition-colors file:cursor-pointer cursor-pointer border border-dashed border-white/10 rounded-xl p-2 pb-2 bg-white/[0.01] hover:bg-white/[0.02]" />
+                  {demoVideoFile && <div className="absolute top-1/2 -translate-y-1/2 right-4 text-emerald-400 bg-emerald-500/10 p-1 rounded-full"><Check size={14} /></div>}
+                </div>
+              </div>
+            </div>
 
             <div className="pt-6 border-t border-white/10 flex justify-end">
               <button

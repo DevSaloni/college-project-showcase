@@ -159,7 +159,7 @@ export default function TeacherDetails() {
             <div className="relative h-28 w-28 md:h-32 md:w-32 rounded-full overflow-hidden bg-white/5 border-4 border-white/10 flex-shrink-0 flex items-center justify-center shadow-[0_0_30px_rgba(255,255,255,0.05)]">
               {teacher?.image ? (
                 <img
-                  src={`${BASE_URL}${teacher?.image}`}
+                  src={teacher?.image?.startsWith("http") ? teacher.image : `${BASE_URL}${teacher?.image}`}
                   alt="mentor"
                   className="h-full w-full object-cover"
                 />

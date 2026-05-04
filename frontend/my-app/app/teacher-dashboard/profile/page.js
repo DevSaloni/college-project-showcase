@@ -79,7 +79,7 @@ export default function TeacherProfilePage() {
             github: t.github || "",
             location: t.location || "",
           });
-          if (t.image) setImagePreview(`${BASE_URL}${t.image}`);
+          if (t.image) setImagePreview(t.image.startsWith("http") ? t.image : `${BASE_URL}${t.image.startsWith("/") ? "" : "/"}${t.image}`);
         } else {
           toast.error("Failed to load profile.");
         }
@@ -157,7 +157,7 @@ export default function TeacherProfilePage() {
         location: profile.location || "",
       });
       setImageFile(null);
-      setImagePreview(profile.image ? `${BASE_URL}${profile.image}` : "");
+      setImagePreview(profile.image ? (profile.image.startsWith("http") ? profile.image : `${BASE_URL}${profile.image.startsWith("/") ? "" : "/"}${profile.image}`) : "");
     }
   };
 

@@ -138,7 +138,7 @@ export default function MentorProfilePage() {
                   <div className="relative shrink-0 translate-y-12">
                      <div className="w-28 h-28 rounded-2xl overflow-hidden shadow-2xl bg-[#1e293b] border-2 border-white/10" style={{ boxShadow: "0 0 40px rgba(255,107,107,0.15)" }}>
                         {mentor.image ? (
-                           <img src={`${BASE_URL}${mentor.image}`} alt={name} className="w-full h-full object-cover" />
+                           <img src={mentor.image.startsWith("http") ? mentor.image : `${BASE_URL}${mentor.image.startsWith("/") ? "" : "/"}${mentor.image}`} alt={name} className="w-full h-full object-cover" />
                         ) : (
                            <div className="w-full h-full flex items-center justify-center text-4xl font-black text-white" style={{ background: "linear-gradient(135deg, #FF6B6B 0%, #7c3aed 100%)" }}>
                               {initials}

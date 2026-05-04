@@ -115,7 +115,7 @@ export default function StudentProfilePage() {
             resume: s.resume || "",
             openToWork: s.openToWork || false,
           });
-          if (s.image) setImagePreview(`${BASE_URL}${s.image}`);
+          if (s.image) setImagePreview(s.image.startsWith("http") ? s.image : `${BASE_URL}${s.image.startsWith("/") ? "" : "/"}${s.image}`);
         } else {
           setErrorMsg("Failed to load profile.");
         }
@@ -214,7 +214,7 @@ export default function StudentProfilePage() {
         openToWork: profile.openToWork || false,
       });
       setImageFile(null);
-      setImagePreview(profile.image ? `${BASE_URL}${profile.image}` : "");
+      setImagePreview(profile.image ? (profile.image.startsWith("http") ? profile.image : `${BASE_URL}${profile.image.startsWith("/") ? "" : "/"}${profile.image}`) : "");
     }
   };
 

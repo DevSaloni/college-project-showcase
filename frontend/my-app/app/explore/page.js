@@ -136,120 +136,148 @@ export default function ExploreProjects() {
 
         {/* Project Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8">
-          {projects.map((p) => (
-            <article
-              key={p._id}
-              className="flex flex-col rounded-[2rem] bg-[#0A0F1B]/60 border border-white/[0.08] backdrop-blur-xl overflow-hidden hover:-translate-y-2 transition-all duration-700 hover:border-[var(--pv-accent)]/20 hover:shadow-[0_20px_50px_rgba(0,0,0,0.5)] group relative h-full"
-            >
-              {/* Image Section */}
-              <div className="relative h-40 w-full overflow-hidden shrink-0">
-                <img
-                  src={p.bannerImage?.startsWith("http") ? p.bannerImage : `${BASE_URL}/${p.bannerImage?.startsWith("/") ? p.bannerImage.substring(1) : p.bannerImage}`}
-                  alt={p.title}
-                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-1000"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-[#000000] via-[#000000]/20 to-transparent opacity-60" />
-
-                {/* Category Floater */}
-                <div className="absolute top-4 right-4 bg-white/5 backdrop-blur-xl border border-white/10 px-3 py-1.5 rounded-full text-[9px] font-black uppercase tracking-widest text-white shadow-2xl">
-                  {p.category || "Project"}
+          {loading && page === 1 ? (
+            // Premium Skeleton State
+            Array(6).fill(0).map((_, i) => (
+              <div key={i} className="flex flex-col rounded-[2rem] bg-white/[0.02] border border-white/5 overflow-hidden h-[450px] animate-pulse">
+                <div className="h-40 w-full bg-white/5" />
+                <div className="p-5 space-y-4">
+                  <div className="flex justify-between">
+                    <div className="h-4 w-20 bg-white/5 rounded" />
+                    <div className="h-4 w-12 bg-white/5 rounded" />
+                  </div>
+                  <div className="h-8 w-3/4 bg-white/5 rounded-lg" />
+                  <div className="space-y-2">
+                    <div className="h-4 w-full bg-white/5 rounded" />
+                    <div className="h-4 w-5/6 bg-white/5 rounded" />
+                  </div>
+                  <div className="flex gap-2">
+                    <div className="h-6 w-16 bg-white/5 rounded-full" />
+                    <div className="h-6 w-16 bg-white/5 rounded-full" />
+                  </div>
+                  <div className="mt-auto pt-4 border-t border-white/5 flex justify-between items-center">
+                    <div className="h-8 w-24 bg-white/5 rounded-lg" />
+                    <div className="h-10 w-10 bg-white/5 rounded-full" />
+                  </div>
                 </div>
               </div>
+            ))
+          ) : (
+            projects.map((p) => (
+              <article
+                key={p._id}
+                className="flex flex-col rounded-[2rem] bg-[#0A0F1B]/60 border border-white/[0.08] backdrop-blur-xl overflow-hidden hover:-translate-y-2 transition-all duration-700 hover:border-[var(--pv-accent)]/20 hover:shadow-[0_20px_50px_rgba(0,0,0,0.5)] group relative h-full"
+              >
+                {/* Image Section */}
+                <div className="relative h-40 w-full overflow-hidden shrink-0">
+                  <img
+                    src={p.bannerImage?.startsWith("http") ? p.bannerImage : `${BASE_URL}/${p.bannerImage?.startsWith("/") ? p.bannerImage.substring(1) : p.bannerImage}`}
+                    alt={p.title}
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-1000"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-[#000000] via-[#000000]/20 to-transparent opacity-60" />
 
-              {/* Card Body */}
-              <div className="p-5 flex flex-col flex-1 relative z-10">
-
-                {/* Header Stats */}
-                <div className="flex flex-wrap items-center justify-between gap-3 mb-3">
-                  <div className="flex items-center gap-3">
-                    <div className="flex items-center gap-1.5 px-2 py-0.5 rounded-md bg-yellow-500/10 border border-yellow-500/20 text-yellow-400">
-                      <Star size={10} className="fill-yellow-400" />
-                      <span className="text-[10px] font-black">{p.ratings?.ratingCount > 0 ? (p.ratings.totalRating / p.ratings.ratingCount).toFixed(1) : "New"}</span>
-                    </div>
-                    <div className="flex items-center gap-1.5 px-2 py-0.5 rounded-md bg-white/5 border border-white/10 text-white/50">
-                      <Eye size={10} />
-                      <span className="text-[10px] font-bold">{p.views?.length || 0}</span>
-                    </div>
-                  </div>
-
-                  <div className="flex items-center gap-1.5 px-2 py-0.5 rounded-md bg-[var(--pv-accent)]/10 border border-[var(--pv-accent)]/20 text-[var(--pv-accent)]">
-                    <Clock size={10} />
-                    <span className="text-[10px] font-bold">{getProjectAge(p.createdAt)}</span>
+                  {/* Category Floater */}
+                  <div className="absolute top-4 right-4 bg-white/5 backdrop-blur-xl border border-white/10 px-3 py-1.5 rounded-full text-[9px] font-black uppercase tracking-widest text-white shadow-2xl">
+                    {p.category || "Project"}
                   </div>
                 </div>
 
-                {/* Title & Desc */}
-                <h3 className="text-white text-lg lg:text-xl font-black mb-1.5 leading-tight line-clamp-1 truncate">{p.title}</h3>
-                <p className="text-white/50 text-[11px] leading-relaxed line-clamp-2 mb-3">
-                  {p.description}
-                </p>
+                {/* Card Body */}
+                <div className="p-5 flex flex-col flex-1 relative z-10">
 
-                {/* Tech Stack Bubbles */}
-                <div className="flex flex-wrap gap-1.5 mb-4">
-                  {p.tech ? p.tech.split(",").slice(0, 3).map((t, i) => (
-                    <span
-                      key={i}
-                      className="text-[9px] font-bold uppercase tracking-wider px-2 py-1 rounded bg-white/[0.04] border border-white/10 text-white/70"
-                    >
-                      {t.trim()}
-                    </span>
-                  )) : null}
-                  {p.tech?.split(",").length > 3 && (
-                    <span className="text-[9px] font-bold uppercase tracking-wider px-1 py-1 rounded bg-transparent text-white/30">
-                      +{p.tech.split(",").length - 3} more
-                    </span>
-                  )}
-                </div>
-
-                {/* Team & Members UI */}
-                <div className="mt-auto pt-4 border-t border-white/5 flex items-center justify-between mb-3">
-                  <div className="flex flex-col truncate pr-2">
-                    <span className="text-[11px] font-bold text-white uppercase tracking-wider truncate" title={p.groupName || "Individual Creator"}>{p.groupName || "Individual Creator"}</span>
-                    <span className="text-[9px] text-[var(--pv-accent)] uppercase tracking-widest mt-0.5 truncate">{p.department || "General Team"}</span>
-                  </div>
-
-                  <div className="flex -space-x-2.5 shrink-0 items-center">
-                    {(p.creatorProfiles && p.creatorProfiles.length > 0 ? p.creatorProfiles : (p.teamMembers?.length > 0 ? p.teamMembers : ["Creator"])).slice(0, 3).map((member, i) => {
-                      const isProfile = typeof member === "object";
-                      const name = isProfile ? member.userId?.name : member;
-                      const image = isProfile ? member.image : null;
-                      const initial = name ? name.charAt(0).toUpperCase() : "C";
-                      const bgColors = ["bg-indigo-600", "bg-fuchsia-600", "bg-cyan-600", "bg-orange-600"];
-
-                      const imgSrc = image ? (image.startsWith("http") ? image : `${BASE_URL}${image.startsWith("/") ? "" : "/"}${image}`) : null;
-
-                      return (
-                        <div
-                          key={i}
-                          className={`w-9 h-9 rounded-full ring-2 ring-[#000000] flex items-center justify-center text-white text-[10px] font-bold shadow-2xl relative hover:z-20 transition-all hover:scale-110 hover:-translate-y-1 overflow-hidden ${!image ? bgColors[i % bgColors.length] : "bg-zinc-800"}`}
-                          title={name}
-                        >
-                          {imgSrc ? (
-                            <img src={imgSrc} alt={name} className="w-full h-full object-cover" onError={(e) => { e.target.style.display = 'none'; e.target.parentElement.innerHTML = initial; }} />
-                          ) : (
-                            initial
-                          )}
-                        </div>
-                      )
-                    })}
-                    {(p.creatorProfiles?.length > 3 || p.teamMembers?.length > 3) && (
-                      <div className="w-9 h-9 rounded-full bg-white/5 ring-2 ring-[#000000] flex items-center justify-center text-white text-[11px] font-black shadow-2xl relative backdrop-blur-xl border border-white/10">
-                        +{(p.creatorProfiles?.length || p.teamMembers?.length) - 3}
+                  {/* Header Stats */}
+                  <div className="flex flex-wrap items-center justify-between gap-3 mb-3">
+                    <div className="flex items-center gap-3">
+                      <div className="flex items-center gap-1.5 px-2 py-0.5 rounded-md bg-yellow-500/10 border border-yellow-500/20 text-yellow-400">
+                        <Star size={10} className="fill-yellow-400" />
+                        <span className="text-[10px] font-black">{p.ratings?.ratingCount > 0 ? (p.ratings.totalRating / p.ratings.ratingCount).toFixed(1) : "New"}</span>
                       </div>
+                      <div className="flex items-center gap-1.5 px-2 py-0.5 rounded-md bg-white/5 border border-white/10 text-white/50">
+                        <Eye size={10} />
+                        <span className="text-[10px] font-bold">{p.views?.length || 0}</span>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center gap-1.5 px-2 py-0.5 rounded-md bg-[var(--pv-accent)]/10 border border-[var(--pv-accent)]/20 text-[var(--pv-accent)]">
+                      <Clock size={10} />
+                      <span className="text-[10px] font-bold">{getProjectAge(p.createdAt)}</span>
+                    </div>
+                  </div>
+
+                  {/* Title & Desc */}
+                  <h3 className="text-white text-lg lg:text-xl font-black mb-1.5 leading-tight line-clamp-1 truncate">{p.title}</h3>
+                  <p className="text-white/50 text-[11px] leading-relaxed line-clamp-2 mb-3">
+                    {p.description}
+                  </p>
+
+                  {/* Tech Stack Bubbles */}
+                  <div className="flex flex-wrap gap-1.5 mb-4">
+                    {p.tech ? p.tech.split(",").slice(0, 3).map((t, i) => (
+                      <span
+                        key={i}
+                        className="text-[9px] font-bold uppercase tracking-wider px-2 py-1 rounded bg-white/[0.04] border border-white/10 text-white/70"
+                      >
+                        {t.trim()}
+                      </span>
+                    )) : null}
+                    {p.tech?.split(",").length > 3 && (
+                      <span className="text-[9px] font-bold uppercase tracking-wider px-1 py-1 rounded bg-transparent text-white/30">
+                        +{p.tech.split(",").length - 3} more
+                      </span>
                     )}
                   </div>
+
+                  {/* Team & Members UI */}
+                  <div className="mt-auto pt-4 border-t border-white/5 flex items-center justify-between mb-3">
+                    <div className="flex flex-col truncate pr-2">
+                      <span className="text-[11px] font-bold text-white uppercase tracking-wider truncate" title={p.groupName || "Individual Creator"}>{p.groupName || "Individual Creator"}</span>
+                      <span className="text-[9px] text-[var(--pv-accent)] uppercase tracking-widest mt-0.5 truncate">{p.department || "General Team"}</span>
+                    </div>
+
+                    <div className="flex -space-x-2.5 shrink-0 items-center">
+                      {(p.creatorProfiles && p.creatorProfiles.length > 0 ? p.creatorProfiles : (p.teamMembers?.length > 0 ? p.teamMembers : ["Creator"])).slice(0, 3).map((member, i) => {
+                        const isProfile = typeof member === "object";
+                        const name = isProfile ? member.userId?.name : member;
+                        const image = isProfile ? member.image : null;
+                        const initial = name ? name.charAt(0).toUpperCase() : "C";
+                        const bgColors = ["bg-indigo-600", "bg-fuchsia-600", "bg-cyan-600", "bg-orange-600"];
+
+                        const imgSrc = image ? (image.startsWith("http") ? image : `${BASE_URL}${image.startsWith("/") ? "" : "/"}${image}`) : null;
+
+                        return (
+                          <div
+                            key={i}
+                            className={`w-9 h-9 rounded-full ring-2 ring-[#000000] flex items-center justify-center text-white text-[10px] font-bold shadow-2xl relative hover:z-20 transition-all hover:scale-110 hover:-translate-y-1 overflow-hidden ${!image ? bgColors[i % bgColors.length] : "bg-zinc-800"}`}
+                            title={name}
+                          >
+                            {imgSrc ? (
+                              <img src={imgSrc} alt={name} className="w-full h-full object-cover" onError={(e) => { e.target.style.display = 'none'; e.target.parentElement.innerHTML = initial; }} />
+                            ) : (
+                              initial
+                            )}
+                          </div>
+                        )
+                      })}
+                      {(p.creatorProfiles?.length > 3 || p.teamMembers?.length > 3) && (
+                        <div className="w-9 h-9 rounded-full bg-white/5 ring-2 ring-[#000000] flex items-center justify-center text-white text-[11px] font-black shadow-2xl relative backdrop-blur-xl border border-white/10">
+                          +{(p.creatorProfiles?.length || p.teamMembers?.length) - 3}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Action Button */}
+                  <Link href={`/view-project/${p._id}`} className="block w-full">
+                    <button className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl font-black text-xs uppercase tracking-widest transition-all duration-300 bg-white/5 hover:bg-[linear-gradient(135deg,var(--pv-accent),var(--pv-accent-2))] text-white hover:text-black border border-white/10 hover:border-transparent group-hover:shadow-[0_4px_20px_rgba(var(--pv-accent-rgb),0.3)]">
+                      Explore Details <ArrowRight size={14} className="group-hover:translate-x-1 transition-transform" />
+                    </button>
+                  </Link>
+
                 </div>
-
-                {/* Action Button */}
-                <Link href={`/view-project/${p._id}`} className="block w-full">
-                  <button className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl font-black text-xs uppercase tracking-widest transition-all duration-300 bg-white/5 hover:bg-[linear-gradient(135deg,var(--pv-accent),var(--pv-accent-2))] text-white hover:text-black border border-white/10 hover:border-transparent group-hover:shadow-[0_4px_20px_rgba(var(--pv-accent-rgb),0.3)]">
-                    Explore Details <ArrowRight size={14} className="group-hover:translate-x-1 transition-transform" />
-                  </button>
-                </Link>
-
-              </div>
-            </article>
-          ))}
+              </article>
+            ))
+          )}
         </div>
 
         {/* Load More Section */}

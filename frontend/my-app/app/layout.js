@@ -7,9 +7,15 @@ import LayoutWrapper from "@/components/LayoutWrapper";
 import { Toaster } from "react-hot-toast";
 
 export const metadata = {
-  title: "ProjectVista",
-  description: "Student Project Showcase Platform",
-}
+  title: "ProjectVista | Innovative Student Project Showcase",
+  description: "A premium platform to discover, showcase, and connect with cutting-edge student innovations and academic projects.",
+  keywords: ["student projects", "showcase", "innovation", "portfolio", "academic projects", "ProjectVista"],
+  authors: [{ name: "ProjectVista Team" }],
+  icons: {
+    icon: "/favicon.png?v=3",
+    apple: "/favicon.png?v=3",
+  },
+};
 
 export default function RootLayout({ children }) {
 

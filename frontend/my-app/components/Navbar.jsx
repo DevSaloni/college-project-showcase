@@ -185,7 +185,7 @@ export default function Navbar() {
       {/* ══════════════ NAVBAR BAR ══════════════ */}
       <nav
         style={{ fontFamily: "'Poppins', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif" }}
-        className="fixed top-0 left-0 w-full z-[100] py-2 bg-black border-b border-white/[0.07] shadow-[0_4px_40px_rgba(0,0,0,0.4)]"
+        className="fixed top-0 left-0 w-full z-[90] py-1.5 bg-black border-b border-white/[0.07] shadow-[0_4px_40px_rgba(0,0,0,0.4)]"
       >
         <div className="max-w-[1440px] mx-auto px-6 sm:px-10 lg:px-12 flex items-center justify-between">
 
@@ -195,7 +195,7 @@ export default function Navbar() {
               <img
                 src="/logo.jpg"
                 alt="ProjectVault"
-                className="h-12 w-auto object-contain group-hover:scale-105 transition-all duration-500"
+                className="h-10 w-auto object-contain group-hover:scale-105 transition-all duration-500"
               />
             </div>
           </Link>
