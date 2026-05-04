@@ -50,7 +50,7 @@ export default function EditStudent() {
         status: student.status || "Active",
         image: null,
         imagePreview: student.image
-          ? `${BASE_URL}${student.image}`
+          ? (student.image.startsWith('http') ? student.image : `${BASE_URL}${student.image}`)
           : "",
       });
 

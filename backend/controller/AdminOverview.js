@@ -14,7 +14,7 @@ export const getAdminOverview = async (req, res) => {
     const activeGroups = await Group.countDocuments({ status: "Active" });
     const completedGroups = await Group.countDocuments({ status: "Completed" });
     const groupsWithoutMentor = await Group.countDocuments({
-      mentor: { $exists: false },
+      $or: [{ mentor: { $exists: false } }, { mentor: null }],
     });
 
     const studentsWithoutGroup = await Student.countDocuments({

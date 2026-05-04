@@ -94,11 +94,11 @@ export const submitProgress = async (req, res) => {
 
     // IF NEW SUBMISSION (no existing milestone for this week)
     // BLOCK IF OUTSIDE FRI-SUN WINDOW
-    if (!isSubmissionWindow) {
-      return res.status(403).json({
-        message: "Submission window is only open from Friday to Sunday.",
-      });
-    }
+    // if (!isSubmissionWindow) {
+    //   return res.status(403).json({
+    //     message: "Submission window is only open from Friday to Sunday.",
+    //   });
+    // }
 
     // EXTRA VALIDATIONS FOR NEW SUBMISSIONS
     if (progress.milestones.length > 0) {
