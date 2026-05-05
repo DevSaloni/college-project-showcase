@@ -4,6 +4,20 @@
 
 ---
 
+### 🚀 Try It Live — Demo Access
+
+> Visit the platform and log in instantly with the demo accounts below. No registration needed!
+
+| Role | Email | Password | What You Can See |
+|------|-------|----------|-----------------|
+| 🛡️ **Admin** | `admin@gmail.com` | `password123` | Manage all users, assign mentors, view all groups & metrics |
+| 👩‍🏫 **Teacher** | `meera@gmail.com` | `meera123` | Review proposals, track student progress, give ratings |
+| 🎓 **Student** | `aditi@gmail.com` | `password123` | Submit proposals, weekly reports, team chat |
+
+> 💡 **Tip:** Login as all three roles to see how each dashboard is completely different!
+
+---
+
 ### Features
 
 - **Personal Dashboards:** Separate areas for Students, Teachers, Recruiters, and Admins to manage their work easily.
@@ -38,10 +52,16 @@
 
 ### Tech Stack
 
-- **Frontend:** Next.js (App Router), React, Tailwind CSS.
-- **Backend:** Node.js, Express, Socket.io.
-- **Database:** MongoDB with Mongoose.
-- **File Handling:** Multer (for project files and weekly reports).
+| Layer | Technology |
+|---|---|
+| **Frontend** | Next.js 14 (App Router), React, Tailwind CSS |
+| **Backend** | Node.js, Express.js |
+| **Real-Time** | Socket.io (group chat) |
+| **Database** | MongoDB, Mongoose |
+| **File & Image Uploads** | Cloudinary |
+| **Email Notifications** | Brevo (SMTP) |
+| **Authentication** | JWT (JSON Web Tokens) |
+| **Deployment** | Vercel (Frontend) + Render (Backend) |
 
 ---
 
@@ -79,13 +99,55 @@ git clone <repo-link>
 cd college-project-showcase
 ```
 
-#### 2. Setup Settings
-Create a `.env` file in the **backend** folder and add:
-- `MONGO_URL`: Your MongoDB connection link
-- `PORT`: 2021 (or your choice)
-- `JWT_SECRET`: A secret key for login
+#### 2. Setup Environment Variables
+Create a `.env` file inside the **`backend/`** folder and fill in the following:
 
-#### 3. Install & Run
+```env
+# ── Database ──────────────────────────────────────────
+MONGO_URL=mongodb+srv://<username>:<password>@cluster0.xxxxx.mongodb.net/college-project-showcase-platform
+
+# ── Server ────────────────────────────────────────────
+PORT=2021
+
+# ── Authentication ────────────────────────────────────
+JWT_SECRET=your_secret_key_here
+
+# ── Email (Brevo SMTP) ────────────────────────────────
+FROM_EMAIL=your_email@gmail.com
+BREVO_SMTP_KEY=your_brevo_smtp_key_here
+
+# ── Frontend URL (for CORS & email links) ─────────────
+CLIENT_URL=https://your-frontend.vercel.app
+
+# ── Cloudinary (File & Image Uploads) ─────────────────
+CLOUDINARY_CLOUD_NAME=your_cloud_name
+CLOUDINARY_API_KEY=your_api_key
+CLOUDINARY_API_SECRET=your_api_secret
+```
+
+> **Where to get these values:**
+> | Variable | Where to get it |
+> |---|---|
+> | `MONGO_URL` | [MongoDB Atlas](https://cloud.mongodb.com) → Connect → Drivers |
+> | `JWT_SECRET` | Any random string (e.g. `openssl rand -base64 32`) |
+> | `FROM_EMAIL` | Your Gmail address used for sending emails |
+> | `BREVO_SMTP_KEY` | [Brevo (formerly Sendinblue)](https://app.brevo.com) → SMTP & API → SMTP Keys |
+> | `CLIENT_URL` | Your deployed frontend URL (Vercel / Netlify) |
+> | `CLOUDINARY_CLOUD_NAME` | [Cloudinary Dashboard](https://cloudinary.com/console) → Account Details |
+> | `CLOUDINARY_API_KEY` | Cloudinary Dashboard → API Keys |
+> | `CLOUDINARY_API_SECRET` | Cloudinary Dashboard → API Keys |
+
+#### 3. Frontend Environment Variables
+Create a `.env.local` file inside **`frontend/my-app/`** and add:
+
+```env
+# ── Backend API URL ───────────────────────────────────
+NEXT_PUBLIC_BASE_URL=http://localhost:2021
+# For production, change to your Render backend URL:
+# NEXT_PUBLIC_BASE_URL=https://your-backend.onrender.com
+```
+
+#### 4. Install & Run
 ```sh
 # Terminal 1: Backend
 cd backend
@@ -98,14 +160,69 @@ npm install
 npm run dev
 ```
 
+The app will be running at **http://localhost:3000**
+
 ---
 
-### 📸 Demo
+### 🌐 Deployment
 
+| Service | Purpose | Link |
+|---|---|---|
+| **Vercel** | Frontend (Next.js) | [vercel.com](https://vercel.com) |
+| **Render** | Backend (Node/Express) | [render.com](https://render.com) |
+| **MongoDB Atlas** | Database | [cloud.mongodb.com](https://cloud.mongodb.com) |
+| **Cloudinary** | File & image storage | [cloudinary.com](https://cloudinary.com) |
+
+> ⚠️ On Render/Vercel, set all environment variables from Step 2 & 3 in the platform's **Environment Variables** settings panel.
+
+---
+
+
+### 📸 Platform Screenshots
+
+Below is a full walkthrough of the platform — from the landing page to every role-based dashboard.
+
+---
+
+#### 🏠 Landing Page
 ![Home Page](screenshots/home.png)
-*The stunning landing page and hero section.*
+*The hero section welcomes visitors and explains the platform's purpose.*
 
+---
 
+#### 🔐 Login — Role-Based Access
+![Login Page](screenshots/login.png)
+*Users select their role (Student / Teacher / Admin) and sign in. Each role unlocks a completely different dashboard.*
+
+---
+
+#### 🛡️ Admin Dashboard
+![Admin Dashboard](screenshots/admin-dashboard.png)
+*Admins have a bird's-eye view of the entire platform — manage users, assign mentors, track all groups, and monitor project health metrics.*
+
+---
+
+#### 👩‍🏫 Teacher Dashboard
+![Teacher Dashboard](screenshots/teacher-dashboard.png)
+*Teachers review student proposals, track weekly progress submissions, give ratings, and communicate with their assigned project groups.*
+
+---
+
+#### 🎓 Student Dashboard
+![Student Dashboard](screenshots/student-dashboard.png)
+*Students submit project proposals, upload weekly progress reports with files, and chat with teammates in real-time — all from one place.*
+
+---
+
+#### 🌐 Explore — Public Project Gallery
+![Explore Page](screenshots/explore.png)
+*Anyone can browse the gallery of approved, completed projects — no login needed.*
+
+---
+
+#### 📁 Project View
+![Project View](screenshots/project-view.png)
+*Each project has a detailed page showing the team, tech stack, GitHub link, demo video, and recruiter evaluations.*
 
 ---
 
@@ -116,5 +233,20 @@ npm run dev
 
 ### Contributing
 Feel free to open an issue or send a pull request if you want to help improve ProjectVista!
+
+---
+
+### 👤 Author
+
+Made with ❤️ by **Saloni Pawar**
+
+---
+
+### 📄 License
+
+**© 2025 Saloni Pawar — All Rights Reserved.**
+
+This project was built as a personal college project for academic and portfolio purposes.
+You may view the source code, but copying, distributing, or using it for commercial purposes without permission is not allowed.
 
 ---
