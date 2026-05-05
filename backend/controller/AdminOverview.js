@@ -17,11 +17,10 @@ export const getAdminOverview = async (req, res) => {
       $or: [{ mentor: { $exists: false } }, { mentor: null }],
     });
 
-    const assignedMentors = await Group.distinct("mentor");
-    const validAssignedMentors = assignedMentors.filter(id => id != null);
-    const unassignedMentors = await Teacher.countDocuments({
-      _id: { $nin: validAssignedMentors }
-    });
+    const allGroups = await Group.find().select("mentor");
+    const assignedMentors = allGroups.map(g => g.mentor?.toString()).filter(Boolean);
+    const allTeachers = await Teacher.find().select("_id");
+    const unassignedMentors = allTeachers.filter(t => !assignedMentors.includes(t._id.toString())).length;
 
     const studentsWithoutGroup = await Student.countDocuments({
       assignedToGroup: false,
