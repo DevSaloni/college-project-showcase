@@ -63,7 +63,7 @@ export default function AdminSidebar() {
               localStorage.removeItem("userName");
               localStorage.removeItem("userEmail");
               localStorage.removeItem("userRole");
-              toast.success("Session ended successfully", { icon: "👋" });
+              toast.success("Session ended successfully", { icon: "👋", duration: 1500 });
               router.push("/");
             }}
             className="flex-1 py-2 bg-red-500 hover:bg-red-600 text-white rounded-xl text-xs font-bold transition-all shadow-lg shadow-red-500/20"

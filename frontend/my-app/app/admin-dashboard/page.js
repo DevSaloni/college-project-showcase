@@ -181,8 +181,8 @@ export default function AdminOverview() {
                 bgColor="bg-emerald-500/10"
               />
               <StatusBadge
-                title="Unassigned Mentor"
-                value={data?.groupStatus?.groupsWithoutMentor || 0}
+                title="Unassigned Mentors"
+                value={data?.groupStatus?.unassignedMentors || 0}
                 color="text-amber-400"
                 borderColor="border-amber-500/30"
                 bgColor="bg-amber-500/10"

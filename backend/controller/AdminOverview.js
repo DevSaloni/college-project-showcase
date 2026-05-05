@@ -17,6 +17,12 @@ export const getAdminOverview = async (req, res) => {
       $or: [{ mentor: { $exists: false } }, { mentor: null }],
     });
 
+    const assignedMentors = await Group.distinct("mentor");
+    const validAssignedMentors = assignedMentors.filter(id => id != null);
+    const unassignedMentors = await Teacher.countDocuments({
+      _id: { $nin: validAssignedMentors }
+    });
+
     const studentsWithoutGroup = await Student.countDocuments({
       assignedToGroup: false,
     });
@@ -37,6 +43,7 @@ export const getAdminOverview = async (req, res) => {
         activeGroups,
         completedGroups,
         groupsWithoutMentor,
+        unassignedMentors,
       },
       alerts: {
         studentsWithoutGroup,

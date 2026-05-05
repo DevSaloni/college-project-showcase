@@ -63,7 +63,7 @@ export const getAllProjects = async (req, res) => {
 
     // 🏷️ Category Filter
     if (category && category !== "All") {
-      query.category = category;
+      query.category = { $regex: new RegExp(`^${category}$`, 'i') };
     }
 
     const skip = (parseInt(page) - 1) * parseInt(limit);

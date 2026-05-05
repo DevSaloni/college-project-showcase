@@ -390,9 +390,9 @@ export default function ReviewDetailsPage() {
                     <div className="grid sm:grid-cols-2 gap-3">
                       {data.milestone.files.map((file, i) => {
                         let fileUrl = file.path.startsWith('http') ? file.path : `${BASE_URL}/${file.path}`;
-                        if (fileUrl.includes('cloudinary.com') && fileUrl.endsWith('.pdf')) {
-                          fileUrl = fileUrl.replace('/upload/', '/upload/fl_attachment/');
-                        }
+                        // if (fileUrl.includes('cloudinary.com') && fileUrl.endsWith('.pdf')) {
+                        //   fileUrl = fileUrl.replace('/upload/', '/upload/fl_attachment/');
+                        // }
                         return (
                           <a key={i} href={fileUrl} target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 p-4 rounded-xl bg-black/40 border border-white/5 hover:border-purple-500/30 transition-all group shadow-md">
                             <div className="p-2.5 rounded-lg bg-purple-500/10 text-purple-400 group-hover:scale-110 transition-transform"><FileText size={16} /></div>
@@ -464,9 +464,9 @@ export default function ReviewDetailsPage() {
                                     <a 
                                       href={(() => {
                                         let url = msg.fileUrl.startsWith('http') ? msg.fileUrl : `${BASE_URL}${msg.fileUrl}`;
-                                        if (url.includes('cloudinary.com') && url.endsWith('.pdf')) {
-                                          url = url.replace('/upload/', '/upload/fl_attachment/');
-                                        }
+                                        // if (url.includes('cloudinary.com') && url.endsWith('.pdf')) {
+                                        //   url = url.replace('/upload/', '/upload/fl_attachment/');
+                                        // }
                                         return url;
                                       })()} 
                                       target="_blank" 

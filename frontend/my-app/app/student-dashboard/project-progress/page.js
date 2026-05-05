@@ -697,9 +697,9 @@ function ProjectProgressContent() {
                                     <a 
                                       href={(() => {
                                         let url = msg.fileUrl.startsWith('http') ? msg.fileUrl : `${BASE_URL}${msg.fileUrl}`;
-                                        if (url.includes('cloudinary.com') && url.endsWith('.pdf')) {
-                                          url = url.replace('/upload/', '/upload/fl_attachment/');
-                                        }
+                                        // if (url.includes('cloudinary.com') && url.endsWith('.pdf')) {
+                                        //   url = url.replace('/upload/', '/upload/fl_attachment/');
+                                        // }
                                         return url;
                                       })()} 
                                       target="_blank" 

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Search, Filter, Star, Users, ArrowRight, Layers, Eye, Clock, Calendar } from "lucide-react";
 import Link from "next/link";
 import axios from "axios";
@@ -44,6 +44,8 @@ export default function ExploreProjects() {
     }
   };
 
+  const isFirstRender = useRef(true);
+
   // Immediate fetch on mount or tag change
   useEffect(() => {
     setPage(1);
@@ -52,6 +54,11 @@ export default function ExploreProjects() {
 
   // Debounced search logic
   useEffect(() => {
+    if (isFirstRender.current) {
+      isFirstRender.current = false;
+      return;
+    }
+    
     const timer = setTimeout(() => {
       setPage(1);
       fetchProjects(1, search, activeTag);

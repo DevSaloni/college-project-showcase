@@ -115,11 +115,11 @@ export const submitProgress = async (req, res) => {
 
       if (latestMilestone) {
         const daysSinceLastSubmit = (new Date() - new Date(latestMilestone.submittedAt)) / (1000 * 60 * 60 * 24);
-        if (daysSinceLastSubmit < 4) {
-          return res.status(400).json({
-            message: "You have already submitted a milestone recently. Only one submission is allowed per week."
-          });
-        }
+        // if (daysSinceLastSubmit < 4) {
+        //   return res.status(400).json({
+        //     message: "You have already submitted a milestone recently. Only one submission is allowed per week."
+        //   });
+        // }
       }
     }
 
