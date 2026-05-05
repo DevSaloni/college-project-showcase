@@ -221,32 +221,17 @@ Below is a full walkthrough of the platform — from the landing page to every r
 ---
 
 #### 📁 Project View
-![Project View](screenshots/project-view.png)
+
+<p align="center">
+  <img src="screenshots/project-view.png" width="900"/>
+</p>
+
 *Each project has a detailed page showing the team, tech stack, GitHub link, demo video, and recruiter evaluations.*
 
 ---
 
-### 📝 Project Overview for GitHub
-**ProjectVista** is a modern Full-Stack MERN application designed for educational institutions to manage student projects efficiently. It features role-based dashboards, automated weekly progress tracking, real-time group discussions using Socket.io, and a beautiful public gallery to showcase student innovations.
-
----
-
-### Contributing
-Feel free to open an issue or send a pull request if you want to help improve ProjectVista!
-
----
-
 ### 👤 Author
-
-Made with ❤️ by **Saloni Pawar**
-
+Saloni Pawar
 ---
 
-### 📄 License
 
-**© 2025 Saloni Pawar — All Rights Reserved.**
-
-This project was built as a personal college project for academic and portfolio purposes.
-You may view the source code, but copying, distributing, or using it for commercial purposes without permission is not allowed.
-
----
